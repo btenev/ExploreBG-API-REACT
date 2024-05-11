@@ -17,12 +17,22 @@ VALUES (1, 1),
        (2, 2),
        (1, 3);
 
-INSERT INTO accommodations (food_available, id, owner_id, accommodation_info, accommodation_name, next_to, phone_number,
+INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, owner_id, accommodation_info, accommodation_name, next_to, phone_number,
                             pictures_url, site, access, type)
-VALUES (1, 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa', '',
-        'https://picsum.photos/200', '', 'BY_CAR', 'HUT'),
-       (1, 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah', 'Zheleznitsa',
-        '+35985738923', 'https://picsum.photos/200', '', 'BY_CAR', 'SHELTER');
+VALUES (null ,null, 1, 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa', null,
+        'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
+       (null, null, 1, 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah', 'Zheleznitsa',
+        '+35985738923', 'https://picsum.photos/200', null, 'BY_CAR', 'SHELTER'),
+       (null, 25, 1, 3, 2, 'A place where you can have some rest and get some food', 'hija Perelik', 'Smolyan', null,
+        'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
+       (null, 30, 1, 4, 1, 'A place where you can have some rest and get some food', 'hija Ravnets', 'Karlovo',
+        '+359 896 68 85 23', null, 'https://www.btsbg.org/hizhi/hizha-ravnec',
+        'BY_FOOT', 'HUT'),
+       (null, 35, 1, 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
+        '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER'),
+       (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
+        'Karlovo, Kalofer', '0877 273 547', null, 'https://botevbg.com/', 'BY_CAR', 'SHELTER');
+
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, image_url, season_visited,
                           water_available, trail_difficulty, elevation_gained, next_to, trail_status)
@@ -67,7 +77,8 @@ VALUES (1, 'Selo Zheleznitsa', 'Cherni vrah', 9.00,
         The path continues along the green marking, which is shared with the route from Vasil Levski hut to Botev peak. There is almost no slope to Derin dere, the first of three before the Botev shelter. From there on we have easy climbs and then descents to the rest of the gullies and so on to the shelter. After Derin dere we can now walk more calmly from the point of view of the sheepdogs. There isn''t much to describe in this section. Zaslon Botev is like a hut, so in addition to shelter, you can support yourself with food and drinks there. We are here in 1:30 hours from Petolatchka and 7:15 hours from Karlovo.
         Next is the final ascent on the route from Karlovo to Mount Botev. We''ve gotten used to the slight incline, but it''s time to tighten our legs again. The path from here is quite wide and winds in serpentines to the highest point of Stara Planina. We are already following the red marking. Due to accumulated fatigue, the ascent may take about an hour. Upstairs, you can also support yourself with food and drinks in the Botev peak tourist bedroom. Descent can be by one of the other routes for climbing Mount Botev.',
         null, 'SUMMER', 1, 5, 1867, 'Karlovo', 'APPROVED'),
-       (8, 'Grad Klisura', 'Vrah Vejen', 12, 'The ascent of Mount Vezhen from the town of Klisura is a rather long and difficult trek from the foot of Stara Planina to one of its highest peaks. 1600 meters of elevation gain are overcome in 12 kilometers! Since we are almost all the time moving outdoors on a steep incline, this can be a very tiring endeavor during the summer months. Still, the old mountain ridge is a nice experience, and it is not easily accessible in this part.',
+       (8, 'Grad Klisura', 'Vrah Vejen', 12,
+        'The ascent of Mount Vezhen from the town of Klisura is a rather long and difficult trek from the foot of Stara Planina to one of its highest peaks. 1600 meters of elevation gain are overcome in 12 kilometers! Since we are almost all the time moving outdoors on a steep incline, this can be a very tiring endeavor during the summer months. Still, the old mountain ridge is a nice experience, and it is not easily accessible in this part.',
         null, 'SUMMER', 1, 4, 1428, 'Klisura', 'APPROVED');
 
 INSERT INTO hiking_trail_activity (hiking_trail_id, activity)
@@ -77,7 +88,11 @@ VALUES (1, 'HIKING'),
 
 INSERT INTO hiking_trail_available_huts(available_huts_id, hiking_trail_entity_id)
 VALUES (1, 1),
-       (2, 1);
+       (2, 1),
+       (3, 3),
+       (4, 7),
+       (5, 7),
+       (6, 7);
 
 INSERT INTO hikes (id, start_point, end_point, start_point_coordinates, hike_date, image_url, next_to, hike_info,
                    user_id, hiking_trail_id)
@@ -125,8 +140,10 @@ VALUES (1, 'hotel Drujba', 'Pametnik tsar Asen II', null, '2024-05-21', 'https:/
        (10, 'Selo PLana', 'Vrah Vishegrad', null, '2024-09-18', 'https://picsum.photos/200', 'Selo Plana',
         'Detailed information about trail could be found be found below. Please review. For more information on personal.',
         2, 2),
-       (11, 'hija Perelik', 'vrah Orfei', null, '2024-07-06', 'https://picsum.photos/200', 'Smolyan', 'read the info below', 2, 3),
-       (12, 'Gara Skakavica', 'Vodopad Skakavica', null, '2024-05-02', null, 'Kustendil', 'more information in the trail', 2, 4);
+       (11, 'hija Perelik', 'vrah Orfei', null, '2024-07-06', 'https://picsum.photos/200', 'Smolyan',
+        'read the info below', 2, 3),
+       (12, 'Gara Skakavica', 'Vodopad Skakavica', null, '2024-05-02', null, 'Kustendil',
+        'more information in the trail', 2, 4);
 
 INSERT INTO comments(creation_date, hike_id, hiking_trail_id, id, user_id, message)
 VALUES (LOCALTIME(), 1, null, 1, 2, 'I want to join!'),
@@ -149,3 +166,6 @@ VALUES (LOCALTIME(), 1, null, 1, 2, 'I want to join!'),
        (LOCALTIME(), null, 2, 18, 3, 'It looks exciting! Count me in!'),
        (LOCALTIME(), null, 2, 19, 1, 'I am coming too. How can i contact you?'),
        (LOCALTIME(), null, 2, 20, 2, 'This is my email.');
+
+INSERT INTO accommodations_comments(accommodation_id, comment_id)
+VALUES (5, 20);
