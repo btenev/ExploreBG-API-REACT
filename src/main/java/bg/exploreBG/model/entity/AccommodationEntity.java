@@ -27,8 +27,8 @@ public class AccommodationEntity {
 
     private String site;
 
-    @Column(name = "pictures_url")
-    private String picturesUrl;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "accommodation_info")
     private String accommodationInfo;
@@ -102,12 +102,12 @@ public class AccommodationEntity {
         this.site = site;
     }
 
-    public String getPicturesUrl() {
-        return picturesUrl;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setPicturesUrl(String picturesUrl) {
-        this.picturesUrl = picturesUrl;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getAccommodationInfo() {

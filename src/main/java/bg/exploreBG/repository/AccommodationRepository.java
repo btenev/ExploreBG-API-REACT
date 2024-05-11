@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Repository
 public interface AccommodationRepository extends JpaRepository<AccommodationEntity, Long> {
-    @Query("SELECT new bg.exploreBG.model.dto.AccommodationBasicPlusImageDto(a.id, a.accommodationName, a.picturesUrl)" +
+    @Query("SELECT new bg.exploreBG.model.dto.AccommodationBasicPlusImageDto(a.id, a.accommodationName, a.imageUrl)" +
             " FROM AccommodationEntity a WHERE a.id IN ?1")
     List<AccommodationBasicPlusImageDto> findById(Set<Long> ids);
 
