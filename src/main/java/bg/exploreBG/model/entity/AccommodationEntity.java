@@ -4,6 +4,8 @@ import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "accommodations")
 public class AccommodationEntity {
@@ -15,7 +17,7 @@ public class AccommodationEntity {
     @Column(name = "accommodation_name", nullable = false)
     private String accommodationName;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private UserEntity owner;
 
     //    private String email;
@@ -48,6 +50,14 @@ public class AccommodationEntity {
 
     @Column(name = "next_to")
     private String nextTo;
+
+    @OneToMany
+    @JoinTable(
+            name = "accommodations_comments",
+            joinColumns = @JoinColumn(name = "accommodation_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    )
+    private List<CommentEntity> comments;
 
     public AccommodationEntity() {
     }
@@ -154,5 +164,13 @@ public class AccommodationEntity {
 
     public void setNextTo(String nextTo) {
         this.nextTo = nextTo;
+    }
+
+    public List<CommentEntity> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentEntity> comments) {
+        this.comments = comments;
     }
 }

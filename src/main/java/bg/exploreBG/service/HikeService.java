@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.Util.RandomUtil;
+import bg.exploreBG.utils.RandomUtil;
 import bg.exploreBG.model.dto.HikeBasicDto;
 import bg.exploreBG.model.dto.HikeDetailsDto;
 import bg.exploreBG.model.entity.HikeEntity;

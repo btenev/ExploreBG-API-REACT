@@ -1,4 +1,4 @@
-package bg.exploreBG.Util;
+package bg.exploreBG.utils;
 
 import java.util.HashSet;
 import java.util.Random;
