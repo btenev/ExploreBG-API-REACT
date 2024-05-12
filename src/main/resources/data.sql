@@ -27,7 +27,7 @@ VALUES (null ,null, 1, 1, 3, 'A place where you can have some rest and get some 
         'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
        (null, 30, 1, 4, 1, 'A place where you can have some rest and get some food', 'hija Ravnets', 'Karlovo',
         '+359 896 68 85 23', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/hizha-ravnec',
-        'BY_FOOT', 'HUT'),
+        'ON_FOOT', 'HUT'),
        (null, 35, 1, 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
         '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER'),
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
