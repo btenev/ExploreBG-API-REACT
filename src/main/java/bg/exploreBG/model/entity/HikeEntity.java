@@ -43,7 +43,11 @@ public class HikeEntity {
     private UserEntity owner;
 
     @OneToMany
-    @JoinColumn(name = "hike_id")
+    @JoinTable(
+            name = "hikes_comments",
+            joinColumns = @JoinColumn(name = "hike_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    )
     private List<CommentEntity> comments;
 
     private Boolean archived;

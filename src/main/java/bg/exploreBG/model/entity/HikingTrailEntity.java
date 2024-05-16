@@ -54,8 +54,13 @@ public class HikingTrailEntity {
     private List<SuitableForEnum> activity;
 
     @OneToMany
-    @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id")
+    @JoinTable(
+            name = "hiking_trails_comments",
+            joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    )
     private List<CommentEntity> comments = new ArrayList<>();
+
 
     @Column(name = "elevation_gained")
     private double elevationGained;

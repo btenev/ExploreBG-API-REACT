@@ -17,11 +17,14 @@ VALUES (1, 1),
        (2, 2),
        (1, 3);
 
-INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, owner_id, accommodation_info, accommodation_name, next_to, phone_number,
+INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, owner_id, accommodation_info,
+                            accommodation_name, next_to, phone_number,
                             image_url, site, access, type)
-VALUES (null ,null, 1, 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa', null,
+VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa',
+        null,
         'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
-       (null, null, 1, 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah', 'Zheleznitsa',
+       (null, null, 1, 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah',
+        'Zheleznitsa',
         '+35985738923', 'https://picsum.photos/200', null, 'BY_CAR', 'SHELTER'),
        (null, 25, 1, 3, 2, 'A place where you can have some rest and get some food', 'hija Perelik', 'Smolyan', null,
         'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
@@ -145,27 +148,52 @@ VALUES (1, 'hotel Drujba', 'Pametnik tsar Asen II', null, '2024-05-21', 'https:/
        (12, 'Gara Skakavica', 'Vodopad Skakavica', null, '2024-05-02', null, 'Kustendil',
         'more information in the trail', 2, 4);
 
-INSERT INTO comments(creation_date, hike_id, hiking_trail_id, id, user_id, message)
-VALUES (LOCALTIME(), 1, null, 1, 2, 'I want to join!'),
-       (LOCALTIME(), 1, null, 2, 3, 'Me too, can you give us more details!'),
-       (LOCALTIME(), 1, null, 3, 2, 'I will bring some friends'),
-       (LOCALTIME(), 1, null, 4, 1, 'You are all welcome! The more the merrier! We are starting the hike at 9:00pm'),
-       (LOCALTIME(), 9, null, 5, 2, 'Count me in!'),
-       (LOCALTIME(), 9, null, 6, 3, 'Me too!!!'),
-       (LOCALTIME(), 9, null, 7, 2, 'I will be bringing my dog'),
-       (LOCALTIME(), 9, null, 8, 3, 'I love dogs. What breed is you dog?'),
-       (LOCALTIME(), 9, null, 9, 2, 'Cane corso'),
-       (LOCALTIME(), 9, null, 10, 3, 'Mine too!!'),
-       (LOCALTIME(), null, 1, 11, 1, 'I love this trail!!!'),
-       (LOCALTIME(), null, 1, 12, 2, 'The view is amazing!!!'),
-       (LOCALTIME(), null, 1, 13, 3, 'Warm pancakes are waiting for us at the top:)'),
-       (LOCALTIME(), null, 1, 14, 1, ';) the best pancakes after a long walk!!!'),
-       (LOCALTIME(), null, 1, 15, 2, 'My favourite part is the view towards Sofia, especially after dark!'),
-       (LOCALTIME(), null, 1, 16, 3, 'Great view:)'),
-       (LOCALTIME(), null, 1, 17, 1, '!!!!!'),
-       (LOCALTIME(), null, 2, 18, 3, 'It looks exciting! Count me in!'),
-       (LOCALTIME(), null, 2, 19, 1, 'I am coming too. How can i contact you?'),
-       (LOCALTIME(), null, 2, 20, 2, 'This is my email.');
+INSERT INTO comments(creation_date, id, user_id, message)
+VALUES (LOCALTIME(), 1, 2, 'I want to join!'),
+       (LOCALTIME(), 2, 3, 'Me too, can you give us more details!'),
+       (LOCALTIME(), 3, 2, 'I will bring some friends'),
+       (LOCALTIME(), 4, 1, 'You are all welcome! The more the merrier! We are starting the hike at 9:00pm'),
+       (LOCALTIME(), 5, 2, 'Count me in!'),
+       (LOCALTIME(), 6, 3, 'Me too!!!'),
+       (LOCALTIME(), 7, 2, 'I will be bringing my dog'),
+       (LOCALTIME(), 8, 3, 'I love dogs. What breed is you dog?'),
+       (LOCALTIME(), 9, 2, 'Cane corso'),
+       (LOCALTIME(), 10, 3, 'Mine too!!'),
+       (LOCALTIME(), 11, 1, 'I love this trail!!!'),
+       (LOCALTIME(), 12, 2, 'The view is amazing!!!'),
+       (LOCALTIME(), 13, 3, 'Warm pancakes are waiting for us at the top:)'),
+       (LOCALTIME(), 14, 1, ';) the best pancakes after a long walk!!!'),
+       (LOCALTIME(), 15, 2, 'My favourite part is the view towards Sofia, especially after dark!'),
+       (LOCALTIME(), 16, 3, 'Great view:)'),
+       (LOCALTIME(), 17, 1, '!!!!!'),
+       (LOCALTIME(), 18, 3, 'It looks exciting! Count me in!'),
+       (LOCALTIME(), 19, 1, 'I am coming too. How can i contact you?'),
+       (LOCALTIME(), 20, 2, 'This is my email.'),
+       (LOCALTIME(), 21, 1, 'Hi there. Can i contact you by email?');
 
 INSERT INTO accommodations_comments(accommodation_id, comment_id)
-VALUES (5, 20);
+VALUES (5, 21);
+
+INSERT INTO hiking_trails_comments(hiking_trail_id, comment_id)
+VALUES (1, 11),
+       (1, 12),
+       (1, 13),
+       (1, 14),
+       (1, 15),
+       (1, 16),
+       (1, 17),
+       (2, 18),
+       (2, 19),
+       (2, 20);
+
+INSERT INTO hikes_comments(hike_id, comment_id)
+VALUES (1, 1),
+       (1, 2),
+       (1, 3),
+       (1, 4),
+       (9, 5),
+       (9, 6),
+       (9, 7),
+       (9, 8),
+       (9, 9),
+       (9, 10);
