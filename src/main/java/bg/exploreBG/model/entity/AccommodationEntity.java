@@ -30,7 +30,7 @@ public class AccommodationEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "accommodation_info")
+    @Column(name = "accommodation_info", columnDefinition = "TEXT")
     private String accommodationInfo;
 
     @Column(name = "bed_capacity")

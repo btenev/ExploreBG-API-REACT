@@ -1,13 +1,10 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.AccommodationBasicDto;
 import bg.exploreBG.model.dto.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.dto.AccommodationDetailsDto;
-import bg.exploreBG.model.dto.HikeBasicDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.mapper.AccommodationMapper;
 import bg.exploreBG.repository.AccommodationRepository;
-
 import bg.exploreBG.utils.RandomUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +31,7 @@ public class AccommodationService {
         Set<Long> randomIds = RandomUtil.generateUniqueRandomIds(limit,countOfAvailableAccommodations);
 
         return this.accommodationRepository
-                .findById(randomIds);
+                .findByIdIn(randomIds);
     }
 
     public AccommodationDetailsDto getAccommodation(Long id) {
@@ -47,11 +44,8 @@ public class AccommodationService {
         return this.mapper.accommodationEntityToAccommodationDetailsDto(accommodationById.get());
     }
 
-
     public Page<AccommodationBasicPlusImageDto> getAllAccommodations(Pageable pageable) {
         return this.accommodationRepository
-                .findAll(pageable)
-                .map(this.mapper::accommodationEntityToAccommodationBasicPlusImageDto);
-
+                .findAllBy(pageable);
     }
 }

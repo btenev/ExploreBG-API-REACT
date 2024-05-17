@@ -1,6 +1,5 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.AccommodationBasicDto;
 import bg.exploreBG.model.dto.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.dto.AccommodationDetailsDto;
 import bg.exploreBG.service.AccommodationService;
@@ -26,7 +25,7 @@ public class AccommodationController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<List<AccommodationBasicPlusImageDto>> getRandomAccommodations() {
+    public ResponseEntity<List<AccommodationBasicPlusImageDto>> getFourRandomAccommodations() {
         List<AccommodationBasicPlusImageDto> randomAccommodations =
                 this.accommodationService.getRandomNumOfAccommodations(4);
 
@@ -52,7 +51,8 @@ public class AccommodationController {
         Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, parameters);
 
-        Page<AccommodationBasicPlusImageDto> allHikes = this.accommodationService.getAllAccommodations(pageable);
+        Page<AccommodationBasicPlusImageDto> allHikes =
+                this.accommodationService.getAllAccommodations(pageable);
 
         return ResponseEntity.ok(allHikes);
     }
