@@ -1,15 +1,14 @@
 INSERT INTO roles (id, roles)
 VALUES (1, 'MEMBER'),
-       (2, 'ACCOMMODATION_PROVIDER'),
-       (3, 'MODERATOR'),
-       (4, 'ADMIN');
+       (2, 'MODERATOR'),
+       (3, 'ADMIN');
 
 INSERT INTO users (id, email, username, password, gender, birth_date, image_url, user_info)
 VALUES (1, 'member@explore.bg', 'member', '1234', 'MALE', '1983-05-10', 'https://picsum.photos/200',
         'some very interesting info'),
        (2, 'provider@explore.bg', 'provider', '1234', 'FEMALE', '1979-02-01', 'https://picsum.photos/200',
         'not so interesting info'),
-       (3, 'member_two@explore.bg', 'member', '1234', 'male', '1965-03-08', 'https://picsum.photos/200',
+       (3, 'member_two@explore.bg', 'memberTwo', '1234', 'male', '1965-03-08', 'https://picsum.photos/200',
         'i like like travelling, hiking, exploring the world');
 
 INSERT INTO users_roles (roles_id, user_entity_id)
@@ -36,6 +35,35 @@ VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some 
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
         'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER');
 
+INSERT INTO destinations(id, destination_info, image_url, location, name, next_to, type)
+VALUES (1,
+        'Mezeshka Fortress (Neuzetikon or Neutzikon[1]) is a medieval Byzantine fortification, built in the 11th - 12th centuries west of today''s Mezek village, Svilengrad municipality. It is located on an elongated terrace, formed at the foot of a steep branch of the northeastern Rhodopes, bearing the name St. Marina or the Forest. The local population calls the fortress "Kaleto". The fortress had the functions of a border guard fortress. It guarded territories between the Maritsa and Arda rivers.',
+        'https://bg.wikipedia.org/wiki/%D0%9C%D0%B5%D0%B7%D0%B5%D1%88%D0%BA%D0%B0_%D0%BA%D1%80%D0%B5%D0%BF%D0%BE%D1%81%D1%82#/media/%D0%A4%D0%B0%D0%B9%D0%BB:Mezek_Fortress_Neoutzikon_Bulgaria.jpg',
+        'coordinates', 'Mezeshka Krepost', 'Svilengrad', 'CULTURAL_HERITAGE'),
+       (2,
+        'The Meses tomb is a Thracian dome tomb of the Mycenaean type dated to the 4th – 3rd centuries BC. It is located on the outskirts of Mezek village, Svilengrad municipality, in the "Meltepe" mound. This is one of the largest Thracian tombs in Bulgaria.',
+        'https://bg.wikipedia.org/wiki/%D0%9C%D0%B5%D0%B7%D0%B5%D1%88%D0%BA%D0%B0_%D0%B3%D1%80%D0%BE%D0%B1%D0%BD%D0%B8%D1%86%D0%B0#/media/%D0%A4%D0%B0%D0%B9%D0%BB:TrakiGrobnica.JPG',
+        'coordinates', 'Mezeshka grobnica', 'Svilengrad', 'CULTURAL_HERITAGE'),
+       (3,
+        'The village of Matochina is located next to the Bulgarian-Turkish border, on the right bank of the Tundzha River. At its northern end rises a steep hill accessible only from the village. There was a partition wall here, of which only traces remain now. 50 m from it, up the hill, was the Bukelon fortress - the closest guard of Edirne from the north. It is one of the best preserved military buildings in our country.',
+        'https://www.svilengrad.bg/bg/kulturno-istoricheski-zabelezhitelnosti/krepostta-bukelon/', 'coordinates',
+        'Kreposta Bukelon',
+        'Svilengrad', 'CULTURAL_HERITAGE'),
+       (4,
+        'The Visegrad fortress is located on a high peak, near Kardzhali. It is believed to date from the 4th - 1st centuries. Its area is relatively small - 562 square meters, and according to its structure and dimensions, it represents a medieval feudal castle. It guarded a branch of the road from Adrianople to Philippopolis to the interior of the Rhodopes along the valley of the river Varbitsa. The name of the fortress is of Slavic origin and means "high city". The fortress is easily accessible and convenient to visit. It is reached by a relatively good dirt road.',
+        'https://pochivka.bg/krepost-vishegrad-e843', 'coordinates', 'Krepost Vishegrad', 'Kardzhali',
+        'CULTURAL_HERITAGE'),
+       (5,
+        'The Kardzhali pyramids are rock formations located near the town of Kardzhali, in the Rhodopes. They were declared a natural landmark in 1974. They were formed more than 40 million years ago. The most interesting group of rocks are the Stone Wedding. It contains pyramids that resemble people and animals. Another interesting group is the Stone Mushrooms.',
+        'https://pochivka.bg/kardzhaliyski-piramidi-e341',
+        'coordinates', 'Kardzhaliiski piramidi', 'Kardzhali', 'NATURAL_ATTRACTION'),
+       (6,
+        'The Letovnik waterfall is located next to the village of Letovnik, Momchilgrad. It is not tall or powerful, but the rocks from which it falls and the area around it are uniquely beautiful.',
+        'https://pochivka.bg/letovnishki-vodopad-e2835', 'coordinates', 'Letovnishki vodopad', 'Momchilgard',
+        'NATURAL_ATTRACTION'),
+       (7,
+        'Perperikon is an archaeological complex located 15 km from the town of Kardzhali. It was inhabited as early as 8,000 years ago, during the Stone Age, after which it was a sacred rock city under the Thracians, and later Romans, Byzantines and Bulgarians lived there. It was destroyed by the Turks in the 14th century.',
+        'https://pochivka.bg/perperikon-e75', 'coordinates', 'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE');
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, image_url, season_visited,
                           water_available, trail_difficulty, elevation_gained, next_to, trail_status)
@@ -169,7 +197,10 @@ VALUES (LOCALTIME(), 1, 2, 'I want to join!'),
        (LOCALTIME(), 18, 3, 'It looks exciting! Count me in!'),
        (LOCALTIME(), 19, 1, 'I am coming too. How can i contact you?'),
        (LOCALTIME(), 20, 2, 'This is my email.'),
-       (LOCALTIME(), 21, 1, 'Hi there. Can i contact you by email?');
+       (LOCALTIME(), 21, 1, 'Hi there. Can i contact you by email?'),
+       (LOCALTIME(), 22, 1, 'Great place. I recommend'),
+       (LOCALTIME(), 23, 2, 'Thanks'),
+       (LOCALTIME(), 24, 3, 'I am visiting next week');
 
 INSERT INTO accommodations_comments(accommodation_id, comment_id)
 VALUES (5, 21);
@@ -197,3 +228,8 @@ VALUES (1, 1),
        (9, 8),
        (9, 9),
        (9, 10);
+
+INSERT INTO destinations_comments(destination_id, comment_id)
+VALUES (1, 22),
+       (1, 23),
+       (1, 24);

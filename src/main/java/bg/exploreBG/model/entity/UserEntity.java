@@ -18,13 +18,14 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     private String password;
 
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
+
     @Column(name = "birth_date")
     private LocalDate birthDay;
 
