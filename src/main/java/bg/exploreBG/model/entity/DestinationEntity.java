@@ -3,19 +3,21 @@ package bg.exploreBG.model.entity;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "destinations")
 public class DestinationEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(nullable = false, name = "destination_name")
+    private String destinationName;
 
     private String location;
 
-    @Column(name = "destination_info")
+    @Column(name = "destination_info", columnDefinition = "TEXT")
     private String destinationInfo;
 
     @Column(name = "image_url")
@@ -27,6 +29,13 @@ public class DestinationEntity {
     @Enumerated(EnumType.STRING)
     private DestinationTypeEnum type;
 
+    @OneToMany
+    @JoinTable(
+            name = "destinations_comments",
+            joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    )
+    private List<CommentEntity> comments;
     public DestinationEntity() {
     }
 
@@ -38,12 +47,12 @@ public class DestinationEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getDestinationName() {
+        return destinationName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDestinationName(String destinationName) {
+        this.destinationName = destinationName;
     }
 
     public String getLocation() {
@@ -84,5 +93,13 @@ public class DestinationEntity {
 
     public void setType(DestinationTypeEnum type) {
         this.type = type;
+    }
+
+    public List<CommentEntity> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentEntity> comments) {
+        this.comments = comments;
     }
 }
