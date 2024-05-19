@@ -35,7 +35,7 @@ VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some 
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
         'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER');
 
-INSERT INTO destinations(id, destination_info, image_url, location, name, next_to, type)
+INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type)
 VALUES (1,
         'Mezeshka Fortress (Neuzetikon or Neutzikon[1]) is a medieval Byzantine fortification, built in the 11th - 12th centuries west of today''s Mezek village, Svilengrad municipality. It is located on an elongated terrace, formed at the foot of a steep branch of the northeastern Rhodopes, bearing the name St. Marina or the Forest. The local population calls the fortress "Kaleto". The fortress had the functions of a border guard fortress. It guarded territories between the Maritsa and Arda rivers.',
         'https://bg.wikipedia.org/wiki/%D0%9C%D0%B5%D0%B7%D0%B5%D1%88%D0%BA%D0%B0_%D0%BA%D1%80%D0%B5%D0%BF%D0%BE%D1%81%D1%82#/media/%D0%A4%D0%B0%D0%B9%D0%BB:Mezek_Fortress_Neoutzikon_Bulgaria.jpg',
