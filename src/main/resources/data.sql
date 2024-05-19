@@ -63,7 +63,8 @@ VALUES (1,
         'NATURAL_ATTRACTION'),
        (7,
         'Perperikon is an archaeological complex located 15 km from the town of Kardzhali. It was inhabited as early as 8,000 years ago, during the Stone Age, after which it was a sacred rock city under the Thracians, and later Romans, Byzantines and Bulgarians lived there. It was destroyed by the Turks in the 14th century.',
-        'https://pochivka.bg/perperikon-e75', 'coordinates', 'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE');
+        'https://pochivka.bg/perperikon-e75', 'coordinates', 'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE'),
+       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown','CULTURAL_HERITAGE');
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, image_url, season_visited,
                           water_available, trail_difficulty, elevation_gained, next_to, trail_status)
@@ -233,3 +234,6 @@ INSERT INTO destinations_comments(destination_id, comment_id)
 VALUES (1, 22),
        (1, 23),
        (1, 24);
+
+INSERT INTO hiking_trails_destinations(hiking_trail_id, destination_id)
+VALUES (1, 8);

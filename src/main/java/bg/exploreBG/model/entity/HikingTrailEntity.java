@@ -61,7 +61,6 @@ public class HikingTrailEntity {
     )
     private List<CommentEntity> comments = new ArrayList<>();
 
-
     @Column(name = "elevation_gained")
     private double elevationGained;
 
@@ -71,6 +70,13 @@ public class HikingTrailEntity {
     @Column(name = "trail_status")
     @Enumerated(EnumType.STRING)
     private StatusEnum trailStatus;
+
+    @OneToMany
+    @JoinTable(name = "hiking_trails_destinations",
+               joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
+    )
+    private List<DestinationEntity> destinations;
 
     public HikingTrailEntity() {
     }
@@ -193,5 +199,13 @@ public class HikingTrailEntity {
 
     public void setTrailStatus(StatusEnum trailStatus) {
         this.trailStatus = trailStatus;
+    }
+
+    public List<DestinationEntity> getDestinations() {
+        return destinations;
+    }
+
+    public void setDestinations(List<DestinationEntity> destinations) {
+        this.destinations = destinations;
     }
 }

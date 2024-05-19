@@ -15,5 +15,6 @@ public record HikingTrailDetailsDto(Long id,
                                     List<String> activity,
                                     List<CommentsDto> comments,
                                     double elevationGained,
-                                    String nextTo) {
+                                    String nextTo,
+                                    List<DestinationBasicDto> destinations) {
 }
