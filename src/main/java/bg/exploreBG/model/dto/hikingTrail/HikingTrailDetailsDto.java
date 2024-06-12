@@ -1,5 +1,8 @@
 package bg.exploreBG.model.dto;
 
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+
 import java.util.List;
 
 public record HikingTrailDetailsDto(Long id,

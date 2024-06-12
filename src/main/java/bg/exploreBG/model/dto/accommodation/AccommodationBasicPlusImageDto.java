@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.accommodation;
 
 public record AccommodationBasicPlusImageDto(Long id,
                                              String accommodationName,

@@ -1,5 +1,7 @@
 package bg.exploreBG.model.dto;
 
+import bg.exploreBG.model.dto.user.UserBasicInfo;
+
 import java.time.LocalDate;
 import java.util.List;
 
