@@ -40,7 +40,7 @@ public class UserEntity {
 
     // TODO: Think about FavouriteEntity implementation
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner",fetch = FetchType.EAGER)
     private List<HikeEntity> createdHikes;
 
     public UserEntity() {
