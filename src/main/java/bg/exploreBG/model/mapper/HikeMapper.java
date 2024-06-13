@@ -1,7 +1,7 @@
 package bg.exploreBG.model.mapper;
 
-import bg.exploreBG.model.dto.HikeBasicDto;
-import bg.exploreBG.model.dto.HikeDetailsDto;
+import bg.exploreBG.model.dto.hike.HikeBasicDto;
+import bg.exploreBG.model.dto.hike.HikeDetailsDto;
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import org.mapstruct.Mapper;

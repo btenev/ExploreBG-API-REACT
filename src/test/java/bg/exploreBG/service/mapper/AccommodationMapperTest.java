@@ -1,6 +1,6 @@
 package bg.exploreBG.service.mapper;
 
-import bg.exploreBG.model.dto.AccommodationDetailsDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.UserEntity;

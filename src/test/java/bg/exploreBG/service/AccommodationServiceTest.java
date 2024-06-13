@@ -1,9 +1,8 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.AccommodationBasicPlusImageDto;
-import bg.exploreBG.model.dto.AccommodationDetailsDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.dto.CommentsDto;
-import bg.exploreBG.model.dto.UserBasicInfo;
+import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -17,12 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

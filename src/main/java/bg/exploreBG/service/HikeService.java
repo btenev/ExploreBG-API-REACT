@@ -1,8 +1,8 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.utils.RandomUtil;
-import bg.exploreBG.model.dto.HikeBasicDto;
-import bg.exploreBG.model.dto.HikeDetailsDto;
+import bg.exploreBG.model.dto.hike.HikeBasicDto;
+import bg.exploreBG.model.dto.hike.HikeDetailsDto;
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.model.mapper.HikeMapper;
 import bg.exploreBG.repository.HikeRepository;

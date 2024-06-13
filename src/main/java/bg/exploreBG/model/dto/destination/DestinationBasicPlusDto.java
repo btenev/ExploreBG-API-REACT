@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.destination;
 
 public record DestinationBasicPlusDto(Long id,
                                       String destinationName,

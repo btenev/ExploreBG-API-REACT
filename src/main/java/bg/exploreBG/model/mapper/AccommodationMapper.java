@@ -1,6 +1,6 @@
 package bg.exploreBG.model.mapper;
 
-import bg.exploreBG.model.dto.AccommodationDetailsDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

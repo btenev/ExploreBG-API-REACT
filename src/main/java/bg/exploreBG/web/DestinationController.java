@@ -1,7 +1,7 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.DestinationDetailsDto;
-import bg.exploreBG.model.dto.DestinationBasicPlusDto;
+import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.service.DestinationService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/api/destinations")
 public class DestinationController {

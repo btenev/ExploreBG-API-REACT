@@ -1,7 +1,7 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.HikeBasicDto;
-import bg.exploreBG.model.dto.HikeDetailsDto;
+import bg.exploreBG.model.dto.hike.HikeBasicDto;
+import bg.exploreBG.model.dto.hike.HikeDetailsDto;
 import bg.exploreBG.service.HikeService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/api/hikes")
 public class HikeController {

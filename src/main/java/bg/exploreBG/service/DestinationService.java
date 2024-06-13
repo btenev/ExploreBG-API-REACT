@@ -1,7 +1,7 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.DestinationBasicPlusDto;
-import bg.exploreBG.model.dto.DestinationDetailsDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
+import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.mapper.DestinationMapper;
 import bg.exploreBG.repository.DestinationRepository;

@@ -1,8 +1,7 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.HikeDetailsDto;
-import bg.exploreBG.model.dto.HikingTrailBasicDto;
-import bg.exploreBG.model.dto.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/api/trails")
 public class HikingTrailController {

@@ -1,6 +1,6 @@
 package bg.exploreBG.repository;
 
-import bg.exploreBG.model.dto.DestinationBasicPlusDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +13,7 @@ import java.util.Set;
 @Repository
 public interface DestinationRepository extends JpaRepository<DestinationEntity, Long> {
     /*                             ---Not necessary.Projection does the job---
-           @Query(" SELECT new bg.exploreBG.model.dto.DestinationBasicDto(d.id, d.name, d.imageUrl, d.nextTo) " +
+           @Query(" SELECT new bg.exploreBG.model.dto.destination.DestinationBasicDto(d.id, d.name, d.imageUrl, d.nextTo) " +
                   " FROM DestinationEntity d" +
                   " WHERE d.id IN ?1")
     */

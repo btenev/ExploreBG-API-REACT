@@ -1,6 +1,6 @@
 package bg.exploreBG.repository;
 
-import bg.exploreBG.model.dto.AccommodationBasicPlusImageDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,7 @@ import java.util.Set;
 public interface AccommodationRepository extends JpaRepository<AccommodationEntity, Long> {
 
     /*
-    @Query(" SELECT new bg.exploreBG.model.dto.AccommodationBasicPlusImageDto(a.id, a.accommodationName, a.imageUrl)" +
+    @Query(" SELECT new bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto(a.id, a.accommodationName, a.imageUrl)" +
            " FROM AccommodationEntity a" +
            " WHERE a.id IN ?1")
      */

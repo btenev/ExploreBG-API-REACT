@@ -1,7 +1,7 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.AccommodationBasicPlusImageDto;
-import bg.exploreBG.model.dto.AccommodationDetailsDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.service.AccommodationService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/api/accommodations")
 public class AccommodationController {

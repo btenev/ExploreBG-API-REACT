@@ -1,5 +1,7 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.hike;
 
+import bg.exploreBG.model.dto.CommentsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 
 import java.time.LocalDate;

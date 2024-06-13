@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.hike;
 
 import java.time.LocalDate;
 

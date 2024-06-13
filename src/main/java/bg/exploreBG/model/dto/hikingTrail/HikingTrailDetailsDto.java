@@ -1,5 +1,6 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.hikingTrail;
 
+import bg.exploreBG.model.dto.CommentsDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 

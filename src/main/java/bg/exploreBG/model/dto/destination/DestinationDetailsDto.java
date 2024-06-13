@@ -1,7 +1,6 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.destination;
 
-import bg.exploreBG.model.enums.DestinationTypeEnum;
-import jakarta.persistence.*;
+import bg.exploreBG.model.dto.CommentsDto;
 
 import java.util.List;
 
