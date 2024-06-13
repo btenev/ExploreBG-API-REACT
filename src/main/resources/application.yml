@@ -1,3 +1,8 @@
+security:
+        jwt:
+           token:
+               secret-key: 78890bef4b3eb6d7a35a9c3a6eef51c0bd349055451c3275ee38221dfe95a4b2
+#               expiration: 8640000
 spring:
     application:
         name: ExploreBG
@@ -11,9 +16,21 @@ spring:
     jpa:
         hibernate:
             ddl-auto: create-drop
+        properties:
+            hibernate:
+                format_sql: true
+        show-sql: false
         open-in-view: false
         defer-datasource-initialization: true
+        database: mysql
+        database-platform: org.hibernate.dialect.MySQLDialect
 
     sql:
         init:
             mode: always
+
+# we don't need to write /api/v1/ for all controllers
+#server:
+#    servlet:
+#        context-path: /api/v1/
+
