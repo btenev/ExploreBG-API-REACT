@@ -23,25 +23,25 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserIdDto> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        UserIdPlusEmailDto createdUser = this.userService.register(userRegisterDto);
+    public ResponseEntity<UserIdNameDto> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
+        UserIdNameEmailDto createdUser = this.userService.register(userRegisterDto);
         String token = this.userAuthProvider.createToken(createdUser.email());
 
         return ResponseEntity
                 .created(URI.create("/api/users/" + createdUser.id() + "/my-profile"))
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body(new UserIdDto(createdUser.id()));
+                .body(new UserIdNameDto(createdUser.id(), createdUser.username()));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserIdDto> login(@RequestBody UserLoginDto userLoginDto) {
-        UserIdPlusEmailDto loggedUser = this.userService.login(userLoginDto);
+    public ResponseEntity<UserIdNameDto> login(@RequestBody UserLoginDto userLoginDto) {
+        UserIdNameEmailDto loggedUser = this.userService.login(userLoginDto);
         String token = this.userAuthProvider.createToken(loggedUser.email());
 
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body(new UserIdDto(loggedUser.id()));
+                .body(new UserIdNameDto(loggedUser.id(), loggedUser.username()));
     }
 
     @GetMapping("/{id}/my-profile")

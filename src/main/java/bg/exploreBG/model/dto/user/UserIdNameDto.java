@@ -1,7 +1,7 @@
 package bg.exploreBG.model.dto.user;
 
-public record UserIdPlusEmailDto(
+public record UserIdNameDto(
         Long id,
-        String email
+        String username
 ) {
 }

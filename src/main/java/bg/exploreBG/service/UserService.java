@@ -38,7 +38,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserIdPlusEmailDto register(UserRegisterDto userRegisterDto) {
+    public UserIdNameEmailDto register(UserRegisterDto userRegisterDto) {
         Optional<UserEntity> optionalUserEntity = this.userRepository.findByEmail(userRegisterDto.email());
         if (optionalUserEntity.isPresent()) {
             throw new AppException("User with email " + userRegisterDto.email()  + " already exist!",
@@ -53,10 +53,14 @@ public class UserService {
         UserEntity newUser = mapDtoToUserEntity(userRegisterDto, optionalRoleEntity);
         UserEntity persistedUser = this.userRepository.save(newUser);
 
-        return new UserIdPlusEmailDto(persistedUser.getId(), persistedUser.getEmail());
+        return new UserIdNameEmailDto(
+                persistedUser.getId(),
+                persistedUser.getEmail(),
+                persistedUser.getUsername()
+        );
     }
 
-    public UserIdPlusEmailDto login(UserLoginDto userLoginDto) {
+    public UserIdNameEmailDto login(UserLoginDto userLoginDto) {
         UserDetails foundUser = this.userDetailsService.loadUserByUsername(userLoginDto.email());
         boolean matches = this.passwordEncoder.matches(userLoginDto.password(), foundUser.getPassword());
 
@@ -66,7 +70,11 @@ public class UserService {
 
         Optional<UserEntity> currentUser = this.userRepository.findByEmail(foundUser.getUsername());
 
-        return new UserIdPlusEmailDto(currentUser.get().getId(), currentUser.get().getEmail());
+        return new UserIdNameEmailDto(
+                currentUser.get().getId(),
+                currentUser.get().getEmail(),
+                currentUser.get().getEmail()
+        );
     }
 
     public UserDetailsDto findById(Long id, Principal principal) {
