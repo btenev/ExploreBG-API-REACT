@@ -70,19 +70,42 @@ public class UserService {
     }
 
     public UserDetailsDto findById(Long id, Principal principal) {
+        UserEntity byId = validUser(id, principal);
+
+        return this.userMapper.userEntityToUserDetailsDto(byId);
+    }
+
+    public UserEmailDto updateEmail(Long id, UserUpdateEmailDto userUpdateEmailDto, Principal principal) {
+        UserEntity byId = validUser(id, principal);
+
+        byId.setEmail(userUpdateEmailDto.email());
+        UserEntity updatedEmail = this.userRepository.save(byId);
+
+        return new UserEmailDto(updatedEmail.getEmail());
+    }
+
+    private UserEntity validUser(Long id, Principal principal) {
+        UserEntity byId = userExist(id);
+        matchUsers(principal, byId);
+        return byId;
+    }
+
+    private void matchUsers(Principal principal, UserEntity userEntity) {
+        if (!userEntity.getEmail().equals(principal.getName())) {
+            throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private UserEntity userExist(Long id) {
         Optional<UserEntity> byId = this.userRepository.findById(id);
 
         if (byId.isEmpty()) {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);
         }
 
-        if (!byId.get().getEmail().equals(principal.getName())) {
-            throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
-        }
-
-        return this.userMapper.userEntityToUserDetailsDto(byId.get());
+        return byId.get();
     }
-
+    
     private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, Optional<RoleEntity> role) {
         UserEntity newUser = new UserEntity();
         newUser.setEmail(userRegisterDto.email());
@@ -91,4 +114,5 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(userRegisterDto.password()));
         return newUser;
     }
+    
 }

@@ -48,6 +48,22 @@ public class UserController {
     public ResponseEntity<UserDetailsDto> myProfile(@PathVariable Long id, Principal principal) {
         UserDetailsDto byId = this.userService.findById(id, principal);
 
-        return ResponseEntity.ok(byId);
+        return ResponseEntity
+                .ok(byId);
+    }
+
+    @PatchMapping("/{id}/update-email")
+    public ResponseEntity<UserEmailDto> updateEmail(
+            @PathVariable Long id,
+            @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto,
+            Principal principal
+    ) {
+        UserEmailDto newEmail = this.userService.updateEmail(id, userUpdateEmailDto, principal);
+        String token = this.userAuthProvider.createToken(newEmail.email());
+
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .body(newEmail);
     }
 }
