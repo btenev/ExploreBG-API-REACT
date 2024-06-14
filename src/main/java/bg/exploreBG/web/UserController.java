@@ -1,9 +1,7 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.config.UserAuthProvider;
-import bg.exploreBG.model.dto.user.UserLoginDto;
-import bg.exploreBG.model.dto.user.UserRegisterDto;
-import bg.exploreBG.model.dto.user.UserDetailsDto;
+import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,30 +23,30 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDetailsDto> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        UserDetailsDto createdUser = this.userService.register(userRegisterDto);
+    public ResponseEntity<UserIdDto> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
+        UserIdPlusEmailDto createdUser = this.userService.register(userRegisterDto);
         String token = this.userAuthProvider.createToken(createdUser.email());
 
         return ResponseEntity
-                .created(URI.create("/api/users/" + createdUser.id()))
+                .created(URI.create("/api/users/" + createdUser.id() + "/my-profile"))
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body(createdUser);
+                .body(new UserIdDto(createdUser.id()));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDetailsDto> login(@RequestBody UserLoginDto userLoginDto) {
-        UserDetailsDto loggedUser = this.userService.login(userLoginDto);
+    public ResponseEntity<UserIdDto> login(@RequestBody UserLoginDto userLoginDto) {
+        UserIdPlusEmailDto loggedUser = this.userService.login(userLoginDto);
         String token = this.userAuthProvider.createToken(loggedUser.email());
 
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body(loggedUser);
+                .body(new UserIdDto(loggedUser.id()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDetailsDto> profile(@PathVariable Long id) {
-        UserDetailsDto byId = this.userService.findById(id);
+    @GetMapping("/{id}/my-profile")
+    public ResponseEntity<UserDetailsDto> myProfile(@PathVariable Long id, Principal principal) {
+        UserDetailsDto byId = this.userService.findById(id, principal);
 
         return ResponseEntity.ok(byId);
     }

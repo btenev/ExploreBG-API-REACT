@@ -1,9 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.user.UserLoginDto;
-import bg.exploreBG.model.dto.user.UserRegisterDto;
-import bg.exploreBG.model.dto.user.UserDetailsDto;
+import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.UserRoleEnum;
@@ -16,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -39,7 +38,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserDetailsDto register(UserRegisterDto userRegisterDto) {
+    public UserIdPlusEmailDto register(UserRegisterDto userRegisterDto) {
         Optional<UserEntity> optionalUserEntity = this.userRepository.findByEmail(userRegisterDto.email());
         if (optionalUserEntity.isPresent()) {
             throw new AppException("User with email " + userRegisterDto.email()  + " already exist!",
@@ -54,10 +53,10 @@ public class UserService {
         UserEntity newUser = mapDtoToUserEntity(userRegisterDto, optionalRoleEntity);
         UserEntity persistedUser = this.userRepository.save(newUser);
 
-        return this.userMapper.userEntityToUserDetailsDto(persistedUser);
+        return new UserIdPlusEmailDto(persistedUser.getId(), persistedUser.getEmail());
     }
 
-    public UserDetailsDto login(UserLoginDto userLoginDto) {
+    public UserIdPlusEmailDto login(UserLoginDto userLoginDto) {
         UserDetails foundUser = this.userDetailsService.loadUserByUsername(userLoginDto.email());
         boolean matches = this.passwordEncoder.matches(userLoginDto.password(), foundUser.getPassword());
 
@@ -67,14 +66,18 @@ public class UserService {
 
         Optional<UserEntity> currentUser = this.userRepository.findByEmail(foundUser.getUsername());
 
-        return this.userMapper.userEntityToUserDetailsDto(currentUser.get());
+        return new UserIdPlusEmailDto(currentUser.get().getId(), currentUser.get().getEmail());
     }
 
-    public UserDetailsDto findById(Long id) {
+    public UserDetailsDto findById(Long id, Principal principal) {
         Optional<UserEntity> byId = this.userRepository.findById(id);
 
         if (byId.isEmpty()) {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);
+        }
+
+        if (!byId.get().getEmail().equals(principal.getName())) {
+            throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
         }
 
         return this.userMapper.userEntityToUserDetailsDto(byId.get());
