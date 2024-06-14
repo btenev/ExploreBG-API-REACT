@@ -3,14 +3,13 @@ package bg.exploreBG.config;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ErrorDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -22,19 +21,15 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, List<String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String,List<String>> errorMap = new LinkedHashMap<>();
+        Map<String, List<String>> errorMap = new HashMap<>();
 
-        ex.getBindingResult()
+        List<String> errorList = ex
+                .getBindingResult()
                 .getFieldErrors()
-                .forEach(error -> {
-                    String current = error.getField();
-                    errorMap.putIfAbsent(current, new ArrayList<>());
-
-                    if (errorMap.containsKey(current)) {
-                        List<String> errorList = errorMap.get(current);
-                        errorList.add(error.getDefaultMessage());
-                    }
-                });
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.toList());
+        errorMap.put("errors", errorList);
 
         return ResponseEntity.status(ex.getStatusCode()).body(errorMap);
     }
