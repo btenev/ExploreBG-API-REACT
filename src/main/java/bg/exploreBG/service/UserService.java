@@ -2,6 +2,9 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.user.*;
+import bg.exploreBG.model.dto.user.single.UserEmailDto;
+import bg.exploreBG.model.dto.user.single.UserUsernameDto;
+import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.UserRoleEnum;
@@ -14,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -27,10 +29,13 @@ public class UserService {
     private final UserDetailsService userDetailsService;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository,
-                       RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       UserDetailsService userDetailsService, UserMapper userMapper) {
+    public UserService(
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService,
+            UserMapper userMapper
+    ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -41,7 +46,7 @@ public class UserService {
     public UserIdNameEmailDto register(UserRegisterDto userRegisterDto) {
         Optional<UserEntity> optionalUserEntity = this.userRepository.findByEmail(userRegisterDto.email());
         if (optionalUserEntity.isPresent()) {
-            throw new AppException("User with email " + userRegisterDto.email()  + " already exist!",
+            throw new AppException("User with email " + userRegisterDto.email() + " already exist!",
                     HttpStatus.CONFLICT);
         }
 
@@ -73,18 +78,21 @@ public class UserService {
         return new UserIdNameEmailDto(
                 currentUser.get().getId(),
                 currentUser.get().getEmail(),
-                currentUser.get().getEmail()
-        );
+                currentUser.get().getUsername());
     }
 
-    public UserDetailsDto findById(Long id, Principal principal) {
-        UserEntity byId = validUser(id, principal);
+    public UserDetailsDto findById(Long id, UserDetails userDetails) {
+        UserEntity byId = validUser(id, userDetails);
 
         return this.userMapper.userEntityToUserDetailsDto(byId);
     }
 
-    public UserEmailDto updateEmail(Long id, UserUpdateEmailDto userUpdateEmailDto, Principal principal) {
-        UserEntity byId = validUser(id, principal);
+    public UserEmailDto updateEmail(
+            Long id,
+            UserUpdateEmailDto userUpdateEmailDto,
+            UserDetails userDetails
+    ) {
+        UserEntity byId = validUser(id, userDetails);
 
         byId.setEmail(userUpdateEmailDto.email());
         UserEntity updatedEmail = this.userRepository.save(byId);
@@ -92,14 +100,43 @@ public class UserService {
         return new UserEmailDto(updatedEmail.getEmail());
     }
 
-    private UserEntity validUser(Long id, Principal principal) {
+    public UserUsernameDto updateUsername(
+            Long id,
+            UserUpdateUsernameDto userUpdateUsernameDto,
+            UserDetails userDetails
+    ) {
+        UserEntity byId = validUser(id, userDetails);
+
+        byId.setEmail(userUpdateUsernameDto.username());
+        UserEntity updatedUsername = this.userRepository.save(byId);
+
+        return new UserUsernameDto(updatedUsername.getEmail());
+    }
+
+    public String updatePassword(Long id,
+                               UserUpdatePasswordDto updatePassword,
+                               UserDetails userDetails
+    ) {
+        UserEntity byId = validUser(id, userDetails);
+        boolean matches = this.passwordEncoder.matches(updatePassword.current(), userDetails.getPassword());
+
+        if (!matches) {
+            throw new AppException("Password do not match!", HttpStatus.FORBIDDEN);
+        }
+
+        byId.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
+        this.userRepository.save(byId);
+        return "Password updated successfully!";
+    }
+
+    private UserEntity validUser(Long id, UserDetails userDetails) {
         UserEntity byId = userExist(id);
-        matchUsers(principal, byId);
+        matchUsers(userDetails, byId);
         return byId;
     }
 
-    private void matchUsers(Principal principal, UserEntity userEntity) {
-        if (!userEntity.getEmail().equals(principal.getName())) {
+    private void matchUsers(UserDetails userDetails, UserEntity userEntity) {
+        if (!userEntity.getEmail().equals(userDetails.getUsername())) {
             throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
         }
     }
@@ -110,10 +147,9 @@ public class UserService {
         if (byId.isEmpty()) {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);
         }
-
         return byId.get();
     }
-    
+
     private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, Optional<RoleEntity> role) {
         UserEntity newUser = new UserEntity();
         newUser.setEmail(userRegisterDto.email());
@@ -122,5 +158,5 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(userRegisterDto.password()));
         return newUser;
     }
-    
+
 }
