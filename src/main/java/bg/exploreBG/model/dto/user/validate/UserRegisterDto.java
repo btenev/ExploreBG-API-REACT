@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto.user;
+package bg.exploreBG.model.dto.user.validate;
 
 import bg.exploreBG.model.validation.FieldMatch;
 import bg.exploreBG.model.validation.UniqueUserEmail;

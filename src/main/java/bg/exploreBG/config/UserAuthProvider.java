@@ -50,8 +50,8 @@ public class UserAuthProvider {
         UserDetails loadedUserByUsername = this.userDetailsService.loadUserByUsername(decoded.getIssuer());
 
         return new UsernamePasswordAuthenticationToken(
-                loadedUserByUsername.getUsername(),
-                null,
+                loadedUserByUsername,
+                loadedUserByUsername.getPassword(),
                 loadedUserByUsername.getAuthorities()
         );
     }

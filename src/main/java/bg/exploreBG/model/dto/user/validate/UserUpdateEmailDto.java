@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto.user;
+package bg.exploreBG.model.dto.user.validate;
 
 import bg.exploreBG.model.validation.UniqueUserEmail;
 import jakarta.validation.constraints.Email;
