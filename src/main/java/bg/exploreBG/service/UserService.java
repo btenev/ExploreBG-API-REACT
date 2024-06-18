@@ -107,10 +107,10 @@ public class UserService {
     ) {
         UserEntity byId = validUser(id, userDetails);
 
-        byId.setEmail(userUpdateUsernameDto.username());
+        byId.setUsername(userUpdateUsernameDto.username());
         UserEntity updatedUsername = this.userRepository.save(byId);
 
-        return new UserUsernameDto(updatedUsername.getEmail());
+        return new UserUsernameDto(updatedUsername.getUsername());
     }
 
     public PasswordChangeSuccessDto updatePassword(Long id,
