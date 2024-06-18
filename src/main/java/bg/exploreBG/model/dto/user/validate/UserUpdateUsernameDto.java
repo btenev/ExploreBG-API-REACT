@@ -14,7 +14,6 @@ public record UserUpdateUsernameDto(
                 message = "Username should start with A-Z or a-z. All other characters can be letters(upper or lower case), numbers or an underscore!"
         )
         @UniqueUsername(message = "Username already exist!")
-                @JsonProperty
         String username
 ) {
 }

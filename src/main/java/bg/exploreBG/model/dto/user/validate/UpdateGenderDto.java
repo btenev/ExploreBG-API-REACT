@@ -3,7 +3,7 @@ package bg.exploreBG.model.dto.user.validate;
 import jakarta.validation.constraints.NotBlank;
 
 public record UpdateGenderDto(
-        @NotBlank(message = "Field gender can not be blank!")
+        @NotBlank(message = "be-valid-err-gender")
         String gender
 ) {
 }
