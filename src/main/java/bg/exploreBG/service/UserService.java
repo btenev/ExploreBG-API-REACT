@@ -3,10 +3,12 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.dto.user.single.UserEmailDto;
+import bg.exploreBG.model.dto.user.single.UserGenderDto;
 import bg.exploreBG.model.dto.user.single.UserUsernameDto;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
 import bg.exploreBG.repository.RoleRepository;
@@ -18,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -114,8 +117,8 @@ public class UserService {
     }
 
     public String updatePassword(Long id,
-                               UserUpdatePasswordDto updatePassword,
-                               UserDetails userDetails
+                                 UserUpdatePasswordDto updatePassword,
+                                 UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
         boolean matches = this.passwordEncoder.matches(updatePassword.current(), userDetails.getPassword());
@@ -127,6 +130,19 @@ public class UserService {
         byId.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
         this.userRepository.save(byId);
         return "Password updated successfully!";
+    }
+
+    public UserGenderDto updateGender(
+            Long id,
+            UpdateGenderDto updateGenderDto,
+            UserDetails userDetails
+    ) {
+        UserEntity byId = validUser(id, userDetails);
+        GenderEnum setGender = GenderEnum.stringToGenderEnum(updateGenderDto.gender());
+        byId.setGender(setGender);
+
+        UserEntity updatedGenderEnum = this.userRepository.save(byId);
+        return new UserGenderDto(updatedGenderEnum.getGender().getValue());
     }
 
     private UserEntity validUser(Long id, UserDetails userDetails) {

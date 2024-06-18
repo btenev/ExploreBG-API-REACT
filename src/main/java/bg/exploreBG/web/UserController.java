@@ -4,6 +4,7 @@ import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.dto.user.single.UserEmailDto;
 import bg.exploreBG.model.dto.user.UserIdNameDto;
+import bg.exploreBG.model.dto.user.single.UserGenderDto;
 import bg.exploreBG.model.dto.user.single.UserUsernameDto;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.service.UserService;
@@ -99,5 +100,15 @@ public class UserController {
         return ResponseEntity.ok(successes);
     }
 
+    @PatchMapping("/{id}/update-gender")
+    public ResponseEntity<UserGenderDto> updateGender(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateGenderDto updateGenderDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        UserGenderDto userGenderDto = this.userService.updateGender(id, updateGenderDto, userDetails);
 
+        return ResponseEntity
+                .ok(userGenderDto);
+    }
 }

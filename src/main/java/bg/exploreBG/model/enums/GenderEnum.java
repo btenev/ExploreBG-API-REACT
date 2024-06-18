@@ -5,7 +5,7 @@ public enum GenderEnum {
     MALE("Male"),
     FEMALE("Female");
 
-    private String value;
+    private final String value;
 
     GenderEnum(String value) {
         this.value = value;
@@ -13,5 +13,9 @@ public enum GenderEnum {
 
     public String getValue() {
         return value;
+    }
+
+    public static GenderEnum stringToGenderEnum(String enumeration){
+        return GenderEnum.valueOf(enumeration.toUpperCase());
     }
 }

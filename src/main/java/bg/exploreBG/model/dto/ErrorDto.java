@@ -1,4 +1,6 @@
 package bg.exploreBG.model.dto;
 
-public record ErrorDto(String message) {
+public record ErrorDto(
+        String message
+) {
 }
