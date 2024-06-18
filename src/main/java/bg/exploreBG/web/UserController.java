@@ -2,6 +2,7 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.model.dto.user.*;
+import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
 import bg.exploreBG.model.dto.user.single.UserEmailDto;
 import bg.exploreBG.model.dto.user.UserIdNameDto;
 import bg.exploreBG.model.dto.user.single.UserGenderDto;
@@ -110,5 +111,17 @@ public class UserController {
 
         return ResponseEntity
                 .ok(userGenderDto);
+    }
+
+    @PatchMapping("/{id}/update-birthdate")
+    public ResponseEntity<UserBirthdateDto> updateBirthdate(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserBirthdate userBirthdate,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        UserBirthdateDto userBirthdateDto = this.userService.updateBirthdate(id, userBirthdate, userDetails);
+
+        return ResponseEntity
+                .ok(userBirthdateDto);
     }
 }

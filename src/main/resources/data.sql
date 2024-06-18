@@ -3,7 +3,7 @@ VALUES (1, 'MEMBER'),
        (2, 'MODERATOR'),
        (3, 'ADMIN');
 
-INSERT INTO users (id, email, username, password, gender, birth_date, image_url, user_info)
+INSERT INTO users (id, email, username, password, gender, birthdate, image_url, user_info)
 VALUES (1, 'member@explore.bg', 'member', '1234', 'MALE', '1983-05-10', 'https://picsum.photos/200',
         'some very interesting info'),
        (2, 'provider@explore.bg', 'provider', '1234', 'FEMALE', '1979-02-01', 'https://picsum.photos/200',

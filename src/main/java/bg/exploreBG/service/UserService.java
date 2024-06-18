@@ -2,6 +2,7 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.user.*;
+import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
 import bg.exploreBG.model.dto.user.single.UserEmailDto;
 import bg.exploreBG.model.dto.user.single.UserGenderDto;
 import bg.exploreBG.model.dto.user.single.UserUsernameDto;
@@ -20,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -143,6 +143,17 @@ public class UserService {
 
         UserEntity updatedGenderEnum = this.userRepository.save(byId);
         return new UserGenderDto(updatedGenderEnum.getGender().getValue());
+    }
+
+    public UserBirthdateDto updateBirthdate(Long id,
+                                UpdateUserBirthdate userBirthdate,
+                                UserDetails userDetails
+    ) {
+        UserEntity byId = validUser(id, userDetails);
+        byId.setBirthdate(userBirthdate.birthdate());
+
+        UserEntity updatedBirthDate = this.userRepository.save(byId);
+        return new UserBirthdateDto(updatedBirthDate.getBirthdate());
     }
 
     private UserEntity validUser(Long id, UserDetails userDetails) {

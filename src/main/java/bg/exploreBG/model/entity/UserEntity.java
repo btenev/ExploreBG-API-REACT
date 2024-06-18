@@ -26,8 +26,8 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDay;
+    @Column(name = "birthdate")
+    private LocalDate birthdate;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -86,12 +86,12 @@ public class UserEntity {
         this.gender = gender;
     }
 
-    public LocalDate getBirthDay() {
-        return birthDay;
+    public LocalDate getBirthdate() {
+        return birthdate;
     }
 
-    public void setBirthDay(LocalDate birthDay) {
-        this.birthDay = birthDay;
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
     }
 
     public String getImageUrl() {
