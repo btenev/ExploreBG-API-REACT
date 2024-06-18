@@ -18,6 +18,6 @@ public record UserUpdatePasswordDto(
         )
         String newPassword,
         String confirmNewPassword,
-        String current
+        String currentPassword
 ) {
 }

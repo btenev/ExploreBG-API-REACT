@@ -113,12 +113,12 @@ public class UserService {
         return new UserUsernameDto(updatedUsername.getEmail());
     }
 
-    public String updatePassword(Long id,
+    public PasswordChangeSuccessDto updatePassword(Long id,
                                  UserUpdatePasswordDto updatePassword,
                                  UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
-        boolean matches = this.passwordEncoder.matches(updatePassword.current(), userDetails.getPassword());
+        boolean matches = this.passwordEncoder.matches(updatePassword.currentPassword(), userDetails.getPassword());
 
         if (!matches) {
             throw new AppException("Password do not match!", HttpStatus.FORBIDDEN);
@@ -126,7 +126,7 @@ public class UserService {
 
         byId.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
         this.userRepository.save(byId);
-        return "Password updated successfully!";
+        return new PasswordChangeSuccessDto("Password updated successfully!");
     }
 
     public UserGenderDto updateGender(

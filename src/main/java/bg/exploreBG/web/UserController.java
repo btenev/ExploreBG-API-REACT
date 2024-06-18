@@ -53,7 +53,7 @@ public class UserController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        System.out.println(userDetails.getPassword());
+
         UserDetailsDto byId = this.userService.findById(id, userDetails);
 
         return ResponseEntity
@@ -88,12 +88,12 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/update-password")
-    public ResponseEntity<?> updatePassword(
+    public ResponseEntity<PasswordChangeSuccessDto> updatePassword(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdatePasswordDto updatePassword,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        String successes = this.userService.updatePassword(id, updatePassword, userDetails);
+        PasswordChangeSuccessDto successes = this.userService.updatePassword(id, updatePassword, userDetails);
 
         return ResponseEntity.ok(successes);
     }
@@ -129,6 +129,7 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails
     ){
         UserInfoDto userInfoDto = this.userService.updateUserInfo(id, updateUserInfo, userDetails);
+
         return ResponseEntity
                 .ok(userInfoDto);
     }
