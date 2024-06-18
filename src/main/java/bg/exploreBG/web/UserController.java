@@ -40,7 +40,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserIdNameDto> login(@RequestBody UserLoginDto userLoginDto) {
         UserIdNameEmailDto loggedUser = this.userService.login(userLoginDto);
-        String token = this.userAuthProvider.createToken(loggedUser.username());
+        String token = this.userAuthProvider.createToken(loggedUser.email());
 
         return ResponseEntity
                 .ok()
