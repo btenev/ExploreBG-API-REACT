@@ -2,11 +2,8 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.model.dto.user.*;
-import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
-import bg.exploreBG.model.dto.user.single.UserEmailDto;
+import bg.exploreBG.model.dto.user.single.*;
 import bg.exploreBG.model.dto.user.UserIdNameDto;
-import bg.exploreBG.model.dto.user.single.UserGenderDto;
-import bg.exploreBG.model.dto.user.single.UserUsernameDto;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.service.UserService;
 import jakarta.validation.Valid;
@@ -116,12 +113,23 @@ public class UserController {
     @PatchMapping("/{id}/update-birthdate")
     public ResponseEntity<UserBirthdateDto> updateBirthdate(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserBirthdate userBirthdate,
+            @Valid @RequestBody UpdateUserBirthdate updateUserBirthdate,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UserBirthdateDto userBirthdateDto = this.userService.updateBirthdate(id, userBirthdate, userDetails);
+        UserBirthdateDto userBirthdateDto = this.userService.updateBirthdate(id, updateUserBirthdate, userDetails);
 
         return ResponseEntity
                 .ok(userBirthdateDto);
+    }
+
+    @PatchMapping("/{id}/update-user-info")
+    public ResponseEntity<UserInfoDto> updateUserInfo(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserInfo updateUserInfo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        UserInfoDto userInfoDto = this.userService.updateUserInfo(id, updateUserInfo, userDetails);
+        return ResponseEntity
+                .ok(userInfoDto);
     }
 }

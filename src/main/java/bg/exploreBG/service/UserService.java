@@ -2,10 +2,7 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.user.*;
-import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
-import bg.exploreBG.model.dto.user.single.UserEmailDto;
-import bg.exploreBG.model.dto.user.single.UserGenderDto;
-import bg.exploreBG.model.dto.user.single.UserUsernameDto;
+import bg.exploreBG.model.dto.user.single.*;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -146,14 +143,25 @@ public class UserService {
     }
 
     public UserBirthdateDto updateBirthdate(Long id,
-                                UpdateUserBirthdate userBirthdate,
-                                UserDetails userDetails
+                                            UpdateUserBirthdate userBirthdate,
+                                            UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
         byId.setBirthdate(userBirthdate.birthdate());
 
         UserEntity updatedBirthDate = this.userRepository.save(byId);
         return new UserBirthdateDto(updatedBirthDate.getBirthdate());
+    }
+
+    public UserInfoDto updateUserInfo(Long id,
+                               UpdateUserInfo updateUserInfo,
+                               UserDetails userDetails
+    ) {
+        UserEntity byId = validUser(id, userDetails);
+        byId.setUserInfo(updateUserInfo.userInfo());
+
+        UserEntity updatedUserInfo = this.userRepository.save(byId);
+        return new UserInfoDto(updatedUserInfo.getUserInfo());
     }
 
     private UserEntity validUser(Long id, UserDetails userDetails) {
