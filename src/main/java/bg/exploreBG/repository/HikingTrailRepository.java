@@ -12,8 +12,10 @@ import java.util.Set;
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
 
-    @Query("SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(t.id, CONCAT(t.startPoint, ' - ', t.endPoint)," +
-            " t.trailInfo, t.imageUrl)" +
-            "FROM HikingTrailEntity t WHERE t.id IN ?1")
+    @Query("""
+            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(t.id, CONCAT(t.startPoint, ' - ', t.endPoint),
+            t.trailInfo, t.imageUrl)
+            FROM HikingTrailEntity t WHERE t.id IN ?1
+            """)
     List<HikingTrailBasicDto> findByIdIn(Set<Long> ids);
 }

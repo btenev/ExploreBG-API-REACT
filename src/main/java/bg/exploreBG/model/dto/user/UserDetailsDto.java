@@ -2,7 +2,7 @@ package bg.exploreBG.model.dto.user;
 
 import bg.exploreBG.model.dto.hike.HikeBasicDto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public record UserDetailsDto(
@@ -10,7 +10,7 @@ public record UserDetailsDto(
         String username,
         String email,
         String gender,
-        LocalDateTime birthdate,
+        LocalDate birthdate,
         String imageUrl,
         String userInfo,
         List<HikeBasicDto> createdHikes

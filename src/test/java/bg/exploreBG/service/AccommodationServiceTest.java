@@ -49,7 +49,7 @@ public class AccommodationServiceTest {
         owner.setUsername("member");
         owner.setPassword("1,2,3,4");
         owner.setGender(GenderEnum.MALE);
-        owner.setBirthDay(LocalDate.of(1983, 5, 10));
+        owner.setBirthdate(LocalDate.of(1983, 5, 10));
         owner.setImageUrl("https://picsum.photos/200");
         owner.setUserInfo("some very interesting info");
 
