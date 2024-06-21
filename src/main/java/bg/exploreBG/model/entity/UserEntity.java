@@ -29,8 +29,8 @@ public class UserEntity {
     @Column(name = "birthdate")
     private LocalDate birthdate;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @OneToOne(cascade = CascadeType.ALL)
+    private ImageEntity userImage;
 
     @Column(name = "user_info")
     private String userInfo;
@@ -94,12 +94,12 @@ public class UserEntity {
         this.birthdate = birthdate;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public ImageEntity getUserImage() {
+        return userImage;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setUserImage(ImageEntity userImage) {
+        this.userImage = userImage;
     }
 
     public String getUserInfo() {

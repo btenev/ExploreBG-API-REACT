@@ -95,7 +95,8 @@ public class UserController {
     ) {
         PasswordChangeSuccessDto successes = this.userService.updatePassword(id, updatePassword, userDetails);
 
-        return ResponseEntity.ok(successes);
+        return ResponseEntity
+                .ok(successes);
     }
 
     @PatchMapping("/{id}/update-gender")

@@ -3,6 +3,11 @@ security:
            token:
                secret-key: 78890bef4b3eb6d7a35a9c3a6eef51c0bd349055451c3275ee38221dfe95a4b2
 #               expiration: 8640000
+cloudinary:
+    cloud_name:
+    api_key:
+    api_secret:
+
 spring:
     application:
         name: ExploreBG
@@ -34,3 +39,7 @@ spring:
 #    servlet:
 #        context-path: /api/v1/
 
+    servlet:
+       multipart:
+           max-file-size: 10MB
+           max-request-size: 10MB

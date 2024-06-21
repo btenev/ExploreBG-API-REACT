@@ -3,12 +3,12 @@ VALUES (1, 'MEMBER'),
        (2, 'MODERATOR'),
        (3, 'ADMIN');
 
-INSERT INTO users (id, email, username, password, gender, birthdate, image_url, user_info)
-VALUES (1, 'member@explore.bg', 'member', '1234', 'MALE', '1983-05-10', 'https://picsum.photos/200',
+INSERT INTO users (id, email, username, password, gender, birthdate,  user_info)
+VALUES (1, 'member@explore.bg', 'member', '1234', 'MALE', '1983-05-10',
         'some very interesting info'),
-       (2, 'provider@explore.bg', 'provider', '1234', 'FEMALE', '1979-02-01', 'https://picsum.photos/200',
+       (2, 'provider@explore.bg', 'provider', '1234', 'FEMALE', '1979-02-01',
         'not so interesting info'),
-       (3, 'member_two@explore.bg', 'memberTwo', '1234', 'male', '1965-03-08', 'https://picsum.photos/200',
+       (3, 'member_two@explore.bg', 'memberTwo', '1234', 'male', '1965-03-08',
         'i like like travelling, hiking, exploring the world');
 
 INSERT INTO users_roles (roles_id, user_entity_id)

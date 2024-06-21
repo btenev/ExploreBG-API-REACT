@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.CommentsDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
+import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
@@ -43,6 +44,11 @@ public class AccommodationServiceTest {
     @Test
     void testGetAccommodationById_Exist() {
         //arrange
+        ImageEntity newImage = new ImageEntity();
+        newImage.setId(1L);
+        newImage.setImageName("wolf");
+        newImage.setImageUrl("https://picsum.photos/200");
+
         UserEntity owner = new UserEntity();
         owner.setId(1L);
         owner.setEmail("member@explore.bg");
@@ -50,7 +56,7 @@ public class AccommodationServiceTest {
         owner.setPassword("1,2,3,4");
         owner.setGender(GenderEnum.MALE);
         owner.setBirthdate(LocalDate.of(1983, 5, 10));
-        owner.setImageUrl("https://picsum.photos/200");
+        owner.setUserImage(newImage);
         owner.setUserInfo("some very interesting info");
 
         CommentEntity comment = new CommentEntity();
