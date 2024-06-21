@@ -164,7 +164,7 @@ public class UserService {
         return new UserInfoDto(updatedUserInfo.getUserInfo());
     }
 
-    private UserEntity validUser(Long id, UserDetails userDetails) {
+    public UserEntity validUser(Long id, UserDetails userDetails) {
         UserEntity byId = userExist(id);
         matchUsers(userDetails, byId);
         return byId;
