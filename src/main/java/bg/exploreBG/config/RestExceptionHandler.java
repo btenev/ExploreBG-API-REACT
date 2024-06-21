@@ -2,6 +2,9 @@ package bg.exploreBG.config;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ErrorDto;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +24,21 @@ public class RestExceptionHandler {
         return ResponseEntity.status(ex.getCode()).body(new ErrorDto(ex.getMessage()));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, List<String>>> handleValidationMultipartFileErrors(ConstraintViolationException ex) {
+        Map<String, List<String>> errorMap = new HashMap<>();
+
+        List<String> collect =
+                ex.getConstraintViolations().
+                        stream()
+                        .map(ConstraintViolation::getMessage)
+                        .collect(Collectors.toList());
+
+        errorMap.put("errors", collect);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, List<String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, List<String>> errorMap = new HashMap<>();
@@ -31,9 +49,12 @@ public class RestExceptionHandler {
                 .stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
+
         errorMap.put("errors", errorList);
 
         return ResponseEntity.status(ex.getStatusCode()).body(errorMap);
     }
+
+
 }
 
