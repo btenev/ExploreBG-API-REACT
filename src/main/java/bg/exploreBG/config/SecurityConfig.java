@@ -73,13 +73,16 @@ public class SecurityConfig {
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT,
-                HttpHeaders.LOCATION
+                HttpHeaders.LOCATION,
+                HttpHeaders.CONTENT_DISPOSITION
         ));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT,
-                HttpHeaders.LOCATION
+                HttpHeaders.LOCATION,
+                HttpHeaders.CONTENT_DISPOSITION
+
         ));
         config.setAllowedMethods(Arrays.asList(
                 HttpMethod.GET.name(),

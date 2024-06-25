@@ -4,11 +4,11 @@ VALUES (1, 'MEMBER'),
        (3, 'ADMIN');
 
 INSERT INTO users (id, email, username, password, gender, birthdate,  user_info)
-VALUES (1, 'member@explore.bg', 'member', '1234', 'MALE', '1983-05-10',
+VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE', '1983-05-10',
         'some very interesting info'),
-       (2, 'provider@explore.bg', 'provider', '1234', 'FEMALE', '1979-02-01',
+       (2, 'provider@explore.bg', 'provider', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'FEMALE', '1979-02-01',
         'not so interesting info'),
-       (3, 'member_two@explore.bg', 'memberTwo', '1234', 'male', '1965-03-08',
+       (3, 'member_two@explore.bg', 'memberTwo', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'male', '1965-03-08',
         'i like like travelling, hiking, exploring the world');
 
 INSERT INTO users_roles (roles_id, user_entity_id)
