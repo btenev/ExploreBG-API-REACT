@@ -60,6 +60,16 @@ public class UserController {
                 .ok(byId);
     }
 
+    @GetMapping("{id}/profile")
+    public ResponseEntity<UserDetailsDto> profile(
+            @PathVariable Long id
+    ) {
+        UserDetailsDto profileById = this.userService.findProfileById(id);
+
+        return ResponseEntity
+                .ok(profileById);
+    }
+
     @PatchMapping("/{id}/update-email")
     public ResponseEntity<UserEmailDto> updateEmail(
             @PathVariable Long id,

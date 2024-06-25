@@ -87,6 +87,12 @@ public class UserService {
         return this.userMapper.userEntityToUserDetailsDto(byId);
     }
 
+    public UserDetailsDto findProfileById(Long id) {
+        UserEntity userExist = userExist(id);
+
+        return this.userMapper.userEntityToUserDetailsDto(userExist);
+    }
+
     public UserEmailDto updateEmail(
             Long id,
             UserUpdateEmailDto userUpdateEmailDto,

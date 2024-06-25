@@ -48,7 +48,8 @@ public class SecurityConfig {
                             "/api/destinations/*",
                             "/api/hikes/*",
                             "/api/trails/*",
-                            "/api/utility/*"
+                            "/api/utility/*",
+                            "/api/users/*/profile"
                     ).permitAll();
 
                     req.requestMatchers(
