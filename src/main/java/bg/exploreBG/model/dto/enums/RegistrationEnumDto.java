@@ -10,11 +10,15 @@ public class RegistrationEnumDto {
     public Set<String> gender;
 
     public RegistrationEnumDto() {
-        this.gender =
-                Arrays.stream(GenderEnum.values())
+        this.gender = setGender();
+    }
+
+    private Set<String> setGender() {
+        return Arrays.stream(GenderEnum.values())
                 .map(GenderEnum::getValue)
                 .collect(Collectors.toSet());
     }
+
     public Set<String> getGender() {
         return gender;
     }
