@@ -1,9 +1,6 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.model.enums.DifficultyLevelEnum;
-import bg.exploreBG.model.enums.SeasonEnum;
-import bg.exploreBG.model.enums.StatusEnum;
-import bg.exploreBG.model.enums.SuitableForEnum;
+import bg.exploreBG.model.enums.*;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -37,7 +34,8 @@ public class HikingTrailEntity {
     private SeasonEnum seasonVisited;
 
     @Column(name = "water_available")
-    private Boolean waterAvailable;
+    @Enumerated(EnumType.STRING)
+    private WaterAvailabilityEnum waterAvailable;
 
     @OneToMany
     private List<AccommodationEntity> availableHuts;
@@ -137,11 +135,11 @@ public class HikingTrailEntity {
         this.seasonVisited = seasonVisited;
     }
 
-    public Boolean getWaterAvailable() {
+    public WaterAvailabilityEnum getWaterAvailable() {
         return waterAvailable;
     }
 
-    public void setWaterAvailable(Boolean waterAvailable) {
+    public void setWaterAvailable(WaterAvailabilityEnum waterAvailable) {
         this.waterAvailable = waterAvailable;
     }
 

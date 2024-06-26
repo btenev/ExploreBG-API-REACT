@@ -17,6 +17,7 @@ public interface HikingTrailMapper {
 
     @Mapping(source = "trailDifficulty.level", target = "trailDifficulty")
     @Mapping(source = "seasonVisited.value", target = "seasonVisited")
+    @Mapping(source = "waterAvailable.value", target = "waterAvailable")
     @Mapping(source = "activity", target = "activity")
     HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity hikingTrailEntity);
 
