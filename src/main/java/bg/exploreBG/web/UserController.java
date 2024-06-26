@@ -49,12 +49,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/my-profile")
-    public ResponseEntity<UserDetailsDto> myProfile(
+    public ResponseEntity<UserDetailsOwnerDto> myProfile(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
 
-        UserDetailsDto byId = this.userService.findById(id, userDetails);
+        UserDetailsOwnerDto byId = this.userService.findMyProfile(id, userDetails);
 
         return ResponseEntity
                 .ok(byId);

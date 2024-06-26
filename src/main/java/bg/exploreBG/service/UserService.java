@@ -81,10 +81,10 @@ public class UserService {
                 currentUser.get().getUsername());
     }
 
-    public UserDetailsDto findById(Long id, UserDetails userDetails) {
+    public UserDetailsOwnerDto findMyProfile(Long id, UserDetails userDetails) {
         UserEntity byId = validUser(id, userDetails);
 
-        return this.userMapper.userEntityToUserDetailsDto(byId);
+        return this.userMapper.userEntityToUserDetailsOwnerDto(byId);
     }
 
     public UserDetailsDto findProfileById(Long id) {
