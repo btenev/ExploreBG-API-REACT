@@ -1,6 +1,7 @@
 package bg.exploreBG.model.entity;
 
 import bg.exploreBG.model.enums.DestinationTypeEnum;
+import bg.exploreBG.model.enums.StatusEnum;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -28,6 +29,10 @@ public class DestinationEntity {
 
     @Enumerated(EnumType.STRING)
     private DestinationTypeEnum type;
+
+    @Column(name = "destination_status")
+    @Enumerated(EnumType.STRING)
+    private StatusEnum destinationStatus;
 
     @OneToMany
     @JoinTable(
@@ -101,5 +106,13 @@ public class DestinationEntity {
 
     public void setComments(List<CommentEntity> comments) {
         this.comments = comments;
+    }
+
+    public StatusEnum getDestinationStatus() {
+        return destinationStatus;
+    }
+
+    public void setDestinationStatus(StatusEnum destinationStatus) {
+        this.destinationStatus = destinationStatus;
     }
 }

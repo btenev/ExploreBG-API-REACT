@@ -35,36 +35,36 @@ VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some 
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
         'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER', 'APPROVED');
 
-INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type)
+INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type, destination_status)
 VALUES (1,
         'Mezeshka Fortress (Neuzetikon or Neutzikon[1]) is a medieval Byzantine fortification, built in the 11th - 12th centuries west of today''s Mezek village, Svilengrad municipality. It is located on an elongated terrace, formed at the foot of a steep branch of the northeastern Rhodopes, bearing the name St. Marina or the Forest. The local population calls the fortress "Kaleto". The fortress had the functions of a border guard fortress. It guarded territories between the Maritsa and Arda rivers.',
         'https://rila.ws/wp-content/uploads/2020/07/00406-Bulgaria-Mezek-fortress.jpg',
-        'coordinates', 'Mezeshka Krepost', 'Svilengrad', 'CULTURAL_HERITAGE'),
+        'coordinates', 'Mezeshka Krepost', 'Svilengrad', 'CULTURAL_HERITAGE', 'APPROVED'),
        (2,
         'The Meses tomb is a Thracian dome tomb of the Mycenaean type dated to the 4th – 3rd centuries BC. It is located on the outskirts of Mezek village, Svilengrad municipality, in the "Meltepe" mound. This is one of the largest Thracian tombs in Bulgaria.',
         'https://welcome.bg/wp-content/uploads/2018/05/110_006_Mezeshka_grobnica.jpg',
-        'coordinates', 'Mezeshka grobnica', 'Svilengrad', 'CULTURAL_HERITAGE'),
+        'coordinates', 'Mezeshka grobnica', 'Svilengrad', 'CULTURAL_HERITAGE', 'PENDING'),
        (3,
         'The village of Matochina is located next to the Bulgarian-Turkish border, on the right bank of the Tundzha River. At its northern end rises a steep hill accessible only from the village. There was a partition wall here, of which only traces remain now. 50 m from it, up the hill, was the Bukelon fortress - the closest guard of Edirne from the north. It is one of the best preserved military buildings in our country.',
         'https://www.svilengrad.bg/uploads/posts/2019/009.jpg', 'coordinates',
         'Kreposta Bukelon',
-        'Svilengrad', 'CULTURAL_HERITAGE'),
+        'Svilengrad', 'CULTURAL_HERITAGE', 'APPROVED'),
        (4,
         'The Visegrad fortress is located on a high peak, near Kardzhali. It is believed to date from the 4th - 1st centuries. Its area is relatively small - 562 square meters, and according to its structure and dimensions, it represents a medieval feudal castle. It guarded a branch of the road from Adrianople to Philippopolis to the interior of the Rhodopes along the valley of the river Varbitsa. The name of the fortress is of Slavic origin and means "high city". The fortress is easily accessible and convenient to visit. It is reached by a relatively good dirt road.',
         'https://static.pochivka.bg/sights.bgstay.com/images/00/843/resized320/54653bb71f21e.jpg', 'coordinates', 'Krepost Vishegrad', 'Kardzhali',
-        'CULTURAL_HERITAGE'),
+        'CULTURAL_HERITAGE', 'APPROVED'),
        (5,
         'The Kardzhali pyramids are rock formations located near the town of Kardzhali, in the Rhodopes. They were declared a natural landmark in 1974. They were formed more than 40 million years ago. The most interesting group of rocks are the Stone Wedding. It contains pyramids that resemble people and animals. Another interesting group is the Stone Mushrooms.',
         'https://static.pochivka.bg/sights.bgstay.com/images/00/341/5494647df2202.jpg',
-        'coordinates', 'Kardzhaliiski piramidi', 'Kardzhali', 'NATURAL_ATTRACTION'),
+        'coordinates', 'Kardzhaliiski piramidi', 'Kardzhali', 'NATURAL_ATTRACTION', 'APPROVED'),
        (6,
         'The Letovnik waterfall is located next to the village of Letovnik, Momchilgrad. It is not tall or powerful, but the rocks from which it falls and the area around it are uniquely beautiful.',
         'https://static.pochivka.bg/sights.bgstay.com/images/02/2835/5a6f0f2689928.jpeg', 'coordinates', 'Letovnishki vodopad', 'Momchilgard',
-        'NATURAL_ATTRACTION'),
+        'NATURAL_ATTRACTION', 'APPROVED'),
        (7,
         'Perperikon is an archaeological complex located 15 km from the town of Kardzhali. It was inhabited as early as 8,000 years ago, during the Stone Age, after which it was a sacred rock city under the Thracians, and later Romans, Byzantines and Bulgarians lived there. It was destroyed by the Turks in the 14th century.',
-        'https://static.pochivka.bg/sights.bgstay.com/images/00/75/resized320/5477c4ac9bdd8.jpg', 'coordinates', 'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE'),
-       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown','CULTURAL_HERITAGE');
+        'https://static.pochivka.bg/sights.bgstay.com/images/00/75/resized320/5477c4ac9bdd8.jpg', 'coordinates', 'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE', 'APPROVED'),
+       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown','CULTURAL_HERITAGE', 'APPROVED');
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, image_url, season_visited,
                           water_available, trail_difficulty, elevation_gained, next_to, trail_status)
