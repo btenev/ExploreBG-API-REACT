@@ -1,5 +1,6 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.service.AccommodationService;
@@ -33,7 +34,7 @@ public class AccommodationController {
 
     @Transactional
     @GetMapping("/{id}")
-    public ResponseEntity<AccommodationDetailsDto> getAccommodation(@PathVariable Long id) {
+    public ResponseEntity<AccommodationDetailsDto> getAccommodation(@PathVariable("id") Long id) {
         AccommodationDetailsDto accommodation = this.accommodationService.getAccommodation(id);
 
         return ResponseEntity.ok(accommodation);
@@ -54,5 +55,12 @@ public class AccommodationController {
                 this.accommodationService.getAllAccommodations(pageable);
 
         return ResponseEntity.ok(allHikes);
+    }
+
+    @GetMapping("/select")
+    public ResponseEntity<List<AccommodationBasicDto>> select() {
+        List<AccommodationBasicDto> select = this.accommodationService.selectAll();
+
+        return ResponseEntity.ok(select);
     }
 }

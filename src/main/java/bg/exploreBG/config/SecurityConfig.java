@@ -43,7 +43,9 @@ public class SecurityConfig {
 
                     req.requestMatchers(
                             HttpMethod.GET,
-                            "/api/accommodations/*",
+                            "/api/accommodations/random",
+                            "/api/accommodations/{id:[1-9]+}",
+                            "/api/accommodations/all",
                             "/api/destinations/*",
                             "/api/hikes/*",
                             "/api/trails/*",

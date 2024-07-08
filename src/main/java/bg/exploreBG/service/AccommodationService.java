@@ -1,8 +1,10 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
 import bg.exploreBG.repository.AccommodationRepository;
 import bg.exploreBG.utils.RandomUtil;
@@ -47,5 +49,10 @@ public class AccommodationService {
     public Page<AccommodationBasicPlusImageDto> getAllAccommodations(Pageable pageable) {
         return this.accommodationRepository
                 .findAllBy(pageable);
+    }
+
+    public List<AccommodationBasicDto> selectAll() {
+        return this.accommodationRepository
+                .findAllByAccommodationStatus(StatusEnum.APPROVED);
     }
 }
