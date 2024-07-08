@@ -1,7 +1,9 @@
 package bg.exploreBG.repository;
 
+import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.model.entity.DestinationEntity;
+import bg.exploreBG.model.enums.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +21,5 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
     */
     List<DestinationBasicPlusDto> findByIdIn(Set<Long> ids);
     Page<DestinationBasicPlusDto> findAllBy(Pageable pageable);
+    List<DestinationBasicDto> findAllByDestinationStatus(StatusEnum destinationStatus);
 }

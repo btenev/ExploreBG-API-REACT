@@ -1,8 +1,10 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
 import bg.exploreBG.model.entity.DestinationEntity;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.mapper.DestinationMapper;
 import bg.exploreBG.repository.DestinationRepository;
 import bg.exploreBG.utils.RandomUtil;
@@ -46,5 +48,10 @@ public class DestinationService {
     public Page<DestinationBasicPlusDto> getAllDestinations(Pageable pageable) {
         return this.destinationRepository
                 .findAllBy(pageable);
+    }
+
+    public List<DestinationBasicDto> selectAll() {
+        return this.destinationRepository
+                .findAllByDestinationStatus(StatusEnum.APPROVED);
     }
 }

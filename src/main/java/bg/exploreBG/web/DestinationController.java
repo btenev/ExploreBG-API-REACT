@@ -1,5 +1,6 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.service.DestinationService;
@@ -53,5 +54,12 @@ public class DestinationController {
                 this.destinationService.getAllDestinations(pageable);
 
         return ResponseEntity.ok(allDestinations);
+    }
+
+    @GetMapping("/select")
+    public ResponseEntity<?> select() {
+        List<DestinationBasicDto> select = this.destinationService.selectAll();
+
+        return ResponseEntity.ok(select);
     }
 }
