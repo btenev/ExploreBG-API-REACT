@@ -18,22 +18,22 @@ VALUES (1, 1),
 
 INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, owner_id, accommodation_info,
                             accommodation_name, next_to, phone_number,
-                            image_url, site, access, type)
+                            image_url, site, access, type, accommodation_status)
 VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa',
         null,
-        'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
+        'https://picsum.photos/200', null, 'BY_CAR', 'HUT', 'APPROVED'),
        (null, null, 1, 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah',
         'Zheleznitsa',
-        '+35985738923', 'https://picsum.photos/200', null, 'BY_CAR', 'SHELTER'),
+        '+35985738923', 'https://picsum.photos/200', null, 'BY_CAR', 'SHELTER', 'APPROVED'),
        (null, 25, 1, 3, 2, 'A place where you can have some rest and get some food', 'hija Perelik', 'Smolyan', null,
-        'https://picsum.photos/200', null, 'BY_CAR', 'HUT'),
+        'https://picsum.photos/200', null, 'BY_CAR', 'HUT', 'APPROVED'),
        (null, 30, 1, 4, 1, 'A place where you can have some rest and get some food', 'hija Ravnets', 'Karlovo',
         '+359 896 68 85 23', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/hizha-ravnec',
-        'ON_FOOT', 'HUT'),
+        'ON_FOOT', 'HUT', 'APPROVED'),
        (null, 35, 1, 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
-        '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER'),
+        '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER', 'APPROVED'),
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
-        'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER');
+        'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER', 'APPROVED');
 
 INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type)
 VALUES (1,

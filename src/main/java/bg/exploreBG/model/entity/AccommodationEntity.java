@@ -2,6 +2,7 @@ package bg.exploreBG.model.entity;
 
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
+import bg.exploreBG.model.enums.StatusEnum;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -50,6 +51,10 @@ public class AccommodationEntity {
 
     @Column(name = "next_to")
     private String nextTo;
+
+    @Column(name = "accommodation_status")
+    @Enumerated(EnumType.STRING)
+    private StatusEnum accommodationStatus;
 
     @OneToMany
     @JoinTable(
@@ -172,5 +177,13 @@ public class AccommodationEntity {
 
     public void setComments(List<CommentEntity> comments) {
         this.comments = comments;
+    }
+
+    public StatusEnum getAccommodationStatus() {
+        return accommodationStatus;
+    }
+
+    public void setAccommodationStatus(StatusEnum accommodationStatus) {
+        this.accommodationStatus = accommodationStatus;
     }
 }
