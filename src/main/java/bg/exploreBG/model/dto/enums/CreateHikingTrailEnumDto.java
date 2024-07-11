@@ -10,10 +10,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CreateHikingTrailEnumDto {
-    private Set<String> seasonVisited;
-    private Set<String> waterAvailable;
-    private int[] trailDifficulty;
-    private Set<String> activity;
+    private final Set<String> seasonVisited;
+    private final Set<String> waterAvailable;
+    private final int[] trailDifficulty;
+    private final Set<String> activity;
 
     public CreateHikingTrailEnumDto() {
         this.seasonVisited = setSeason();
