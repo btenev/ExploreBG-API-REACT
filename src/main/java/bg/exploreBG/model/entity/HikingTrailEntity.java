@@ -21,7 +21,7 @@ public class HikingTrailEntity {
     private String endPoint;
 
     @Column(name = "total_distance")
-    private double totalDistance;
+    private Double totalDistance;
 
     @Column(name = "trail_info", columnDefinition = "TEXT")
     private String trailInfo;
@@ -60,7 +60,7 @@ public class HikingTrailEntity {
     private List<CommentEntity> comments = new ArrayList<>();
 
     @Column(name = "elevation_gained")
-    private double elevationGained;
+    private Integer elevationGained;
 
     @Column(name = "next_to")
     private String nextTo;
@@ -103,11 +103,11 @@ public class HikingTrailEntity {
         this.endPoint = endPoint;
     }
 
-    public double getTotalDistance() {
+    public Double getTotalDistance() {
         return totalDistance;
     }
 
-    public void setTotalDistance(double totalDistance) {
+    public void setTotalDistance(Double totalDistance) {
         this.totalDistance = totalDistance;
     }
 
@@ -175,11 +175,11 @@ public class HikingTrailEntity {
         this.comments = comments;
     }
 
-    public double getElevationGained() {
+    public Integer getElevationGained() {
         return elevationGained;
     }
 
-    public void setElevationGained(double elevationGained) {
+    public void setElevationGained(Integer elevationGained) {
         this.elevationGained = elevationGained;
     }
 

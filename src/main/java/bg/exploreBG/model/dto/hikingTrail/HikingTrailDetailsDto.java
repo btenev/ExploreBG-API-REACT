@@ -10,7 +10,7 @@ public record HikingTrailDetailsDto(
         Long id,
         String startPoint,
         String endPoint,
-        double totalDistance,
+        Double totalDistance,
         String trailInfo,
         String imageUrl,
         String seasonVisited,
@@ -19,7 +19,7 @@ public record HikingTrailDetailsDto(
         int trailDifficulty,
         List<String> activity,
         List<CommentsDto> comments,
-        double elevationGained,
+        Integer elevationGained,
         String nextTo,
         List<DestinationBasicDto> destinations) {
 }
