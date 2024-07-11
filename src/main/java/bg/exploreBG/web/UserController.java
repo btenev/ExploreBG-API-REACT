@@ -112,7 +112,7 @@ public class UserController {
     @PatchMapping("/{id}/update-gender")
     public ResponseEntity<UserGenderDto> updateGender(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateGenderDto updateGenderDto,
+            @RequestBody UpdateGenderDto updateGenderDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserGenderDto userGenderDto = this.userService.updateGender(id, updateGenderDto, userDetails);

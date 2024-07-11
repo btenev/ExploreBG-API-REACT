@@ -141,7 +141,7 @@ public class UserService {
             UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
-        GenderEnum setGender = GenderEnum.stringToGenderEnum(updateGenderDto.gender());
+        GenderEnum setGender = updateGenderDto.gender();
         byId.setGender(setGender);
 
         UserEntity updatedGenderEnum = this.userRepository.save(byId);
