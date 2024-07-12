@@ -37,7 +37,12 @@ public class HikingTrailEntity {
     @Enumerated(EnumType.STRING)
     private WaterAvailabilityEnum waterAvailable;
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+            name = "hiking_trails_available_huts",
+            joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "available_huts_id", referencedColumnName = "id")
+    )
     private List<AccommodationEntity> availableHuts;
 
     @Column(name = "trail_difficulty")
@@ -75,6 +80,9 @@ public class HikingTrailEntity {
                inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
     )
     private List<DestinationEntity> destinations;
+
+    @ManyToOne
+    private UserEntity createdBy;
 
     public HikingTrailEntity() {
     }
@@ -205,5 +213,36 @@ public class HikingTrailEntity {
 
     public void setDestinations(List<DestinationEntity> destinations) {
         this.destinations = destinations;
+    }
+
+    public UserEntity getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    @Override
+    public String toString() {
+        return "HikingTrailEntity{" +
+                "id=" + id +
+                ", startPoint='" + startPoint + '\'' +
+                ", endPoint='" + endPoint + '\'' +
+                ", totalDistance=" + totalDistance +
+                ", trailInfo='" + trailInfo + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", seasonVisited=" + seasonVisited +
+                ", waterAvailable=" + waterAvailable +
+                ", availableHuts=" + availableHuts +
+                ", trailDifficulty=" + trailDifficulty +
+                ", activity=" + activity +
+                ", comments=" + comments +
+                ", elevationGained=" + elevationGained +
+                ", nextTo='" + nextTo + '\'' +
+                ", trailStatus=" + trailStatus +
+                ", destinations=" + destinations +
+                ", createdBy=" + createdBy +
+                '}';
     }
 }

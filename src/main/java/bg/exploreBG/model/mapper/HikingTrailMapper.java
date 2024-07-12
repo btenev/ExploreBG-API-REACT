@@ -2,6 +2,7 @@ package bg.exploreBG.model.mapper;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import org.mapstruct.Mapper;
@@ -27,4 +28,8 @@ public interface HikingTrailMapper {
                 .map(SuitableForEnum::getValue)
                 .toList();
     }
+
+    @Mapping(target = "destinations", ignore = true)
+    @Mapping(target = "availableHuts", ignore = true)
+    HikingTrailEntity hikingTrailCreateDtoToHikingTrailEntity(HikingTrailCreateDto hikingTrailCreateDto);
 }

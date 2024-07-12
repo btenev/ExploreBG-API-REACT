@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -53,5 +54,14 @@ public class DestinationService {
     public List<DestinationBasicDto> selectAll() {
         return this.destinationRepository
                 .findAllByDestinationStatus(StatusEnum.APPROVED);
+    }
+
+    public List<DestinationEntity> getDestinationsByIds(List<Long> ids) {
+        List<DestinationEntity> selected = new ArrayList<>();
+        for (Long id : ids) {
+            Optional<DestinationEntity> byId = this.destinationRepository.findById(id);
+            byId.ifPresent(selected::add);
+        }
+        return selected;
     }
 }

@@ -115,4 +115,19 @@ public class DestinationEntity {
     public void setDestinationStatus(StatusEnum destinationStatus) {
         this.destinationStatus = destinationStatus;
     }
+
+    @Override
+    public String toString() {
+        return "DestinationEntity{" +
+                "id=" + id +
+                ", destinationName='" + destinationName + '\'' +
+                ", location='" + location + '\'' +
+                ", destinationInfo='" + destinationInfo + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", nextTo='" + nextTo + '\'' +
+                ", type=" + type +
+                ", destinationStatus=" + destinationStatus +
+                ", comments=" + comments +
+                '}';
+    }
 }

@@ -119,9 +119,10 @@ public class UserService {
         return new UserUsernameDto(updatedUsername.getUsername());
     }
 
-    public PasswordChangeSuccessDto updatePassword(Long id,
-                                 UserUpdatePasswordDto updatePassword,
-                                 UserDetails userDetails
+    public PasswordChangeSuccessDto updatePassword(
+            Long id,
+            UserUpdatePasswordDto updatePassword,
+            UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
         boolean matches = this.passwordEncoder.matches(updatePassword.currentPassword(), userDetails.getPassword());
@@ -148,9 +149,10 @@ public class UserService {
         return new UserGenderDto(updatedGenderEnum.getGender().getValue());
     }
 
-    public UserBirthdateDto updateBirthdate(Long id,
-                                            UpdateUserBirthdate userBirthdate,
-                                            UserDetails userDetails
+    public UserBirthdateDto updateBirthdate(
+            Long id,
+            UpdateUserBirthdate userBirthdate,
+            UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
         byId.setBirthdate(userBirthdate.birthdate());
@@ -159,9 +161,10 @@ public class UserService {
         return new UserBirthdateDto(updatedBirthDate.getBirthdate());
     }
 
-    public UserInfoDto updateUserInfo(Long id,
-                               UpdateUserInfo updateUserInfo,
-                               UserDetails userDetails
+    public UserInfoDto updateUserInfo(
+            Long id,
+            UpdateUserInfo updateUserInfo,
+            UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
         byId.setUserInfo(updateUserInfo.userInfo());

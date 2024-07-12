@@ -186,4 +186,25 @@ public class AccommodationEntity {
     public void setAccommodationStatus(StatusEnum accommodationStatus) {
         this.accommodationStatus = accommodationStatus;
     }
+
+    @Override
+    public String toString() {
+        return "AccommodationEntity{" +
+                "id=" + id +
+                ", accommodationName='" + accommodationName + '\'' +
+                ", owner=" + owner +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", site='" + site + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", accommodationInfo='" + accommodationInfo + '\'' +
+                ", bedCapacity=" + bedCapacity +
+                ", pricePerBed=" + pricePerBed +
+                ", foodAvailable=" + foodAvailable +
+                ", access=" + access +
+                ", type=" + type +
+                ", nextTo='" + nextTo + '\'' +
+                ", accommodationStatus=" + accommodationStatus +
+                ", comments=" + comments +
+                '}';
+    }
 }

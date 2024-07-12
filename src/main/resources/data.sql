@@ -118,7 +118,7 @@ VALUES (1, 'HIKING'),
        (1, 'TRAIL_RUNNING'),
        (2, 'HIKING');
 
-INSERT INTO hiking_trail_available_huts(available_huts_id, hiking_trail_entity_id)
+INSERT INTO hiking_trails_available_huts(available_huts_id, hiking_trail_id)
 VALUES (1, 1),
        (2, 1),
        (3, 3),
