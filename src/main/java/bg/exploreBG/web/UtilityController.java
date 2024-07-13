@@ -1,5 +1,6 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.enums.CreateAccommodationEnumDto;
 import bg.exploreBG.model.dto.enums.CreateDestinationEnumDto;
 import bg.exploreBG.model.dto.enums.CreateHikingTrailEnumDto;
 import bg.exploreBG.model.dto.enums.RegistrationEnumDto;
@@ -31,5 +32,12 @@ public class UtilityController {
         CreateDestinationEnumDto type = new CreateDestinationEnumDto();
 
         return ResponseEntity.ok(type);
+    }
+
+    @GetMapping("/create/accommodation-enums")
+    public ResponseEntity<?> createAccommodationEnums() {
+        CreateAccommodationEnumDto all = new CreateAccommodationEnumDto();
+
+        return ResponseEntity.ok(all);
     }
 }
