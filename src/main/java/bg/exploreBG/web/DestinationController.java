@@ -1,23 +1,31 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
+import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
+import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
 import bg.exploreBG.service.DestinationService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/destinations")
 public class DestinationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(DestinationController.class);
     private final DestinationService destinationService;
 
     public DestinationController(DestinationService destinationService) {
@@ -61,5 +69,20 @@ public class DestinationController {
         List<DestinationBasicDto> select = this.destinationService.selectAll();
 
         return ResponseEntity.ok(select);
+    }
+
+    @PostMapping("/create/{id}")
+    public ResponseEntity<?> create(
+            @PathVariable Long id,
+            @Valid @RequestBody DestinationCreateDto destinationCreateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        logger.debug("{}", destinationCreateDto);
+
+        Long destinationId = this.destinationService.createDestination(id, destinationCreateDto, userDetails);
+
+        return ResponseEntity
+                .created(URI.create("/api/destinations/" + destinationId))
+                .build();
     }
 }
