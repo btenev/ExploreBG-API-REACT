@@ -34,10 +34,13 @@ public record HikingTrailCreateDto(
 
         @NotNull(message = "Please enter a short description of the trail!")
         @Pattern(
-                regexp = "^[a-zA-Z0-9\\-.\\s\\n]*$",
-                message = "Train info allowed symbols are upper and lower letters, digits 0 to 9, dot, dash, new line, empty space!"
+                regexp = "^[a-zA-Z0-9\\-.,\\s\\n]*$",
+                message = "Trail info allowed symbols are upper and lower letters, digits 0 to 9, dot, comma, dash, new line, empty space!"
         )
-        @Size(max = 500)
+        @Size(
+                max = 800,
+                message = "The trail info text shouldn't exceed 800 symbols"
+        )
         String trailInfo,
 
 //      @EnumMatch(enumClass = SeasonEnum.class)
