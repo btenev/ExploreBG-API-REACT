@@ -1,5 +1,6 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.enums.CreateDestinationEnumDto;
 import bg.exploreBG.model.dto.enums.CreateHikingTrailEnumDto;
 import bg.exploreBG.model.dto.enums.RegistrationEnumDto;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,12 @@ public class UtilityController {
         CreateHikingTrailEnumDto all = new CreateHikingTrailEnumDto();
 
         return ResponseEntity.ok(all);
+    }
+
+    @GetMapping("/create/destination-enums")
+    public ResponseEntity<?> createDestinationEnums() {
+        CreateDestinationEnumDto type = new CreateDestinationEnumDto();
+
+        return ResponseEntity.ok(type);
     }
 }
