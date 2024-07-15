@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import org.springframework.http.HttpStatus;
 
 public enum SeasonEnum {
+    SPRING("Spring"),
     SUMMER("Summer"),
     FALL("Fall"),
-    WINTER("Winter"),
-    SPRING("Spring");
+    WINTER("Winter");
 
     private final String value;
 

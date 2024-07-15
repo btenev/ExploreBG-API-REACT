@@ -3,6 +3,7 @@ package bg.exploreBG.model.dto.hikingTrail;
 import bg.exploreBG.model.dto.CommentsDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+import bg.exploreBG.model.dto.user.UserBasicInfo;
 
 import java.util.List;
 
@@ -21,5 +22,6 @@ public record HikingTrailDetailsDto(
         List<CommentsDto> comments,
         Integer elevationGained,
         String nextTo,
+        UserBasicInfo createdBy,
         List<DestinationBasicDto> destinations) {
 }

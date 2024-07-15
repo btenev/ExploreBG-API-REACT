@@ -2,6 +2,7 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
@@ -75,6 +76,7 @@ public class HikingTrailController {
 
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
-                .build();
+                .body(new HikingTrailIdDto(newHikingTrailId));
+
     }
 }

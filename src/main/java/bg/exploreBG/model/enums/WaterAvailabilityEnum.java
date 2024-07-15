@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import org.springframework.http.HttpStatus;
 
 public enum WaterAvailabilityEnum {
+
+    NO_INFORMATION("No information"),
     YES("Yes"),
-    NO("No"),
-    NO_INFORMATION("No information");
+    NO("No");
 
     private final String value;
 
