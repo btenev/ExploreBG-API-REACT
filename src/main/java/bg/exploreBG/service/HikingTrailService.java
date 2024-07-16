@@ -2,7 +2,7 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdDto;
-import bg.exploreBG.model.dto.destination.DestinationIdDto;
+import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
@@ -35,7 +35,7 @@ import java.util.Set;
 @Service
 public class HikingTrailService {
 
-    private static Logger logger = LoggerFactory.getLogger(HikingTrailService.class);
+    private static final Logger logger = LoggerFactory.getLogger(HikingTrailService.class);
     private final HikingTrailRepository hikingTrailRepository;
     private final HikingTrailMapper hikingTrailMapper;
     private final UserService userService;

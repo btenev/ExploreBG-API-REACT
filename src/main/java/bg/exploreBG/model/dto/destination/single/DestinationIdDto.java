@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto.destination;
+package bg.exploreBG.model.dto.destination.single;
 
 public record DestinationIdDto(
         Long id

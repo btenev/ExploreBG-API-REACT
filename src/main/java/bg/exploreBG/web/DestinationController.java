@@ -3,6 +3,7 @@ package bg.exploreBG.web;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
+import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
 import bg.exploreBG.service.DestinationService;
 import jakarta.transaction.Transactional;
@@ -72,17 +73,18 @@ public class DestinationController {
     }
 
     @PostMapping("/create/{id}")
-    public ResponseEntity<?> create(
+    public ResponseEntity<DestinationIdDto> create(
             @PathVariable Long id,
             @Valid @RequestBody DestinationCreateDto destinationCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         logger.debug("{}", destinationCreateDto);
 
-        Long destinationId = this.destinationService.createDestination(id, destinationCreateDto, userDetails);
+        DestinationIdDto destinationId =
+                this.destinationService.createDestination(id, destinationCreateDto, userDetails);
 
         return ResponseEntity
-                .created(URI.create("/api/destinations/" + destinationId))
-                .build();
+                .created(URI.create("/api/destinations/" + destinationId.id()))
+                .body(destinationId);
     }
 }

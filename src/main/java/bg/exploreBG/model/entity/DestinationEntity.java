@@ -34,6 +34,9 @@ public class DestinationEntity {
     @Enumerated(EnumType.STRING)
     private StatusEnum destinationStatus;
 
+    @ManyToOne
+    private UserEntity createdBy;
+
     @OneToMany
     @JoinTable(
             name = "destinations_comments",
@@ -114,6 +117,14 @@ public class DestinationEntity {
 
     public void setDestinationStatus(StatusEnum destinationStatus) {
         this.destinationStatus = destinationStatus;
+    }
+
+    public UserEntity getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
     }
 
     @Override

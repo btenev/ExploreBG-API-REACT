@@ -3,6 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
+import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -76,7 +77,7 @@ public class DestinationService {
         return selected;
     }
 
-    public Long createDestination(
+    public DestinationIdDto createDestination(
             Long id,
             DestinationCreateDto destinationCreateDto,
             UserDetails userDetails
@@ -85,9 +86,10 @@ public class DestinationService {
         DestinationEntity newDestination =
                 this.destinationMapper.destinationCreateDtoToDestinationEntity(destinationCreateDto);
         newDestination.setDestinationStatus(StatusEnum.PENDING);
+        newDestination.setCreatedBy(validUser);
 
-        logger.debug("{}", newDestination);
-
-        return this.destinationRepository.save(newDestination).getId();
+//        logger.debug("{}", newDestination);
+        DestinationEntity saved = this.destinationRepository.save(newDestination);
+        return new DestinationIdDto(saved.getId());
     }
 }
