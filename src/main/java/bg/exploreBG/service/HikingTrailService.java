@@ -1,8 +1,11 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.DestinationIdDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistance;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistance;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -17,14 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class HikingTrailService {
@@ -61,13 +63,9 @@ public class HikingTrailService {
     }
 
     public HikingTrailDetailsDto getHikingTrail(Long id) {
-        Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
+        HikingTrailEntity trailById = hikingTrailExist(id);
 
-        if (trailById.isEmpty()) {
-            //TODO: implement error logic
-        }
-
-        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trailById.get());
+        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trailById);
     }
 
     public Page<HikingTrailBasicDto> getAllHikingTrails(Pageable pageable) {
@@ -87,7 +85,7 @@ public class HikingTrailService {
                 this.hikingTrailMapper
                         .hikingTrailCreateDtoToHikingTrailEntity(hikingTrailCreateDto);
 
-        logger.debug("{}", newHikingTrail);
+//        logger.debug("{}", newHikingTrail);
 
         newHikingTrail.setTrailStatus(StatusEnum.PENDING);
         newHikingTrail.setCreatedBy(validUser);
@@ -107,6 +105,35 @@ public class HikingTrailService {
         return this.hikingTrailRepository.save(newHikingTrail).getId();
     }
 
+    public HikingTrailTotalDistance updateHikingTrailTotalDistance(
+            Long id,
+            HikingTrailUpdateTotalDistance hikingTrailUpdateTotalDistance,
+            UserDetails userDetails
+    ) {
+        UserEntity currentUser = this.userService.userExist(userDetails.getUsername());
+
+        HikingTrailEntity currentTrail = this.hikingTrailExist(id);
+        UserEntity createdBy = currentTrail.getCreatedBy();
+
+        // TODO: https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.3 FORBIDDEN vs NOT FOUND
+        if (!currentUser.equals(createdBy)) {
+            throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
+        }
+
+        currentTrail.setTotalDistance(hikingTrailUpdateTotalDistance.totalDistance());
+        HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
+        return new HikingTrailTotalDistance(saved.getTotalDistance());
+    }
+
+    private HikingTrailEntity hikingTrailExist(Long id) {
+        Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
+
+        if (trailById.isEmpty()) {
+            throw new AppException("Hiking trail not found!", HttpStatus.NOT_FOUND);
+        }
+        return trailById.get();
+    }
+
     private List<AccommodationEntity> mapDtoToAvailableHuts(List<AccommodationIdDto> ids) {
 
         List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
@@ -120,5 +147,5 @@ public class HikingTrailService {
 
         return this.destinationService.getDestinationsByIds(destinationIds);
     }
-
+    
 }

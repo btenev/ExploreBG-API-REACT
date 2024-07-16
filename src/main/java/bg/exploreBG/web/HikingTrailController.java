@@ -2,8 +2,10 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailIdDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistance;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistance;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -25,7 +27,7 @@ import java.util.List;
 @RequestMapping("/api/trails")
 public class HikingTrailController {
 
-    private static Logger logger = LoggerFactory.getLogger(HikingTrailController.class);
+    private static final Logger logger = LoggerFactory.getLogger(HikingTrailController.class);
 
     private final HikingTrailService hikingTrailService;
 
@@ -64,12 +66,12 @@ public class HikingTrailController {
     }
 
     @PostMapping("/create/{id}")
-    public ResponseEntity<?> createHikingTrail(
+    public ResponseEntity<HikingTrailIdDto> createHikingTrail(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailCreateDto hikingTrailCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        logger.debug("Display create hiking trail request {}", hikingTrailCreateDto);
+//        logger.debug("Display create hiking trail request {}", hikingTrailCreateDto);
 
         Long newHikingTrailId =
                 this.hikingTrailService.createHikingTrail(id, hikingTrailCreateDto, userDetails);
@@ -77,6 +79,19 @@ public class HikingTrailController {
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
                 .body(new HikingTrailIdDto(newHikingTrailId));
+    }
 
+    @PatchMapping("/{id}/update-total-distance")
+    public ResponseEntity<?> updateTotalDistance(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailUpdateTotalDistance hikingTrailUpdateTotalDistance,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistance);
+
+        HikingTrailTotalDistance hikingTrailTotalDistance = this.hikingTrailService
+                .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistance, userDetails);
+
+        return ResponseEntity.ok(hikingTrailTotalDistance);
     }
 }
