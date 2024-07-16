@@ -4,8 +4,10 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistance;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfo;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistance;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfo;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -79,7 +81,7 @@ public class HikingTrailService {
             HikingTrailCreateDto hikingTrailCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.validUser(id, userDetails);
+        UserEntity validUser = this.userService.verifiedUser(id, userDetails);
 
         HikingTrailEntity newHikingTrail =
                 this.hikingTrailMapper
@@ -105,24 +107,37 @@ public class HikingTrailService {
         return this.hikingTrailRepository.save(newHikingTrail).getId();
     }
 
+    public HikingTrailTrailInfo updateHikingTrailTrailInfo(
+            Long id,
+            HikingTrailUpdateTrailInfo hikingTrailUpdateTrailInfo,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        currentTrail.setTrailInfo(hikingTrailUpdateTrailInfo.trailInfo());
+
+        HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
+        return new HikingTrailTrailInfo(saved.getTrailInfo());
+    }
+
     public HikingTrailTotalDistance updateHikingTrailTotalDistance(
             Long id,
             HikingTrailUpdateTotalDistance hikingTrailUpdateTotalDistance,
             UserDetails userDetails
     ) {
-        UserEntity currentUser = this.userService.userExist(userDetails.getUsername());
-
-        HikingTrailEntity currentTrail = this.hikingTrailExist(id);
-        UserEntity createdBy = currentTrail.getCreatedBy();
-
-        // TODO: https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.3 FORBIDDEN vs NOT FOUND
-        if (!currentUser.equals(createdBy)) {
-            throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
-        }
-
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
         currentTrail.setTotalDistance(hikingTrailUpdateTotalDistance.totalDistance());
+
         HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
         return new HikingTrailTotalDistance(saved.getTotalDistance());
+    }
+
+    private HikingTrailEntity verifiedHikingTrail(Long id, UserDetails userDetails) {
+
+        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        UserEntity createdBy = currentTrail.getCreatedBy();
+
+        this.userService.verifiedUser(createdBy, userDetails); // throws exception if no match
+        return currentTrail;
     }
 
     private HikingTrailEntity hikingTrailExist(Long id) {
@@ -147,5 +162,5 @@ public class HikingTrailService {
 
         return this.destinationService.getDestinationsByIds(destinationIds);
     }
-    
+
 }

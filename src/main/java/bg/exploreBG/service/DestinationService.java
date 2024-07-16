@@ -81,7 +81,7 @@ public class DestinationService {
             DestinationCreateDto destinationCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.validUser(id, userDetails);
+        UserEntity validUser = this.userService.verifiedUser(id, userDetails);
         DestinationEntity newDestination =
                 this.destinationMapper.destinationCreateDtoToDestinationEntity(destinationCreateDto);
         newDestination.setDestinationStatus(StatusEnum.PENDING);

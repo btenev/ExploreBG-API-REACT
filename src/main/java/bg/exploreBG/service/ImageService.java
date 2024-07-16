@@ -18,7 +18,6 @@ public class ImageService {
     private final UserService userService;
     private final CloudinaryService cloudinaryService;
     private final ImageRepository imageRepository;
-
     private final UserRepository userRepository;
 
     public ImageService(
@@ -39,7 +38,7 @@ public class ImageService {
             MultipartFile file,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.validUser(id, userDetails);
+        UserEntity validUser = this.userService.verifiedUser(id, userDetails);
         String cloudinaryId = validUser.getId().toString();
 
         ImageEntity newImage = createNewImageEntity(imageCreateNewImageDto, file, cloudinaryId);

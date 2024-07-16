@@ -82,7 +82,7 @@ public class UserService {
     }
 
     public UserDetailsOwnerDto findMyProfile(Long id, UserDetails userDetails) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
 
         return this.userMapper.userEntityToUserDetailsOwnerDto(byId);
     }
@@ -98,7 +98,7 @@ public class UserService {
             UserUpdateEmailDto userUpdateEmailDto,
             UserDetails userDetails
     ) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
 
         byId.setEmail(userUpdateEmailDto.email());
         UserEntity updatedEmail = this.userRepository.save(byId);
@@ -111,7 +111,7 @@ public class UserService {
             UserUpdateUsernameDto userUpdateUsernameDto,
             UserDetails userDetails
     ) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
 
         byId.setUsername(userUpdateUsernameDto.username());
         UserEntity updatedUsername = this.userRepository.save(byId);
@@ -124,7 +124,7 @@ public class UserService {
             UserUpdatePasswordDto updatePassword,
             UserDetails userDetails
     ) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
         boolean matches = this.passwordEncoder.matches(updatePassword.currentPassword(), userDetails.getPassword());
 
         if (!matches) {
@@ -141,7 +141,7 @@ public class UserService {
             UserUpdateGenderDto userUpdateGenderDto,
             UserDetails userDetails
     ) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
         GenderEnum setGender = userUpdateGenderDto.gender();
         byId.setGender(setGender);
 
@@ -154,7 +154,7 @@ public class UserService {
             UserUpdateBirthdate userBirthdate,
             UserDetails userDetails
     ) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
         byId.setBirthdate(userBirthdate.birthdate());
 
         UserEntity updatedBirthDate = this.userRepository.save(byId);
@@ -166,21 +166,28 @@ public class UserService {
             UserUpdateInfo userUpdateInfo,
             UserDetails userDetails
     ) {
-        UserEntity byId = validUser(id, userDetails);
+        UserEntity byId = verifiedUser(id, userDetails);
         byId.setUserInfo(userUpdateInfo.userInfo());
 
         UserEntity updatedUserInfo = this.userRepository.save(byId);
         return new UserInfoDto(updatedUserInfo.getUserInfo());
     }
-
-    public UserEntity validUser(Long id, UserDetails userDetails) {
+    
+    //TODO: valid user to verified user
+    public UserEntity verifiedUser(Long id, UserDetails userDetails) {
         UserEntity byId = userExist(id);
-        matchUsers(userDetails, byId);
+        UserEntity token = userExist(userDetails.getUsername());
+        matchUsers(token, byId);
         return byId;
     }
+    
+    protected void verifiedUser(UserEntity user, UserDetails userDetails) {
+        UserEntity token = userExist(userDetails.getUsername());
+        matchUsers(user, token);
+    }
 
-    private void matchUsers(UserDetails userDetails, UserEntity userEntity) {
-        if (!userEntity.getEmail().equals(userDetails.getUsername())) {
+    private void matchUsers(UserEntity one, UserEntity two) {
+        if (!one.equals(two)) {
             throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
         }
     }

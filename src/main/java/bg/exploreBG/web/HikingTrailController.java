@@ -4,8 +4,10 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailIdDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistance;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfo;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistance;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfo;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -82,7 +84,7 @@ public class HikingTrailController {
     }
 
     @PatchMapping("/{id}/update-total-distance")
-    public ResponseEntity<?> updateTotalDistance(
+    public ResponseEntity<HikingTrailTotalDistance> updateTotalDistance(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateTotalDistance hikingTrailUpdateTotalDistance,
             @AuthenticationPrincipal UserDetails userDetails
@@ -93,5 +95,17 @@ public class HikingTrailController {
                 .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistance, userDetails);
 
         return ResponseEntity.ok(hikingTrailTotalDistance);
+    }
+
+    @PatchMapping("/{id}/update-trail-info")
+    public ResponseEntity<HikingTrailTrailInfo> updateTrailInfo(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailUpdateTrailInfo hikingTrailUpdateTrailInfo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailTrailInfo hikingTrailTrailInfo = this.hikingTrailService
+                .updateHikingTrailTrailInfo(id, hikingTrailUpdateTrailInfo, userDetails);
+
+        return ResponseEntity.ok(hikingTrailTrailInfo);
     }
 }
