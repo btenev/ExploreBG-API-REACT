@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record HikingTrailUpdateTrailInfo(
+public record HikingTrailUpdateTrailInfoDto(
         @NotNull(message = "Please enter a short description of the trail!")
         @Pattern(
                 regexp = "^[a-zA-Z0-9\\-.,\\s\\n]*$",

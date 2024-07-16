@@ -2,12 +2,14 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailIdDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistance;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfo;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistance;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfo;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateElevationGainedDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistanceDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfoDto;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -84,28 +86,41 @@ public class HikingTrailController {
     }
 
     @PatchMapping("/{id}/update-total-distance")
-    public ResponseEntity<HikingTrailTotalDistance> updateTotalDistance(
+    public ResponseEntity<HikingTrailTotalDistanceDto> updateTotalDistance(
             @PathVariable Long id,
-            @Valid @RequestBody HikingTrailUpdateTotalDistance hikingTrailUpdateTotalDistance,
+            @Valid @RequestBody HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistance);
+        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistanceDto);
 
-        HikingTrailTotalDistance hikingTrailTotalDistance = this.hikingTrailService
-                .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistance, userDetails);
+        HikingTrailTotalDistanceDto hikingTrailTotalDistanceDto = this.hikingTrailService
+                .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailTotalDistance);
+        return ResponseEntity.ok(hikingTrailTotalDistanceDto);
     }
 
     @PatchMapping("/{id}/update-trail-info")
-    public ResponseEntity<HikingTrailTrailInfo> updateTrailInfo(
+    public ResponseEntity<HikingTrailTrailInfoDto> updateTrailInfo(
             @PathVariable Long id,
-            @Valid @RequestBody HikingTrailUpdateTrailInfo hikingTrailUpdateTrailInfo,
+            @Valid @RequestBody HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailTrailInfo hikingTrailTrailInfo = this.hikingTrailService
-                .updateHikingTrailTrailInfo(id, hikingTrailUpdateTrailInfo, userDetails);
+        HikingTrailTrailInfoDto hikingTrailTrailInfoDto = this.hikingTrailService
+                .updateHikingTrailTrailInfo(id, hikingTrailUpdateTrailInfoDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailTrailInfo);
+        return ResponseEntity.ok(hikingTrailTrailInfoDto);
+    }
+
+    @PatchMapping("/{id}/update-elevation-gained")
+    public ResponseEntity<HikingTrailElevationGainedDto> updateElevationGained(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailUpdateElevationGainedDto hikingTrailUpdateElevationGainedDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailElevationGainedDto hikingTrailElevationGainedDto =
+                this.hikingTrailService
+                        .updateHikingTrailElevationGained(id, hikingTrailUpdateElevationGainedDto,userDetails);
+
+        return ResponseEntity.ok(hikingTrailElevationGainedDto);
     }
 }

@@ -3,11 +3,13 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.DestinationIdDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistance;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfo;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistance;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfo;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateElevationGainedDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistanceDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfoDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -107,28 +109,40 @@ public class HikingTrailService {
         return this.hikingTrailRepository.save(newHikingTrail).getId();
     }
 
-    public HikingTrailTrailInfo updateHikingTrailTrailInfo(
+    public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
             Long id,
-            HikingTrailUpdateTrailInfo hikingTrailUpdateTrailInfo,
+            HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
-        currentTrail.setTrailInfo(hikingTrailUpdateTrailInfo.trailInfo());
+        currentTrail.setTrailInfo(hikingTrailUpdateTrailInfoDto.trailInfo());
 
         HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
-        return new HikingTrailTrailInfo(saved.getTrailInfo());
+        return new HikingTrailTrailInfoDto(saved.getTrailInfo());
     }
 
-    public HikingTrailTotalDistance updateHikingTrailTotalDistance(
+    public HikingTrailTotalDistanceDto updateHikingTrailTotalDistance(
             Long id,
-            HikingTrailUpdateTotalDistance hikingTrailUpdateTotalDistance,
+            HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
-        currentTrail.setTotalDistance(hikingTrailUpdateTotalDistance.totalDistance());
+        currentTrail.setTotalDistance(hikingTrailUpdateTotalDistanceDto.totalDistance());
 
         HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
-        return new HikingTrailTotalDistance(saved.getTotalDistance());
+        return new HikingTrailTotalDistanceDto(saved.getTotalDistance());
+    }
+
+    public HikingTrailElevationGainedDto updateHikingTrailElevationGained(
+            Long id,
+            HikingTrailUpdateElevationGainedDto hikingTrailUpdateElevationGainedDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        currentTrail.setElevationGained(hikingTrailUpdateElevationGainedDto.elevationGained());
+
+        HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
+        return new HikingTrailElevationGainedDto(saved.getElevationGained());
     }
 
     private HikingTrailEntity verifiedHikingTrail(Long id, UserDetails userDetails) {
@@ -162,5 +176,4 @@ public class HikingTrailService {
 
         return this.destinationService.getDestinationsByIds(destinationIds);
     }
-
 }
