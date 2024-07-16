@@ -112,10 +112,10 @@ public class UserController {
     @PatchMapping("/{id}/update-gender")
     public ResponseEntity<UserGenderDto> updateGender(
             @PathVariable Long id,
-            @RequestBody UpdateGenderDto updateGenderDto,
+            @RequestBody UserUpdateGenderDto userUpdateGenderDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UserGenderDto userGenderDto = this.userService.updateGender(id, updateGenderDto, userDetails);
+        UserGenderDto userGenderDto = this.userService.updateGender(id, userUpdateGenderDto, userDetails);
 
         return ResponseEntity
                 .ok(userGenderDto);
@@ -124,10 +124,10 @@ public class UserController {
     @PatchMapping("/{id}/update-birthdate")
     public ResponseEntity<UserBirthdateDto> updateBirthdate(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserBirthdate updateUserBirthdate,
+            @Valid @RequestBody UserUpdateBirthdate userUpdateBirthdate,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UserBirthdateDto userBirthdateDto = this.userService.updateBirthdate(id, updateUserBirthdate, userDetails);
+        UserBirthdateDto userBirthdateDto = this.userService.updateBirthdate(id, userUpdateBirthdate, userDetails);
 
         return ResponseEntity
                 .ok(userBirthdateDto);
@@ -136,10 +136,10 @@ public class UserController {
     @PatchMapping("/{id}/update-user-info")
     public ResponseEntity<UserInfoDto> updateUserInfo(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserInfo updateUserInfo,
+            @Valid @RequestBody UserUpdateInfo userUpdateInfo,
             @AuthenticationPrincipal UserDetails userDetails
     ){
-        UserInfoDto userInfoDto = this.userService.updateUserInfo(id, updateUserInfo, userDetails);
+        UserInfoDto userInfoDto = this.userService.updateUserInfo(id, userUpdateInfo, userDetails);
 
         return ResponseEntity
                 .ok(userInfoDto);

@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto.hikingTrail;
+package bg.exploreBG.model.dto.hikingTrail.single;
 
 public record HikingTrailIdDto(
         Long id

@@ -138,11 +138,11 @@ public class UserService {
 
     public UserGenderDto updateGender(
             Long id,
-            UpdateGenderDto updateGenderDto,
+            UserUpdateGenderDto userUpdateGenderDto,
             UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
-        GenderEnum setGender = updateGenderDto.gender();
+        GenderEnum setGender = userUpdateGenderDto.gender();
         byId.setGender(setGender);
 
         UserEntity updatedGenderEnum = this.userRepository.save(byId);
@@ -151,7 +151,7 @@ public class UserService {
 
     public UserBirthdateDto updateBirthdate(
             Long id,
-            UpdateUserBirthdate userBirthdate,
+            UserUpdateBirthdate userBirthdate,
             UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
@@ -163,11 +163,11 @@ public class UserService {
 
     public UserInfoDto updateUserInfo(
             Long id,
-            UpdateUserInfo updateUserInfo,
+            UserUpdateInfo userUpdateInfo,
             UserDetails userDetails
     ) {
         UserEntity byId = validUser(id, userDetails);
-        byId.setUserInfo(updateUserInfo.userInfo());
+        byId.setUserInfo(userUpdateInfo.userInfo());
 
         UserEntity updatedUserInfo = this.userRepository.save(byId);
         return new UserInfoDto(updatedUserInfo.getUserInfo());
@@ -192,6 +192,15 @@ public class UserService {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);
         }
         return byId.get();
+    }
+
+    protected UserEntity userExist(String username) {
+        Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
+
+        if(byEmail.isEmpty()) {
+            throw new AppException("User not found!", HttpStatus.NOT_FOUND);
+        }
+        return byEmail.get();
     }
 
     private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, Optional<RoleEntity> role) {
