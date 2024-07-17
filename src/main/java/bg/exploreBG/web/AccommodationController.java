@@ -3,15 +3,21 @@ package bg.exploreBG.web;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
+import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
+import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateDto;
 import bg.exploreBG.service.AccommodationService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -62,5 +68,19 @@ public class AccommodationController {
         List<AccommodationBasicDto> select = this.accommodationService.selectAll();
 
         return ResponseEntity.ok(select);
+    }
+
+    @PostMapping("/create/{id}")
+    public ResponseEntity<AccommodationIdDto> create(
+            @PathVariable Long id,
+            @Valid @RequestBody AccommodationCreateDto accommodationCreateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationIdDto accommodationIdDto =
+                this.accommodationService.createAccommodation(id, accommodationCreateDto, userDetails);
+
+        return ResponseEntity
+                .created(URI.create("/api/accommodations/create/" + accommodationIdDto.id()))
+                .body(accommodationIdDto);
     }
 }
