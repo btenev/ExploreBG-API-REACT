@@ -1,7 +1,7 @@
 package bg.exploreBG.model.dto.hikingTrail.validate;
 
 import bg.exploreBG.deserializer.SuitableForEnumDeserializer;
-import bg.exploreBG.model.dto.accommodation.AccommodationIdDto;
+import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.enums.DifficultyLevelEnum;
 import bg.exploreBG.model.enums.SeasonEnum;

@@ -27,6 +27,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AccommodationServiceTest {
+
+    @Mock
+    private UserService userService;
     @Mock
     private AccommodationRepository mockAccommodationRepo;
     @Mock
@@ -36,6 +39,7 @@ public class AccommodationServiceTest {
     @BeforeEach
     void setUp() {
         toTest = new AccommodationService(
+                userService,
                 mockAccommodationRepo,
                 mockAccommodationMapper
         );

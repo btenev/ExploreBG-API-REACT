@@ -1,7 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.accommodation.AccommodationIdDto;
+import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
