@@ -3,6 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
@@ -145,6 +146,10 @@ public class HikingTrailService {
         return new HikingTrailElevationGainedDto(saved.getElevationGained());
     }
 
+    public List<HikingTrailIdTrailNameDto> selectAll() {
+        return this.hikingTrailRepository.findAllBy();
+    }
+
     private HikingTrailEntity verifiedHikingTrail(Long id, UserDetails userDetails) {
 
         HikingTrailEntity currentTrail = hikingTrailExist(id);
@@ -176,4 +181,5 @@ public class HikingTrailService {
 
         return this.destinationService.getDestinationsByIds(destinationIds);
     }
+
 }

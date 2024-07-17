@@ -2,6 +2,7 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailIdDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
@@ -122,5 +123,12 @@ public class HikingTrailController {
                         .updateHikingTrailElevationGained(id, hikingTrailUpdateElevationGainedDto,userDetails);
 
         return ResponseEntity.ok(hikingTrailElevationGainedDto);
+    }
+
+    @GetMapping("/select")
+    public ResponseEntity<List<HikingTrailIdTrailNameDto>> select() {
+        List<HikingTrailIdTrailNameDto> selected = this.hikingTrailService.selectAll();
+
+        return ResponseEntity.ok(selected);
     }
 }
