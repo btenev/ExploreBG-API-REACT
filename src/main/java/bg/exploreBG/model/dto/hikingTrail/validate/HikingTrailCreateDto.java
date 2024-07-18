@@ -13,59 +13,70 @@ import jakarta.validation.constraints.*;
 import java.util.List;
 
 public record HikingTrailCreateDto(
-        @NotNull(message = "Start point can not be blank!")
+        @NotNull(message = "err-start-point-required")
         @Pattern(
-                regexp = "^[A-Za-z]+\\s?[A-Za-z]+$",
-                message = "Start point allowed symbols are upper, lower letters, zero or one empty space but not in the beginning!"
-        )
-        @Size(max = 30)
-        String startPoint,
-
-        @NotNull(message = "End point can not be blank!")
-        @Pattern(
-                regexp = "^[A-Za-z]+\\s?[A-Za-z]+$",
-                message = "End point allowed symbols are upper, lower letters, zero or one empty space but not in the beginning!"
-        )
-        @Size(max = 30)
-        String endPoint,
-
-        @Positive(message = "Total distance must be greater than 0!")
-        Double totalDistance,
-
-        @NotNull(message = "Please enter a short description of the trail!")
-        @Pattern(
-                regexp = "^[a-zA-Z0-9\\-.,\\s\\n]*$",
-                message = "Trail info allowed symbols are upper and lower letters, digits 0 to 9, dot, comma, dash, new line, empty space!"
+                regexp = "^[A-Za-z]+(\\s?[A-Za-z]+)*$",
+                message = "err-place-regex"
         )
         @Size(
-                max = 800,
-                message = "The trail info text shouldn't exceed 800 symbols"
+                max = 30,
+                min = 3,
+                message = "err-place-length"
+        )
+        String startPoint,
+
+        @NotNull(message = "err-end-point-required")
+        @Pattern(
+                regexp = "^[A-Za-z]+(\\s?[A-Za-z]+)*$",
+                message = "err-place-regex"
+        )
+        @Size(
+                max = 30,
+                min = 3,
+                message = "err-place-length"
+        )
+        String endPoint,
+
+        @Positive(message = "err-total-distance")
+        Double totalDistance,
+
+        @NotNull(message = "err-trail-info-required")
+        @Pattern(
+                regexp = "^[a-zA-Z0-9\\-.,\\s\\n()'`:;?!]*$",
+                message = "err-trail-info-regex"
+        )
+        @Size(
+                max = 3000,
+                message = "err-trail-info-max-length"
         )
         String trailInfo,
 
 //      @EnumMatch(enumClass = SeasonEnum.class)
-//      @NotNull(message = "Please, enter during which season the hike took place!")
         SeasonEnum seasonVisited,
 
-//      @NotNull(message = "Please, enter are any water sources available!")
         WaterAvailabilityEnum waterAvailable,
 
-//      @EnumMatch(enumClass = DifficultyLevelEnum.class)
-//      @NotNull(message = "Please, rate the difficulty level of the trail with a number from 1 to 6!")
+      /*
+        @EnumMatch(enumClass = DifficultyLevelEnum.class)
+        @NotNull(message = "Please, rate the difficulty level of the trail with a number from 1 to 6!")
+      */
         DifficultyLevelEnum trailDifficulty,
 
-//      @NotEmpty(message = "Please, select at least one activity!")
         @JsonDeserialize(using = SuitableForEnumDeserializer.class)
         List<SuitableForEnum> activity,
 
-        @Positive(message = "Elevation gained must be greater than 0")
+        @Positive(message = "err-total-elevation")
         Integer elevationGained,
 
-        @NotNull(message = "Please, enter town or city name that is close to the trail!")
+        @NotNull(message = "err-next-to-required")
         @Pattern(
-                regexp = "^[A-Za-z]{3,15}$",
-                message = "City/town name should contain from 3 to 15 letters!"
+                regexp = "^[A-Za-z]+(\\s?[A-Za-z]+)*$",
+                message = "err-place-regex"
         )
+        @Size(
+                max = 30,
+                min = 3,
+                message = "err-place-length")
         String nextTo,
 
         List<DestinationIdDto> destinations,

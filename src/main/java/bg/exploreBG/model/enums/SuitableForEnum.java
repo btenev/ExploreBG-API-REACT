@@ -4,9 +4,9 @@ import bg.exploreBG.exception.AppException;
 import org.springframework.http.HttpStatus;
 
 public enum SuitableForEnum {
-    HIKING("Hiking"),
-    TRAIL_RUNNING("Trail running"),
-    MOUNTAIN_BIKING("Mountain biking");
+    HIKING("hiking"),
+    TRAIL_RUNNING("trail-running"),
+    MOUNTAIN_BIKING("mountain-biking");
 
     private final String value;
 
