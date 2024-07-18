@@ -3,14 +3,8 @@ package bg.exploreBG.web;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailIdDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateElevationGainedDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistanceDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfoDto;
+import bg.exploreBG.model.dto.hikingTrail.single.*;
+import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -85,6 +79,19 @@ public class HikingTrailController {
                 .created(URI.create("api/trails/" + newHikingTrailId))
                 .body(new HikingTrailIdDto(newHikingTrailId));
     }
+
+    @PatchMapping("/{id}/update-start-point")
+    public ResponseEntity<HikingTrailStartPointDto> updateStartPoint (
+            @PathVariable Long id,
+            @Valid @ RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailStartPointDto hikingTrailStartPointDto = this.hikingTrailService
+                .updateHikingTrailStartPoint(id, hikingTrailUpdateStartPointDto, userDetails);
+
+        return ResponseEntity.ok(hikingTrailStartPointDto);
+    }
+
 
     @PatchMapping("/{id}/update-total-distance")
     public ResponseEntity<HikingTrailTotalDistanceDto> updateTotalDistance(

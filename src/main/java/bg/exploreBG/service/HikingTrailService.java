@@ -5,12 +5,10 @@ import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateElevationGainedDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTotalDistanceDto;
-import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateTrailInfoDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -21,7 +19,6 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.repository.HikingTrailRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -111,39 +108,83 @@ public class HikingTrailService {
         return this.hikingTrailRepository.save(newHikingTrail).getId();
     }
 
-    public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
+    public HikingTrailStartPointDto updateHikingTrailStartPoint(
             Long id,
-            HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
+            HikingTrailUpdateStartPointDto hikingTrailStartPointDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
-        currentTrail.setTrailInfo(hikingTrailUpdateTrailInfoDto.trailInfo());
 
-        HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
+        boolean noMatch = !hikingTrailStartPointDto.startPoint().equals(currentTrail.getStartPoint());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setStartPoint(hikingTrailStartPointDto.startPoint());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return new HikingTrailStartPointDto(saved.getStartPoint());
+    }
+
+    public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
+            Long id,
+            HikingTrailUpdateTrailInfoDto trailInfoDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+
+        boolean noMatch = !trailInfoDto.trailInfo().equals(currentTrail.getTrailInfo());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setTrailInfo(trailInfoDto.trailInfo());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
         return new HikingTrailTrailInfoDto(saved.getTrailInfo());
     }
 
     public HikingTrailTotalDistanceDto updateHikingTrailTotalDistance(
             Long id,
-            HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
+            HikingTrailUpdateTotalDistanceDto trailTotalDistanceDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
-        currentTrail.setTotalDistance(hikingTrailUpdateTotalDistanceDto.totalDistance());
 
-        HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
+        boolean noMatch = !trailTotalDistanceDto.totalDistance().equals(currentTrail.getTotalDistance());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setTotalDistance(trailTotalDistanceDto.totalDistance());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
         return new HikingTrailTotalDistanceDto(saved.getTotalDistance());
     }
 
     public HikingTrailElevationGainedDto updateHikingTrailElevationGained(
             Long id,
-            HikingTrailUpdateElevationGainedDto hikingTrailUpdateElevationGainedDto,
+            HikingTrailUpdateElevationGainedDto elevationGainedDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
-        currentTrail.setElevationGained(hikingTrailUpdateElevationGainedDto.elevationGained());
 
-        HikingTrailEntity saved = this.hikingTrailRepository.save(currentTrail);
+        boolean noMatch = !elevationGainedDto.elevationGained().equals(currentTrail.getElevationGained());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setElevationGained(elevationGainedDto.elevationGained());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
         return new HikingTrailElevationGainedDto(saved.getElevationGained());
     }
 
