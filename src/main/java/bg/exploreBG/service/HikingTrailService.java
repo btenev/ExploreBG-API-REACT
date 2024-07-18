@@ -21,6 +21,7 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.repository.HikingTrailRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -159,7 +160,7 @@ public class HikingTrailService {
         return currentTrail;
     }
 
-    private HikingTrailEntity hikingTrailExist(Long id) {
+    protected HikingTrailEntity hikingTrailExist(Long id) {
         Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
 
         if (trailById.isEmpty()) {

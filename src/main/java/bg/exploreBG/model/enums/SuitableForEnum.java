@@ -24,6 +24,6 @@ public enum SuitableForEnum {
                 return suitableForEnum;
             }
         }
-        throw new AppException("Unknown enum season value: " + value, HttpStatus.BAD_REQUEST);
+        throw new AppException("Unknown enum suitable for value: " + value, HttpStatus.BAD_REQUEST);
     }
 }

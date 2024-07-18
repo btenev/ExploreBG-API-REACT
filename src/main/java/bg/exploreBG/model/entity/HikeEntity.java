@@ -150,4 +150,22 @@ public class HikeEntity {
     public void setArchived(Boolean archived) {
         this.archived = archived;
     }
+
+    @Override
+    public String toString() {
+        return "HikeEntity{" +
+                "id=" + id +
+                ", startPoint='" + startPoint + '\'' +
+                ", endPoint='" + endPoint + '\'' +
+                ", startPointCoordinates=" + startPointCoordinates +
+                ", hikeDate=" + hikeDate +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", hikingTrail=" + hikingTrail +
+                ", hikeInfo='" + hikeInfo + '\'' +
+                ", nextTo='" + nextTo + '\'' +
+                ", owner=" + owner +
+                ", comments=" + comments +
+                ", archived=" + archived +
+                '}';
+    }
 }
