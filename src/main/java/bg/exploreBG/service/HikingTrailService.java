@@ -128,6 +128,27 @@ public class HikingTrailService {
         return new HikingTrailStartPointDto(saved.getStartPoint());
     }
 
+    public HikingTrailEndPointDto updateHikingTrailEndPoint(
+            Long id,
+            HikingTrailUpdateEndPointDto hikingTrailEndPointDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+
+        boolean noMatch = !hikingTrailEndPointDto.endPoint().equals(currentTrail.getEndPoint());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setEndPoint(hikingTrailEndPointDto.endPoint());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return new HikingTrailEndPointDto(saved.getEndPoint());
+    }
+
+
     public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
             Long id,
             HikingTrailUpdateTrailInfoDto trailInfoDto,

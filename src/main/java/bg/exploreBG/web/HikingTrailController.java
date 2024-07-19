@@ -83,15 +83,26 @@ public class HikingTrailController {
     @PatchMapping("/{id}/update-start-point")
     public ResponseEntity<HikingTrailStartPointDto> updateStartPoint (
             @PathVariable Long id,
-            @Valid @ RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
+            @Valid @RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailStartPointDto hikingTrailStartPointDto = this.hikingTrailService
-                .updateHikingTrailStartPoint(id, hikingTrailUpdateStartPointDto, userDetails);
+        HikingTrailStartPointDto hikingTrailStartPointDto =
+                this.hikingTrailService.updateHikingTrailStartPoint(id, hikingTrailUpdateStartPointDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailStartPointDto);
     }
 
+    @PatchMapping("/{id}/update-end-point")
+    public ResponseEntity<HikingTrailEndPointDto> updateEndPoint(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailUpdateEndPointDto hikingTrailUpdateEndPointDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        HikingTrailEndPointDto hikingTrailEndPointDto =
+                this.hikingTrailService.updateHikingTrailEndPoint(id, hikingTrailUpdateEndPointDto, userDetails);
+
+        return ResponseEntity.ok(hikingTrailEndPointDto);
+    }
 
     @PatchMapping("/{id}/update-total-distance")
     public ResponseEntity<HikingTrailTotalDistanceDto> updateTotalDistance(
@@ -101,8 +112,8 @@ public class HikingTrailController {
     ) {
         logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistanceDto);
 
-        HikingTrailTotalDistanceDto hikingTrailTotalDistanceDto = this.hikingTrailService
-                .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
+        HikingTrailTotalDistanceDto hikingTrailTotalDistanceDto =
+                this.hikingTrailService.updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailTotalDistanceDto);
     }
