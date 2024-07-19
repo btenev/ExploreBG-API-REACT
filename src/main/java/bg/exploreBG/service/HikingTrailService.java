@@ -4,10 +4,7 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailElevationGainedDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTotalDistanceDto;
-import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailTrailInfoDto;
+import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
@@ -148,27 +145,6 @@ public class HikingTrailService {
         return new HikingTrailEndPointDto(saved.getEndPoint());
     }
 
-
-    public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
-            Long id,
-            HikingTrailUpdateTrailInfoDto trailInfoDto,
-            UserDetails userDetails
-    ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
-
-        boolean noMatch = !trailInfoDto.trailInfo().equals(currentTrail.getTrailInfo());
-        HikingTrailEntity saved;
-
-        if (noMatch) {
-            currentTrail.setTrailInfo(trailInfoDto.trailInfo());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
-        }
-
-        return new HikingTrailTrailInfoDto(saved.getTrailInfo());
-    }
-
     public HikingTrailTotalDistanceDto updateHikingTrailTotalDistance(
             Long id,
             HikingTrailUpdateTotalDistanceDto trailTotalDistanceDto,
@@ -207,6 +183,46 @@ public class HikingTrailService {
         }
 
         return new HikingTrailElevationGainedDto(saved.getElevationGained());
+    }
+
+    public HikingTrailWaterAvailableDto updateHikingTrailWaterAvailable(
+            Long id,
+            HikingTrailUpdateWaterAvailableDto hikingTrailWaterAvailableDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+
+        boolean noMatch = !hikingTrailWaterAvailableDto.waterAvailable().equals(currentTrail.getWaterAvailable());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setWaterAvailable(hikingTrailWaterAvailableDto.waterAvailable());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return new HikingTrailWaterAvailableDto(saved.getWaterAvailable().getValue());
+    }
+
+    public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
+            Long id,
+            HikingTrailUpdateTrailInfoDto trailInfoDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+
+        boolean noMatch = !trailInfoDto.trailInfo().equals(currentTrail.getTrailInfo());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setTrailInfo(trailInfoDto.trailInfo());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return new HikingTrailTrailInfoDto(saved.getTrailInfo());
     }
 
     public List<HikingTrailIdTrailNameDto> selectAll() {

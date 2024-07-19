@@ -110,12 +110,24 @@ public class HikingTrailController {
             @Valid @RequestBody HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistanceDto);
+//        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistanceDto);
 
         HikingTrailTotalDistanceDto hikingTrailTotalDistanceDto =
                 this.hikingTrailService.updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailTotalDistanceDto);
+    }
+
+    @PatchMapping("/{id}/update-water-available")
+    public ResponseEntity<HikingTrailWaterAvailableDto> updateWaterAvailable(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailUpdateWaterAvailableDto hikingTrailUpdateWaterAvailableDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailWaterAvailableDto hikingTrailWaterAvailableDto =
+                this.hikingTrailService.updateHikingTrailWaterAvailable(id, hikingTrailUpdateWaterAvailableDto, userDetails);
+
+        return ResponseEntity.ok(hikingTrailWaterAvailableDto);
     }
 
     @PatchMapping("/{id}/update-trail-info")
