@@ -69,12 +69,7 @@ public class DestinationService {
     }
 
     public List<DestinationEntity> getDestinationsByIds(List<Long> ids) {
-        List<DestinationEntity> selected = new ArrayList<>();
-        for (Long id : ids) {
-            Optional<DestinationEntity> byId = this.destinationRepository.findById(id);
-            byId.ifPresent(selected::add);
-        }
-        return selected;
+        return this.destinationRepository.findAllByIdIn(ids);
     }
 
     public DestinationIdDto createDestination(

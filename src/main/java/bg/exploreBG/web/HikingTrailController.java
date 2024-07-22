@@ -1,5 +1,6 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
@@ -171,6 +172,19 @@ public class HikingTrailController {
                         .updateHikingTrailElevationGained(id, hikingTrailUpdateElevationGainedDto,userDetails);
 
         return ResponseEntity.ok(hikingTrailElevationGainedDto);
+    }
+
+    @PatchMapping("/{id}/update-available-huts")
+    public ResponseEntity<List<AccommodationBasicDto>> updateAvailableHuts(
+       @PathVariable Long id,
+       @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
+       @AuthenticationPrincipal UserDetails userDetails
+    ){
+        List<AccommodationBasicDto> accommodationBasicDto =
+                this.hikingTrailService
+                        .updateHikingTrailAvailableHuts(id, hikingTrailUpdateAvailableHutsDto, userDetails);
+
+        return ResponseEntity.ok(accommodationBasicDto);
     }
 
     @GetMapping("/select")

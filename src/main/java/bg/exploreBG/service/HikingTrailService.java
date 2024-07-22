@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
@@ -246,6 +247,36 @@ public class HikingTrailService {
         }
 
         return new HikingTrailTrailInfoDto(saved.getTrailInfo());
+    }
+
+    public List<AccommodationBasicDto> updateHikingTrailAvailableHuts(
+            Long id,
+            HikingTrailUpdateAvailableHutsDto hikingTrailAvailableHutsDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        List<AccommodationEntity> currentTrailAvailableHuts = currentTrail.getAvailableHuts();
+        List<AccommodationIdDto> currentHutsDto = currentTrailAvailableHuts
+                .stream()
+                .map(ae -> new AccommodationIdDto(ae.getId()))
+                .toList();
+
+        boolean noMatch = !currentHutsDto.equals(hikingTrailAvailableHutsDto.availableHuts());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            List<AccommodationEntity> newSelection = mapDtoToAvailableHuts(currentHutsDto);
+            currentTrail.setAvailableHuts(newSelection);
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return saved
+                .getAvailableHuts()
+                .stream()
+                .map(hut -> new AccommodationBasicDto(hut.getId(), hut.getAccommodationName()))
+                .collect(Collectors.toList());
     }
 
     public List<HikingTrailIdTrailNameDto> selectAll() {

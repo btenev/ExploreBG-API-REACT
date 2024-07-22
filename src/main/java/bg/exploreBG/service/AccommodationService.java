@@ -72,12 +72,7 @@ public class AccommodationService {
     }
 
     public List<AccommodationEntity> getAccommodationsById(List<Long> ids) {
-        List<AccommodationEntity> selected = new ArrayList<>();
-        for (Long id : ids) {
-            Optional<AccommodationEntity> byId = this.accommodationRepository.findById(id);
-            byId.ifPresent(selected::add);
-        }
-        return selected;
+        return  this.accommodationRepository.findAllByIdIn(ids);
     }
 
     public AccommodationIdDto createAccommodation(
