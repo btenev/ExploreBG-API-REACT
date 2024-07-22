@@ -36,7 +36,8 @@ public class HikingTrailController {
 
     @GetMapping("/random")
     public ResponseEntity<List<HikingTrailBasicDto>> getFourRandomHikingTrails() {
-        List<HikingTrailBasicDto> randomTrails = this.hikingTrailService.getRandomNumOfHikingTrails(4);
+        List<HikingTrailBasicDto> randomTrails =
+                this.hikingTrailService.getRandomNumOfHikingTrails(4);
 
         return ResponseEntity.ok(randomTrails);
     }
@@ -87,7 +88,8 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         HikingTrailStartPointDto hikingTrailStartPointDto =
-                this.hikingTrailService.updateHikingTrailStartPoint(id, hikingTrailUpdateStartPointDto, userDetails);
+                this.hikingTrailService
+                        .updateHikingTrailStartPoint(id, hikingTrailUpdateStartPointDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailStartPointDto);
     }
@@ -99,7 +101,8 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ){
         HikingTrailEndPointDto hikingTrailEndPointDto =
-                this.hikingTrailService.updateHikingTrailEndPoint(id, hikingTrailUpdateEndPointDto, userDetails);
+                this.hikingTrailService
+                        .updateHikingTrailEndPoint(id, hikingTrailUpdateEndPointDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailEndPointDto);
     }
@@ -113,7 +116,8 @@ public class HikingTrailController {
 //        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistanceDto);
 
         HikingTrailTotalDistanceDto hikingTrailTotalDistanceDto =
-                this.hikingTrailService.updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
+                this.hikingTrailService
+                        .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailTotalDistanceDto);
     }
@@ -125,9 +129,22 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         HikingTrailWaterAvailableDto hikingTrailWaterAvailableDto =
-                this.hikingTrailService.updateHikingTrailWaterAvailable(id, hikingTrailUpdateWaterAvailableDto, userDetails);
+                this.hikingTrailService
+                        .updateHikingTrailWaterAvailable(id, hikingTrailUpdateWaterAvailableDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailWaterAvailableDto);
+    }
+
+    @PatchMapping("/{id}/update-activity")
+    public ResponseEntity<HikingTrailActivityDto> updateHikingTrailActivity(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailUpdateActivityDto hikingTrailUpdateActivityDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailActivityDto hikingTrailActivityDto =
+                this.hikingTrailService.updateHikingTrailActivity(id, hikingTrailUpdateActivityDto, userDetails);
+
+        return ResponseEntity.ok(hikingTrailActivityDto);
     }
 
     @PatchMapping("/{id}/update-trail-info")
@@ -136,8 +153,9 @@ public class HikingTrailController {
             @Valid @RequestBody HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailTrailInfoDto hikingTrailTrailInfoDto = this.hikingTrailService
-                .updateHikingTrailTrailInfo(id, hikingTrailUpdateTrailInfoDto, userDetails);
+        HikingTrailTrailInfoDto hikingTrailTrailInfoDto =
+                this.hikingTrailService
+                        .updateHikingTrailTrailInfo(id, hikingTrailUpdateTrailInfoDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailTrailInfoDto);
     }

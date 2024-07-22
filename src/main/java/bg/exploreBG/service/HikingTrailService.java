@@ -10,6 +10,7 @@ import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.utils.RandomUtil;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class HikingTrailService {
@@ -203,6 +205,27 @@ public class HikingTrailService {
         }
 
         return new HikingTrailWaterAvailableDto(saved.getWaterAvailable().getValue());
+    }
+
+    public HikingTrailActivityDto updateHikingTrailActivity(
+            Long id,
+            HikingTrailUpdateActivityDto hikingTrailActivityDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        List<SuitableForEnum> currentTrailActivity = currentTrail.getActivity();
+
+        boolean noMatch = !hikingTrailActivityDto.activity().equals(currentTrailActivity);
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setActivity(hikingTrailActivityDto.activity());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return new HikingTrailActivityDto(saved.getActivity().stream().map(SuitableForEnum::getValue).collect(Collectors.toList()));
     }
 
     public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(

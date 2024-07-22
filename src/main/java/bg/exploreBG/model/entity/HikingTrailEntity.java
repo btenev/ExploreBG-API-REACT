@@ -50,7 +50,7 @@ public class HikingTrailEntity {
     private DifficultyLevelEnum trailDifficulty;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "hiking_trail_activity",
             joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"))

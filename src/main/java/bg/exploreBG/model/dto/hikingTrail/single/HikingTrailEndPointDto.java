@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto.hikingTrail.validate;
+package bg.exploreBG.model.dto.hikingTrail.single;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
