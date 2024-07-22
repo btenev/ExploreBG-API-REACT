@@ -1,6 +1,7 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
@@ -83,7 +84,7 @@ public class HikingTrailController {
     }
 
     @PatchMapping("/{id}/update-start-point")
-    public ResponseEntity<HikingTrailStartPointDto> updateStartPoint (
+    public ResponseEntity<HikingTrailStartPointDto> updateStartPoint(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -100,7 +101,7 @@ public class HikingTrailController {
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateEndPointDto hikingTrailUpdateEndPointDto,
             @AuthenticationPrincipal UserDetails userDetails
-    ){
+    ) {
         HikingTrailEndPointDto hikingTrailEndPointDto =
                 this.hikingTrailService
                         .updateHikingTrailEndPoint(id, hikingTrailUpdateEndPointDto, userDetails);
@@ -169,22 +170,35 @@ public class HikingTrailController {
     ) {
         HikingTrailElevationGainedDto hikingTrailElevationGainedDto =
                 this.hikingTrailService
-                        .updateHikingTrailElevationGained(id, hikingTrailUpdateElevationGainedDto,userDetails);
+                        .updateHikingTrailElevationGained(id, hikingTrailUpdateElevationGainedDto, userDetails);
 
         return ResponseEntity.ok(hikingTrailElevationGainedDto);
     }
 
     @PatchMapping("/{id}/update-available-huts")
     public ResponseEntity<List<AccommodationBasicDto>> updateAvailableHuts(
-       @PathVariable Long id,
-       @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
-       @AuthenticationPrincipal UserDetails userDetails
-    ){
+            @PathVariable Long id,
+            @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
         List<AccommodationBasicDto> accommodationBasicDto =
                 this.hikingTrailService
                         .updateHikingTrailAvailableHuts(id, hikingTrailUpdateAvailableHutsDto, userDetails);
 
         return ResponseEntity.ok(accommodationBasicDto);
+    }
+
+    @PatchMapping("/{id}/update-destinations")
+    public ResponseEntity<List<DestinationBasicDto>> updateDestinations(
+            @PathVariable Long id,
+            @RequestBody HikingTrailUpdateDestinationsDto hikingTrailUpdateDestinationsDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        List<DestinationBasicDto> destinationBasicDto =
+                this.hikingTrailService
+                        .updateHikingTrailDestinations(id, hikingTrailUpdateDestinationsDto, userDetails);
+
+        return ResponseEntity.ok(destinationBasicDto);
     }
 
     @GetMapping("/select")

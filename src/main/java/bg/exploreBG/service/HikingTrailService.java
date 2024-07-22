@@ -3,21 +3,22 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
+import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
-import bg.exploreBG.utils.RandomUtil;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
-import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.repository.HikingTrailRepository;
+import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -101,7 +102,7 @@ public class HikingTrailService {
 
         if (!hikingTrailCreateDto.availableHuts().isEmpty()) {
             List<AccommodationEntity> accommodationEntities
-                    = mapDtoToAvailableHuts(hikingTrailCreateDto.availableHuts());
+                    = mapDtoToAccommodationEntities(hikingTrailCreateDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
 
@@ -256,16 +257,18 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
         List<AccommodationEntity> currentTrailAvailableHuts = currentTrail.getAvailableHuts();
-        List<AccommodationIdDto> currentHutsDto = currentTrailAvailableHuts
-                .stream()
-                .map(ae -> new AccommodationIdDto(ae.getId()))
-                .toList();
+        List<AccommodationIdDto> currentHutsDto =
+                currentTrailAvailableHuts
+                        .stream()
+                        .map(ae -> new AccommodationIdDto(ae.getId()))
+                        .toList();
 
         boolean noMatch = !currentHutsDto.equals(hikingTrailAvailableHutsDto.availableHuts());
         HikingTrailEntity saved;
 
         if (noMatch) {
-            List<AccommodationEntity> newSelection = mapDtoToAvailableHuts(currentHutsDto);
+            List<AccommodationEntity> newSelection =
+                    mapDtoToAccommodationEntities(hikingTrailAvailableHutsDto.availableHuts());
             currentTrail.setAvailableHuts(newSelection);
             saved = this.hikingTrailRepository.save(currentTrail);
         } else {
@@ -276,6 +279,38 @@ public class HikingTrailService {
                 .getAvailableHuts()
                 .stream()
                 .map(hut -> new AccommodationBasicDto(hut.getId(), hut.getAccommodationName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<DestinationBasicDto> updateHikingTrailDestinations(
+            Long id,
+            HikingTrailUpdateDestinationsDto hikingTrailDestinationsDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        List<DestinationEntity> currentTrailDestinations = currentTrail.getDestinations();
+        List<DestinationIdDto> destinationIdDto =
+                currentTrailDestinations
+                        .stream()
+                        .map(de -> new DestinationIdDto(de.getId()))
+                        .toList();
+
+        boolean noMatch = ! destinationIdDto.equals(hikingTrailDestinationsDto.destinations());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            List<DestinationEntity> newSelection =
+                    mapDtoToDestinationEntities(hikingTrailDestinationsDto.destinations());
+            currentTrail.setDestinations(newSelection);
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return saved
+                .getDestinations()
+                .stream()
+                .map(destination -> new DestinationBasicDto(destination.getId(), destination.getDestinationName()))
                 .collect(Collectors.toList());
     }
 
@@ -301,7 +336,7 @@ public class HikingTrailService {
         return trailById.get();
     }
 
-    private List<AccommodationEntity> mapDtoToAvailableHuts(List<AccommodationIdDto> ids) {
+    private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
 
         List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
 
