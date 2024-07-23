@@ -1,8 +1,8 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.comment;
 
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 
-public record CommentsDto(
+public record CommentDto(
         Long id,
         String message,
         UserBasicInfo owner

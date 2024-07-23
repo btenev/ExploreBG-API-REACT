@@ -1,6 +1,5 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.entity.UserEntity;
 import com.cloudinary.Cloudinary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

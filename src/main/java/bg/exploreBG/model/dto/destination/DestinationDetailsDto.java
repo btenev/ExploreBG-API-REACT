@@ -1,6 +1,6 @@
 package bg.exploreBG.model.dto.destination;
 
-import bg.exploreBG.model.dto.CommentsDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public record DestinationDetailsDto(
         String imageUrl,
         String nextTo,
         String type,
-        List<CommentsDto> comments
+        List<CommentDto> comments
 ) {
 }
 

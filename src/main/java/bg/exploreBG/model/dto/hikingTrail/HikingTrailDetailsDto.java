@@ -1,6 +1,6 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
-import bg.exploreBG.model.dto.CommentsDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
@@ -19,7 +19,7 @@ public record HikingTrailDetailsDto(
         List<AccommodationBasicDto> availableHuts,
         int trailDifficulty,
         List<String> activity,
-        List<CommentsDto> comments,
+        List<CommentDto> comments,
         Integer elevationGained,
         String nextTo,
         UserBasicInfo createdBy,

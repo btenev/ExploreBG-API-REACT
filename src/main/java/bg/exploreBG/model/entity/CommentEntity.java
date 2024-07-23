@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-@EntityListeners(AuditingEntityListener.class)
+//@EntityListeners(AuditingEntityListener.class)
 public class CommentEntity {
 
     @Id
@@ -18,24 +18,31 @@ public class CommentEntity {
     @Column(nullable = false)
     private String message;
 
-    @CreatedDate
-    @Column(name = "creation_date",
+//    @CreatedDate
+    @Column(
+            name = "creation_date",
             nullable = false,
-            updatable = false)
+            updatable = false
+    )
     private LocalDateTime creationDate;
 
     //  TODO: Review when spring security is implemented - @CreatedBy
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(
+            name = "user_id",
+            referencedColumnName = "id"
+    )
     private UserEntity owner;
 
     // TODO: Review when spring security is implemented - @CreatedBy
 //    @LastModifiedBy
 //    private UserEntity userEntity;
 
-    @LastModifiedDate
-    @Column(name="modification_date",
-            insertable = false)
+//    @LastModifiedDate
+    @Column(
+            name="modification_date",
+            insertable = false
+    )
     private LocalDateTime modificationDate;
     public CommentEntity() {
     }

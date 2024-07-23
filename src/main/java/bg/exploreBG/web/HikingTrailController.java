@@ -1,6 +1,8 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.comment.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
@@ -207,4 +209,18 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(selected);
     }
+
+    @Transactional
+    @PostMapping("/create/{id}/comment/{trailId}")
+    public ResponseEntity<?> createTrailComment(
+            @PathVariable Long id,
+            @PathVariable Long trailId,
+            @RequestBody CommentCreateDto commentCreateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        CommentDto commentDto = this.hikingTrailService.createTrailComment(id, trailId, commentCreateDto, userDetails);
+
+        return ResponseEntity.ok(commentDto);
+    }
+
 }

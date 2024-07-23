@@ -53,7 +53,8 @@ public class HikingTrailEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "hiking_trail_activity",
-            joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id")
+    )
     private List<SuitableForEnum> activity;
 
     @OneToMany
@@ -181,6 +182,10 @@ public class HikingTrailEntity {
 
     public void setComments(List<CommentEntity> comments) {
         this.comments = comments;
+    }
+
+    public void setSingleComment(CommentEntity comment) {
+        this.comments.add(comment);
     }
 
     public Integer getElevationGained() {

@@ -1,7 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
-import bg.exploreBG.model.dto.CommentsDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
@@ -83,7 +83,7 @@ public class AccommodationServiceTest {
         accommodation.setType(AccommodationTypeEnum.SHELTER);
         accommodation.setComments(List.of(comment));
 
-        CommentsDto comments = new CommentsDto(21L, "Some comment", new UserBasicInfo(4L, "John", null));
+        CommentDto comments = new CommentDto(21L, "Some comment", new UserBasicInfo(4L, "John", null));
 
         AccommodationDetailsDto accommodationDetailsDto =
                 new AccommodationDetailsDto(6L,

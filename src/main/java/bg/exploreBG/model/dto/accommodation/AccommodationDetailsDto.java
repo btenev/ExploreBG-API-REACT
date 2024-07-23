@@ -1,6 +1,6 @@
 package bg.exploreBG.model.dto.accommodation;
 
-import bg.exploreBG.model.dto.CommentsDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 
 import java.util.List;
@@ -19,6 +19,6 @@ public record AccommodationDetailsDto(
         String access,
         String type,
         String nextTo,
-        List<CommentsDto> comments
+        List<CommentDto> comments
 ) {
 }
