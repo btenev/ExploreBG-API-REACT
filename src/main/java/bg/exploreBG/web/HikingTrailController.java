@@ -1,8 +1,10 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
-import bg.exploreBG.model.dto.comment.CommentCreateDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.single.CommentMessageDto;
+import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentUpdateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
@@ -177,6 +179,7 @@ public class HikingTrailController {
         return ResponseEntity.ok(hikingTrailElevationGainedDto);
     }
 
+    @Transactional
     @PatchMapping("/{id}/update-available-huts")
     public ResponseEntity<List<AccommodationBasicDto>> updateAvailableHuts(
             @PathVariable Long id,
@@ -190,6 +193,7 @@ public class HikingTrailController {
         return ResponseEntity.ok(accommodationBasicDto);
     }
 
+    @Transactional
     @PatchMapping("/{id}/update-destinations")
     public ResponseEntity<List<DestinationBasicDto>> updateDestinations(
             @PathVariable Long id,
@@ -212,13 +216,15 @@ public class HikingTrailController {
 
     @Transactional
     @PostMapping("/create/{id}/comment/{trailId}")
-    public ResponseEntity<?> createTrailComment(
+    public ResponseEntity<CommentDto> createTrailComment(
             @PathVariable Long id,
             @PathVariable Long trailId,
-            @RequestBody CommentCreateDto commentCreateDto,
+            @Valid @RequestBody CommentCreateDto commentCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        CommentDto commentDto = this.hikingTrailService.createTrailComment(id, trailId, commentCreateDto, userDetails);
+        CommentDto commentDto =
+                this.hikingTrailService
+                        .addNewTrailComment(id, trailId, commentCreateDto, userDetails);
 
         return ResponseEntity.ok(commentDto);
     }

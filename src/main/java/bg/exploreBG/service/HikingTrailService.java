@@ -3,8 +3,8 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
-import bg.exploreBG.model.dto.comment.CommentCreateDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
@@ -12,17 +12,13 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
-import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
-import bg.exploreBG.repository.CommentRepository;
 import bg.exploreBG.repository.HikingTrailRepository;
-import bg.exploreBG.utils.CommentUtil;
 import bg.exploreBG.utils.RandomUtil;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -46,7 +42,7 @@ public class HikingTrailService {
     private final UserService userService;
     private final DestinationService destinationService;
     private final AccommodationService accommodationService;
-    private final CommentRepository commentRepository;
+    private final CommentService commentService;
 
     public HikingTrailService(
             HikingTrailRepository hikingTrailRepository,
@@ -55,7 +51,7 @@ public class HikingTrailService {
             UserService userService,
             DestinationService destinationService,
             AccommodationService accommodationService,
-            CommentRepository commentRepository
+            CommentService commentService
     ) {
         this.hikingTrailRepository = hikingTrailRepository;
         this.hikingTrailMapper = hikingTrailMapper;
@@ -63,7 +59,7 @@ public class HikingTrailService {
         this.userService = userService;
         this.destinationService = destinationService;
         this.accommodationService = accommodationService;
-        this.commentRepository = commentRepository;
+        this.commentService = commentService;
     }
 
     public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
@@ -328,7 +324,7 @@ public class HikingTrailService {
         return this.hikingTrailRepository.findAllBy();
     }
 
-    public CommentDto createTrailComment(
+    public CommentDto addNewTrailComment(
             Long id,
             Long trailId,
             CommentCreateDto commentDto,
@@ -337,8 +333,7 @@ public class HikingTrailService {
         HikingTrailEntity currentTrail = hikingTrailExist(trailId);
         UserEntity userCommenting = this.userService.verifiedUser(id, userDetails);
 
-        CommentEntity newComment = CommentUtil.createNewComment(commentDto, userCommenting);
-        CommentEntity savedComment = this.commentRepository.save(newComment);
+        CommentEntity savedComment = commentService.saveComment(commentDto, userCommenting);
 
         currentTrail.setSingleComment(savedComment);
         this.hikingTrailRepository.save(currentTrail);
