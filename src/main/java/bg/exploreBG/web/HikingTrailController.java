@@ -1,10 +1,7 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
-import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.single.CommentMessageDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
-import bg.exploreBG.model.dto.comment.validate.CommentUpdateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
@@ -179,6 +176,19 @@ public class HikingTrailController {
         return ResponseEntity.ok(hikingTrailElevationGainedDto);
     }
 
+    @PatchMapping("/{id}/update-trail-difficulty")
+    public ResponseEntity<HikingTrailDifficultyDto> updateTrailDifficulty(
+            @PathVariable Long id,
+            @RequestBody HikingTrailUpdateTrailDifficultyDto hikingTrailUpdateTrailDifficultyDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailDifficultyDto trailDifficultyDto =
+                this.hikingTrailService
+                        .updateHikingTrailDifficulty(id, hikingTrailUpdateTrailDifficultyDto, userDetails);
+
+        return ResponseEntity.ok(trailDifficultyDto);
+    }
+
     @Transactional
     @PatchMapping("/{id}/update-available-huts")
     public ResponseEntity<List<AccommodationBasicDto>> updateAvailableHuts(
@@ -216,17 +226,16 @@ public class HikingTrailController {
 
     @Transactional
     @PostMapping("/create/{id}/comment/{trailId}")
-    public ResponseEntity<CommentDto> createTrailComment(
+    public ResponseEntity<?> createTrailComment(
             @PathVariable Long id,
             @PathVariable Long trailId,
             @Valid @RequestBody CommentCreateDto commentCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        CommentDto commentDto =
-                this.hikingTrailService
-                        .addNewTrailComment(id, trailId, commentCreateDto, userDetails);
+        this.hikingTrailService
+                .addNewTrailComment(id, trailId, commentCreateDto, userDetails);
 
-        return ResponseEntity.ok(commentDto);
+        return ResponseEntity.ok().build();
     }
 
 }

@@ -52,14 +52,6 @@ public class CommentService {
         return verifiedComment;
     }
 
-    public CommentEntity saveComment(
-            CommentCreateDto commentDto,
-            UserEntity userCommenting
-    ) {
-        CommentEntity newComment = createNewComment(commentDto, userCommenting);
-        return this.commentRepository.save(newComment);
-    }
-
     public CommentEntity verifiedComment(
             Long id,
             UserDetails userDetails
@@ -82,7 +74,7 @@ public class CommentService {
         return byId.get();
     }
 
-    private CommentEntity createNewComment(
+    public CommentEntity createNewComment(
             CommentCreateDto commentDto,
             UserEntity verifiedUser
     ) {

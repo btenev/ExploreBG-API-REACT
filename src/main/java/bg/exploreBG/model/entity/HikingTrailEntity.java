@@ -46,7 +46,7 @@ public class HikingTrailEntity {
     private List<AccommodationEntity> availableHuts;
 
     @Column(name = "trail_difficulty")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private DifficultyLevelEnum trailDifficulty;
 
     @Enumerated(EnumType.STRING)
@@ -57,7 +57,7 @@ public class HikingTrailEntity {
     )
     private List<SuitableForEnum> activity;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "hiking_trails_comments",
             joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),

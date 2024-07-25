@@ -320,11 +320,31 @@ public class HikingTrailService {
                 .collect(Collectors.toList());
     }
 
+    public HikingTrailDifficultyDto updateHikingTrailDifficulty(
+            Long id,
+            HikingTrailUpdateTrailDifficultyDto hikingTrailDifficultyDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+
+        boolean noMatch = !currentTrail.getTrailDifficulty().equals(hikingTrailDifficultyDto.trailDifficulty());
+        HikingTrailEntity saved;
+
+        if (noMatch) {
+            currentTrail.setTrailDifficulty(hikingTrailDifficultyDto.trailDifficulty());
+            saved = this.hikingTrailRepository.save(currentTrail);
+        } else {
+            saved = currentTrail;
+        }
+
+        return new HikingTrailDifficultyDto(saved.getTrailDifficulty().getLevel());
+    }
+
     public List<HikingTrailIdTrailNameDto> selectAll() {
         return this.hikingTrailRepository.findAllBy();
     }
 
-    public CommentDto addNewTrailComment(
+    public void addNewTrailComment(
             Long id,
             Long trailId,
             CommentCreateDto commentDto,
@@ -333,12 +353,10 @@ public class HikingTrailService {
         HikingTrailEntity currentTrail = hikingTrailExist(trailId);
         UserEntity userCommenting = this.userService.verifiedUser(id, userDetails);
 
-        CommentEntity savedComment = commentService.saveComment(commentDto, userCommenting);
+        CommentEntity newComment = commentService.createNewComment(commentDto, userCommenting);
 
-        currentTrail.setSingleComment(savedComment);
+        currentTrail.setSingleComment(newComment);
         this.hikingTrailRepository.save(currentTrail);
-
-        return this.commentMapper.commentEntityToCommentDto(savedComment);
     }
 
     private HikingTrailEntity verifiedHikingTrail(Long id, UserDetails userDetails) {
