@@ -53,10 +53,10 @@ public class CommentService {
     }
 
     public CommentEntity verifiedComment(
-            Long id,
+            Long commentId,
             UserDetails userDetails
     ) {
-        CommentEntity existingComment = commentExist(id);
+        CommentEntity existingComment = commentExist(commentId);
         UserEntity commentOwner = existingComment.getOwner();
 
         this.userService.verifiedUser(commentOwner, userDetails);

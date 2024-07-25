@@ -57,7 +57,7 @@ public class HikingTrailEntity {
     )
     private List<SuitableForEnum> activity;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(
             name = "hiking_trails_comments",
             joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),

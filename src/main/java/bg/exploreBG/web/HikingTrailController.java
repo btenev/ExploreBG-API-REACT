@@ -226,7 +226,7 @@ public class HikingTrailController {
 
     @Transactional
     @PostMapping("/create/{id}/comment/{trailId}")
-    public ResponseEntity<?> createTrailComment(
+    public ResponseEntity<Void> createTrailComment(
             @PathVariable Long id,
             @PathVariable Long trailId,
             @Valid @RequestBody CommentCreateDto commentCreateDto,
@@ -238,4 +238,14 @@ public class HikingTrailController {
         return ResponseEntity.ok().build();
     }
 
+    @Transactional
+    @DeleteMapping("/delete/{commentId}/comment/{trailId}")
+    public ResponseEntity<Void> deleteTrailComment(
+            @PathVariable Long commentId,
+            @PathVariable Long trailId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        this.hikingTrailService.deleteTrailComment(commentId, trailId, userDetails);
+        return ResponseEntity.ok().build();
+    }
 }

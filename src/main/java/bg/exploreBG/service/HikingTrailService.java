@@ -3,7 +3,6 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
-import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
@@ -356,6 +355,26 @@ public class HikingTrailService {
         CommentEntity newComment = commentService.createNewComment(commentDto, userCommenting);
 
         currentTrail.setSingleComment(newComment);
+        this.hikingTrailRepository.save(currentTrail);
+    }
+
+    /*
+    In this example, the ParentEntity has a list of ChildEntity objects. The @OneToMany annotation with the cascade = CascadeType.ALL
+    attribute means that any operation (including deletion) performed on the ParentEntity will be cascaded to the ChildEntity objects.
+    The orphanRemoval = true attribute ensures that if a ChildEntity object is removed from the collection, it will be deleted from the database.
+
+    To delete a ChildEntity, you can simply remove it from the collection in the ParentEntity and then save the ParentEntity.
+    The removed ChildEntity will be deleted from the database due to the cascading delete operation.
+    */
+    public void deleteTrailComment(
+            Long commentId,
+            Long trailId,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = hikingTrailExist(trailId); // trail exist
+        CommentEntity commentToDelete = this.commentService.verifiedComment(commentId, userDetails);
+
+        currentTrail.getComments().remove(commentToDelete);
         this.hikingTrailRepository.save(currentTrail);
     }
 
