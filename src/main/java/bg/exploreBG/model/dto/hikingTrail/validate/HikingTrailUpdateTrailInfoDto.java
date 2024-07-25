@@ -5,14 +5,14 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record HikingTrailUpdateTrailInfoDto(
-        @NotNull(message = "Please enter a short description of the trail!")
+        @NotNull(message = "err-trail-info-required")
         @Pattern(
-                regexp = "^[a-zA-Z0-9\\-.,\\s\\n]*$",
-                message = "Trail info allowed symbols are upper and lower letters, digits 0 to 9, dot, comma, dash, new line, empty space!"
+                regexp = "^[a-zA-Z0-9\\-.,\\s\\n()'`:;?!@]*$",
+                message = "err-trail-info-regex"
         )
         @Size(
-                max = 800,
-                message = "The trail info text shouldn't exceed 800 symbols"
+                max = 3000,
+                message = "err-trail-info-max-length"
         )
         String trailInfo
 ) {
