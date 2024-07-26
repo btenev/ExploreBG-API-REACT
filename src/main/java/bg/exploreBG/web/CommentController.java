@@ -1,6 +1,7 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.comment.single.CommentMessageDto;
+import bg.exploreBG.model.dto.ApiResponse;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentUpdateDto;
 import bg.exploreBG.service.CommentService;
 import jakarta.validation.Valid;
@@ -19,15 +20,17 @@ public class CommentController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<CommentMessageDto> updateComment(
+    public ResponseEntity<ApiResponse<CommentDto>> updateComment(
             @PathVariable Long id,
             @Valid @RequestBody CommentUpdateDto commentUpdateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        CommentMessageDto commentMessageDto =
+        CommentDto commentDto =
                 this.commentService
                         .updateComment(id, commentUpdateDto, userDetails);
 
-        return ResponseEntity.ok(commentMessageDto);
+        ApiResponse<CommentDto> response = new ApiResponse<>(commentDto);
+
+        return ResponseEntity.ok(response);
     }
 }

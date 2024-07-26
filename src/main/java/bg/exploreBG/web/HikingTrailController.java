@@ -1,6 +1,9 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
@@ -38,23 +41,27 @@ public class HikingTrailController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<List<HikingTrailBasicDto>> getFourRandomHikingTrails() {
+    public ResponseEntity<ApiResponse<List<HikingTrailBasicDto>>> getFourRandomHikingTrails() {
         List<HikingTrailBasicDto> randomTrails =
                 this.hikingTrailService.getRandomNumOfHikingTrails(4);
 
-        return ResponseEntity.ok(randomTrails);
+        ApiResponse<List<HikingTrailBasicDto>> response = new ApiResponse<>(randomTrails);
+
+        return ResponseEntity.ok(response);
     }
 
     @Transactional
     @GetMapping("/{id}")
-    public ResponseEntity<HikingTrailDetailsDto> getHikingTrail(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(@PathVariable Long id) {
         HikingTrailDetailsDto hikingTrail = this.hikingTrailService.getHikingTrail(id);
 
-        return ResponseEntity.ok(hikingTrail);
+        ApiResponse<HikingTrailDetailsDto> response = new ApiResponse<>(hikingTrail);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<HikingTrailBasicDto>> getAll(
+    public ResponseEntity<ApiResponse<Page<HikingTrailBasicDto>>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
@@ -65,11 +72,13 @@ public class HikingTrailController {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, parameters);
         Page<HikingTrailBasicDto> allHikingTrails = this.hikingTrailService.getAllHikingTrails(pageable);
 
-        return ResponseEntity.ok(allHikingTrails);
+        ApiResponse<Page<HikingTrailBasicDto>> response = new ApiResponse<>(allHikingTrails);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/create/{id}")
-    public ResponseEntity<HikingTrailIdDto> createHikingTrail(
+    public ResponseEntity<ApiResponse<HikingTrailIdDto>> createHikingTrail(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailCreateDto hikingTrailCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -79,13 +88,15 @@ public class HikingTrailController {
         Long newHikingTrailId =
                 this.hikingTrailService.createHikingTrail(id, hikingTrailCreateDto, userDetails);
 
+        ApiResponse<HikingTrailIdDto> response = new ApiResponse<>(new HikingTrailIdDto(newHikingTrailId));
+
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
-                .body(new HikingTrailIdDto(newHikingTrailId));
+                .body(response);
     }
 
     @PatchMapping("/{id}/update-start-point")
-    public ResponseEntity<HikingTrailStartPointDto> updateStartPoint(
+    public ResponseEntity<ApiResponse<HikingTrailStartPointDto>> updateStartPoint(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -94,11 +105,13 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailStartPoint(id, hikingTrailUpdateStartPointDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailStartPointDto);
+        ApiResponse<HikingTrailStartPointDto> response = new ApiResponse<>(hikingTrailStartPointDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-end-point")
-    public ResponseEntity<HikingTrailEndPointDto> updateEndPoint(
+    public ResponseEntity<ApiResponse<HikingTrailEndPointDto>> updateEndPoint(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateEndPointDto hikingTrailUpdateEndPointDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -107,11 +120,13 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailEndPoint(id, hikingTrailUpdateEndPointDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailEndPointDto);
+        ApiResponse<HikingTrailEndPointDto> response = new ApiResponse<>(hikingTrailEndPointDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-total-distance")
-    public ResponseEntity<HikingTrailTotalDistanceDto> updateTotalDistance(
+    public ResponseEntity<ApiResponse<HikingTrailTotalDistanceDto>> updateTotalDistance(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -122,11 +137,13 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailTotalDistance(id, hikingTrailUpdateTotalDistanceDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailTotalDistanceDto);
+        ApiResponse<HikingTrailTotalDistanceDto> response = new ApiResponse<>(hikingTrailTotalDistanceDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-water-available")
-    public ResponseEntity<HikingTrailWaterAvailableDto> updateWaterAvailable(
+    public ResponseEntity<ApiResponse<HikingTrailWaterAvailableDto>> updateWaterAvailable(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateWaterAvailableDto hikingTrailUpdateWaterAvailableDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -135,11 +152,13 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailWaterAvailable(id, hikingTrailUpdateWaterAvailableDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailWaterAvailableDto);
+        ApiResponse<HikingTrailWaterAvailableDto> response = new ApiResponse<>(hikingTrailWaterAvailableDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-activity")
-    public ResponseEntity<HikingTrailActivityDto> updateHikingTrailActivity(
+    public ResponseEntity<ApiResponse<HikingTrailActivityDto>> updateHikingTrailActivity(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateActivityDto hikingTrailUpdateActivityDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -147,11 +166,13 @@ public class HikingTrailController {
         HikingTrailActivityDto hikingTrailActivityDto =
                 this.hikingTrailService.updateHikingTrailActivity(id, hikingTrailUpdateActivityDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailActivityDto);
+        ApiResponse<HikingTrailActivityDto> response = new ApiResponse<>(hikingTrailActivityDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-trail-info")
-    public ResponseEntity<HikingTrailTrailInfoDto> updateTrailInfo(
+    public ResponseEntity<ApiResponse<HikingTrailTrailInfoDto>> updateTrailInfo(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -160,11 +181,13 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailTrailInfo(id, hikingTrailUpdateTrailInfoDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailTrailInfoDto);
+        ApiResponse<HikingTrailTrailInfoDto> response = new ApiResponse<>(hikingTrailTrailInfoDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-elevation-gained")
-    public ResponseEntity<HikingTrailElevationGainedDto> updateElevationGained(
+    public ResponseEntity<ApiResponse<HikingTrailElevationGainedDto>> updateElevationGained(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateElevationGainedDto hikingTrailUpdateElevationGainedDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -173,11 +196,13 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailElevationGained(id, hikingTrailUpdateElevationGainedDto, userDetails);
 
-        return ResponseEntity.ok(hikingTrailElevationGainedDto);
+        ApiResponse<HikingTrailElevationGainedDto> response = new ApiResponse<>(hikingTrailElevationGainedDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-trail-difficulty")
-    public ResponseEntity<HikingTrailDifficultyDto> updateTrailDifficulty(
+    public ResponseEntity<ApiResponse<HikingTrailDifficultyDto>> updateTrailDifficulty(
             @PathVariable Long id,
             @RequestBody HikingTrailUpdateTrailDifficultyDto hikingTrailUpdateTrailDifficultyDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -186,12 +211,14 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailDifficulty(id, hikingTrailUpdateTrailDifficultyDto, userDetails);
 
-        return ResponseEntity.ok(trailDifficultyDto);
+        ApiResponse<HikingTrailDifficultyDto> response =new ApiResponse<>(trailDifficultyDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @Transactional
     @PatchMapping("/{id}/update-available-huts")
-    public ResponseEntity<List<AccommodationBasicDto>> updateAvailableHuts(
+    public ResponseEntity<ApiResponse<List<AccommodationBasicDto>>> updateAvailableHuts(
             @PathVariable Long id,
             @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -200,12 +227,14 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailAvailableHuts(id, hikingTrailUpdateAvailableHutsDto, userDetails);
 
-        return ResponseEntity.ok(accommodationBasicDto);
+        ApiResponse<List<AccommodationBasicDto>> response = new ApiResponse<>(accommodationBasicDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @Transactional
     @PatchMapping("/{id}/update-destinations")
-    public ResponseEntity<List<DestinationBasicDto>> updateDestinations(
+    public ResponseEntity<ApiResponse<List<DestinationBasicDto>>> updateDestinations(
             @PathVariable Long id,
             @RequestBody HikingTrailUpdateDestinationsDto hikingTrailUpdateDestinationsDto,
             @AuthenticationPrincipal UserDetails userDetails
@@ -214,7 +243,9 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailDestinations(id, hikingTrailUpdateDestinationsDto, userDetails);
 
-        return ResponseEntity.ok(destinationBasicDto);
+        ApiResponse<List<DestinationBasicDto>> response = new ApiResponse<>(destinationBasicDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/select")
@@ -226,26 +257,31 @@ public class HikingTrailController {
 
     @Transactional
     @PostMapping("/create/{id}/comment/{trailId}")
-    public ResponseEntity<Void> createTrailComment(
+    public ResponseEntity<ApiResponse<CommentDto>> createTrailComment(
             @PathVariable Long id,
             @PathVariable Long trailId,
             @Valid @RequestBody CommentCreateDto commentCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        this.hikingTrailService
+        CommentDto commentDto = this.hikingTrailService
                 .addNewTrailComment(id, trailId, commentCreateDto, userDetails);
 
-        return ResponseEntity.ok().build();
+        ApiResponse<CommentDto> response = new ApiResponse<>(commentDto);
+
+        return ResponseEntity.ok(response);
     }
 
     @Transactional
     @DeleteMapping("/delete/{commentId}/comment/{trailId}")
-    public ResponseEntity<Void> deleteTrailComment(
+    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteTrailComment(
             @PathVariable Long commentId,
             @PathVariable Long trailId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        this.hikingTrailService.deleteTrailComment(commentId, trailId, userDetails);
-        return ResponseEntity.ok().build();
+        boolean removed = this.hikingTrailService.deleteTrailComment(commentId, trailId, userDetails);
+
+        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(new CommentDeletedReplyDto(removed));
+
+        return ResponseEntity.ok(response);
     }
 }

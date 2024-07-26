@@ -3,6 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
@@ -343,7 +344,7 @@ public class HikingTrailService {
         return this.hikingTrailRepository.findAllBy();
     }
 
-    public void addNewTrailComment(
+    public CommentDto addNewTrailComment(
             Long id,
             Long trailId,
             CommentCreateDto commentDto,
@@ -352,10 +353,12 @@ public class HikingTrailService {
         HikingTrailEntity currentTrail = hikingTrailExist(trailId);
         UserEntity userCommenting = this.userService.verifiedUser(id, userDetails);
 
-        CommentEntity newComment = commentService.createNewComment(commentDto, userCommenting);
+        CommentEntity savedComment = this.commentService.saveComment(commentDto, userCommenting);
 
-        currentTrail.setSingleComment(newComment);
+        currentTrail.setSingleComment(savedComment);
         this.hikingTrailRepository.save(currentTrail);
+
+        return this.commentMapper.commentEntityToCommentDto(savedComment);
     }
 
     /*
@@ -366,7 +369,7 @@ public class HikingTrailService {
     To delete a ChildEntity, you can simply remove it from the collection in the ParentEntity and then save the ParentEntity.
     The removed ChildEntity will be deleted from the database due to the cascading delete operation.
     */
-    public void deleteTrailComment(
+    public boolean deleteTrailComment(
             Long commentId,
             Long trailId,
             UserDetails userDetails
@@ -374,8 +377,11 @@ public class HikingTrailService {
         HikingTrailEntity currentTrail = hikingTrailExist(trailId); // trail exist
         CommentEntity commentToDelete = this.commentService.verifiedComment(commentId, userDetails);
 
-        currentTrail.getComments().remove(commentToDelete);
-        this.hikingTrailRepository.save(currentTrail);
+        boolean removedFromTrail = currentTrail.getComments().remove(commentToDelete);
+
+        boolean removedFromDatabase = this.commentService.deleteComment(commentToDelete);
+
+        return removedFromTrail && removedFromDatabase;
     }
 
     private HikingTrailEntity verifiedHikingTrail(Long id, UserDetails userDetails) {

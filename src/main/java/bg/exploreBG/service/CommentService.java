@@ -1,7 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.comment.single.CommentMessageDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.comment.validate.CommentUpdateDto;
 import bg.exploreBG.model.entity.CommentEntity;
@@ -32,7 +32,7 @@ public class CommentService {
         this.commentMapper = commentMapper;
     }
 
-    public CommentMessageDto updateComment(
+    public CommentDto updateComment(
             Long id,
             CommentUpdateDto commentDto,
             UserDetails userDetails
@@ -40,7 +40,13 @@ public class CommentService {
         CommentEntity verifiedComment = verifiedComment(id, userDetails);
         CommentEntity updated = updateCommentValues(verifiedComment, commentDto);
         CommentEntity saved = this.commentRepository.save(updated);
-        return new CommentMessageDto(saved.getMessage());
+
+        return this.commentMapper.commentEntityToCommentDto(saved);
+    }
+
+    public CommentEntity saveComment(CommentCreateDto commentDto, UserEntity commentUser) {
+        CommentEntity newComment = createNewComment(commentDto, commentUser);
+        return this.commentRepository.save(newComment);
     }
 
     private CommentEntity updateCommentValues(
@@ -86,4 +92,8 @@ public class CommentService {
         return newComment;
     }
 
+    public boolean deleteComment(CommentEntity commentToDelete) {
+        this.commentRepository.delete(commentToDelete);
+        return true;
+    }
 }
