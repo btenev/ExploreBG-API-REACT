@@ -52,7 +52,9 @@ public class HikingTrailController {
 
     @Transactional
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(
+            @PathVariable Long id
+    ) {
         HikingTrailDetailsDto hikingTrail = this.hikingTrailService.getHikingTrail(id);
 
         ApiResponse<HikingTrailDetailsDto> response = new ApiResponse<>(hikingTrail);
@@ -62,14 +64,16 @@ public class HikingTrailController {
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<Page<HikingTrailBasicDto>>> getAll(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
     ) {
         Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
+        int currentPage = Math.max(pageNumber - 1, 0);
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, parameters);
+        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+
         Page<HikingTrailBasicDto> allHikingTrails = this.hikingTrailService.getAllHikingTrails(pageable);
 
         ApiResponse<Page<HikingTrailBasicDto>> response = new ApiResponse<>(allHikingTrails);
@@ -88,7 +92,9 @@ public class HikingTrailController {
         Long newHikingTrailId =
                 this.hikingTrailService.createHikingTrail(id, hikingTrailCreateDto, userDetails);
 
-        ApiResponse<HikingTrailIdDto> response = new ApiResponse<>(new HikingTrailIdDto(newHikingTrailId));
+        HikingTrailIdDto hikingTrailIdDto = new HikingTrailIdDto(newHikingTrailId);
+
+        ApiResponse<HikingTrailIdDto> response = new ApiResponse<>(hikingTrailIdDto);
 
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
@@ -211,7 +217,7 @@ public class HikingTrailController {
                 this.hikingTrailService
                         .updateHikingTrailDifficulty(id, hikingTrailUpdateTrailDifficultyDto, userDetails);
 
-        ApiResponse<HikingTrailDifficultyDto> response =new ApiResponse<>(trailDifficultyDto);
+        ApiResponse<HikingTrailDifficultyDto> response = new ApiResponse<>(trailDifficultyDto);
 
         return ResponseEntity.ok(response);
     }
@@ -280,7 +286,9 @@ public class HikingTrailController {
     ) {
         boolean removed = this.hikingTrailService.deleteTrailComment(commentId, trailId, userDetails);
 
-        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(new CommentDeletedReplyDto(removed));
+        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
+
+        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
 
         return ResponseEntity.ok(response);
     }

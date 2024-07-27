@@ -48,14 +48,16 @@ public class AccommodationController {
 
     @GetMapping("/all")
     public ResponseEntity<Page<AccommodationBasicPlusImageDto>> getAll(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
     ) {
 
         Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, parameters);
+        int currentPage = Math.max(pageNumber - 1, 0);
+
+        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
 
         Page<AccommodationBasicPlusImageDto> allHikes =
                 this.accommodationService.getAllAccommodations(pageable);
