@@ -24,8 +24,9 @@ public class SecurityConfig {
     private final UserAuthenticationEntryPoint userAuthenticationEntryPoint;
     private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(UserAuthenticationEntryPoint userAuthenticationEntryPoint,
-                          JwtAuthFilter jwtAuthFilter
+    public SecurityConfig(
+            UserAuthenticationEntryPoint userAuthenticationEntryPoint,
+            JwtAuthFilter jwtAuthFilter
     ) {
         this.userAuthenticationEntryPoint = userAuthenticationEntryPoint;
         this.jwtAuthFilter = jwtAuthFilter;
@@ -55,12 +56,14 @@ public class SecurityConfig {
                             "/api/users/*/profile"
                     ).permitAll();
 
+                    req.requestMatchers(HttpMethod.GET, "/api/admin/users").hasRole("ADMIN");
+
                     req.requestMatchers(
-                            HttpMethod.POST,
-                            "/api/users/register",
-                            "/api/users/login"
-                    ).permitAll()
-                     .anyRequest().authenticated();
+                                    HttpMethod.POST,
+                                    "/api/users/register",
+                                    "/api/users/login"
+                            ).permitAll()
+                            .anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

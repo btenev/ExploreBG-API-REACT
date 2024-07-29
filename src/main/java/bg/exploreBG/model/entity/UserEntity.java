@@ -4,6 +4,7 @@ import bg.exploreBG.model.enums.GenderEnum;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,10 +32,14 @@ public class UserEntity {
     private LocalDate birthdate;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @Column(name = "user_image")
     private ImageEntity userImage;
 
     @Column(name = "user_info")
     private String userInfo;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<RoleEntity> roles = new ArrayList<>();
@@ -141,5 +146,13 @@ public class UserEntity {
 
     public void setCreatedHikes(List<HikeEntity> createdHikes) {
         this.createdHikes = createdHikes;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }
