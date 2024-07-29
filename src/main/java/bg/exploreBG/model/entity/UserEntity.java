@@ -32,10 +32,9 @@ public class UserEntity {
     private LocalDate birthdate;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @Column(name = "user_image")
     private ImageEntity userImage;
 
-    @Column(name = "user_info")
+    @Column(name = "user_info", columnDefinition = "TEXT")
     private String userInfo;
 
     @Column(name = "creation_date")

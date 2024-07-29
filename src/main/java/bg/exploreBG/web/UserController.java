@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserIdNameDto>> register(
+    public ResponseEntity<UserIdNameDto> register(
             @Valid @RequestBody UserRegisterDto userRegisterDto
     ) {
         UserIdNameEmailRolesDto createdUser =
@@ -43,16 +43,14 @@ public class UserController {
         UserIdNameDto userIdNameDto =
                 new UserIdNameDto(createdUser.id(), createdUser.username());
 
-        ApiResponse<UserIdNameDto> response = new ApiResponse<>(userIdNameDto);
-
         return ResponseEntity
                 .created(URI.create("/api/users/" + createdUser.id() + "/my-profile"))
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body(response);
+                .body(userIdNameDto);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserIdNameDto>> login(
+    public ResponseEntity<UserIdNameDto> login(
             @RequestBody UserLoginDto userLoginDto
     ) {
         UserIdNameEmailRolesDto loggedUser =
@@ -64,12 +62,10 @@ public class UserController {
         UserIdNameDto userIdNameDto =
                 new UserIdNameDto(loggedUser.id(), loggedUser.username());
 
-        ApiResponse<UserIdNameDto> response = new ApiResponse<>(userIdNameDto);
-
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body(response);
+                .body(userIdNameDto);
     }
 
     @GetMapping("/{id}/my-profile")
