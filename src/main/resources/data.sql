@@ -3,18 +3,24 @@ VALUES (1, 'MEMBER'),
        (2, 'MODERATOR'),
        (3, 'ADMIN');
 
-INSERT INTO users (id, email, username, password, gender, birthdate,  user_info)
-VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE', '1983-05-10',
-        'some very interesting info'),
-       (2, 'provider@explore.bg', 'provider', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'FEMALE', '1979-02-01',
-        'not so interesting info'),
-       (3, 'member_two@explore.bg', 'memberTwo', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'male', '1965-03-08',
-        'i like like travelling, hiking, exploring the world');
+INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date)
+VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
+        '1983-05-10',
+        'some very interesting info', LOCALTIME()),
+       (2, 'provider@explore.bg', 'provider', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'FEMALE',
+        '1979-02-01',
+        'not so interesting info', LOCALTIME()),
+       (3, 'member_two@explore.bg', 'memberTwo', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
+        '1965-03-08',
+        'i like like travelling, hiking, exploring the world', LOCALTIME()),
+       (4, 'admin@explore.bg', 'admin', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
+        '1983-05-15', 'I like watching discovery chanel', LOCALTIME());
 
 INSERT INTO users_roles (roles_id, user_entity_id)
 VALUES (1, 1),
        (2, 2),
-       (1, 3);
+       (1, 3),
+       (3, 4);
 
 INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, owner_id, accommodation_info,
                             accommodation_name, next_to, phone_number,
@@ -31,9 +37,11 @@ VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some 
         '+359 896 68 85 23', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/hizha-ravnec',
         'ON_FOOT', 'HUT', 'APPROVED'),
        (null, 35, 1, 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
-        '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER', 'APPROVED'),
+        '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER',
+        'APPROVED'),
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
-        'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER', 'APPROVED');
+        'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER',
+        'APPROVED');
 
 INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type, destination_status)
 VALUES (1,
@@ -51,7 +59,8 @@ VALUES (1,
         'Svilengrad', 'CULTURAL_HERITAGE', 'APPROVED'),
        (4,
         'The Visegrad fortress is located on a high peak, near Kardzhali. It is believed to date from the 4th - 1st centuries. Its area is relatively small - 562 square meters, and according to its structure and dimensions, it represents a medieval feudal castle. It guarded a branch of the road from Adrianople to Philippopolis to the interior of the Rhodopes along the valley of the river Varbitsa. The name of the fortress is of Slavic origin and means "high city". The fortress is easily accessible and convenient to visit. It is reached by a relatively good dirt road.',
-        'https://static.pochivka.bg/sights.bgstay.com/images/00/843/resized320/54653bb71f21e.jpg', 'coordinates', 'Krepost Vishegrad', 'Kardzhali',
+        'https://static.pochivka.bg/sights.bgstay.com/images/00/843/resized320/54653bb71f21e.jpg', 'coordinates',
+        'Krepost Vishegrad', 'Kardzhali',
         'CULTURAL_HERITAGE', 'APPROVED'),
        (5,
         'The Kardzhali pyramids are rock formations located near the town of Kardzhali, in the Rhodopes. They were declared a natural landmark in 1974. They were formed more than 40 million years ago. The most interesting group of rocks are the Stone Wedding. It contains pyramids that resemble people and animals. Another interesting group is the Stone Mushrooms.',
@@ -59,12 +68,14 @@ VALUES (1,
         'coordinates', 'Kardzhaliiski piramidi', 'Kardzhali', 'NATURAL_ATTRACTION', 'APPROVED'),
        (6,
         'The Letovnik waterfall is located next to the village of Letovnik, Momchilgrad. It is not tall or powerful, but the rocks from which it falls and the area around it are uniquely beautiful.',
-        'https://static.pochivka.bg/sights.bgstay.com/images/02/2835/5a6f0f2689928.jpeg', 'coordinates', 'Letovnishki vodopad', 'Momchilgard',
+        'https://static.pochivka.bg/sights.bgstay.com/images/02/2835/5a6f0f2689928.jpeg', 'coordinates',
+        'Letovnishki vodopad', 'Momchilgard',
         'NATURAL_ATTRACTION', 'APPROVED'),
        (7,
         'Perperikon is an archaeological complex located 15 km from the town of Kardzhali. It was inhabited as early as 8,000 years ago, during the Stone Age, after which it was a sacred rock city under the Thracians, and later Romans, Byzantines and Bulgarians lived there. It was destroyed by the Turks in the 14th century.',
-        'https://static.pochivka.bg/sights.bgstay.com/images/00/75/resized320/5477c4ac9bdd8.jpg', 'coordinates', 'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE', 'APPROVED'),
-       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown','CULTURAL_HERITAGE', 'APPROVED');
+        'https://static.pochivka.bg/sights.bgstay.com/images/00/75/resized320/5477c4ac9bdd8.jpg', 'coordinates',
+        'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE', 'APPROVED'),
+       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown', 'CULTURAL_HERITAGE', 'APPROVED');
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, image_url, season_visited,
                           water_available, trail_difficulty, elevation_gained, next_to, trail_status)

@@ -34,11 +34,11 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserIdNameDto>> register(
             @Valid @RequestBody UserRegisterDto userRegisterDto
     ) {
-        UserIdNameEmailDto createdUser =
+        UserIdNameEmailRolesDto createdUser =
                 this.userService.register(userRegisterDto);
 
         String token =
-                this.userAuthProvider.createToken(createdUser.email());
+                this.userAuthProvider.createToken(createdUser.email(), createdUser.roles());
 
         UserIdNameDto userIdNameDto =
                 new UserIdNameDto(createdUser.id(), createdUser.username());
@@ -55,11 +55,11 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserIdNameDto>> login(
             @RequestBody UserLoginDto userLoginDto
     ) {
-        UserIdNameEmailDto loggedUser =
+        UserIdNameEmailRolesDto loggedUser =
                 this.userService.login(userLoginDto);
 
         String token =
-                this.userAuthProvider.createToken(loggedUser.email());
+                this.userAuthProvider.createToken(loggedUser.email(), loggedUser.roles());
 
         UserIdNameDto userIdNameDto =
                 new UserIdNameDto(loggedUser.id(), loggedUser.username());
@@ -104,13 +104,15 @@ public class UserController {
             @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UserEmailDto newEmail =
+        UserEmailRolesDto newEmail =
                 this.userService.updateEmail(id, userUpdateEmailDto, userDetails);
 
         String token =
-                this.userAuthProvider.createToken(newEmail.email());
+                this.userAuthProvider.createToken(newEmail.email(), newEmail.roles());
 
-        ApiResponse<UserEmailDto> response = new ApiResponse<>(newEmail);
+        UserEmailDto userEmailDto = new UserEmailDto(newEmail.email());
+
+        ApiResponse<UserEmailDto> response = new ApiResponse<>(userEmailDto);
 
         return ResponseEntity
                 .ok()

@@ -11,14 +11,20 @@ import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
 import bg.exploreBG.repository.RoleRepository;
 import bg.exploreBG.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -43,7 +49,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserIdNameEmailDto register(UserRegisterDto userRegisterDto) {
+    public UserIdNameEmailRolesDto register(UserRegisterDto userRegisterDto) {
         Optional<UserEntity> optionalUserEntity = this.userRepository.findByEmail(userRegisterDto.email());
         if (optionalUserEntity.isPresent()) {
             throw new AppException("User with email " + userRegisterDto.email() + " already exist!",
@@ -56,16 +62,19 @@ public class UserService {
         }
 
         UserEntity newUser = mapDtoToUserEntity(userRegisterDto, optionalRoleEntity);
+        newUser.setCreationDate(LocalDateTime.now());
+
         UserEntity persistedUser = this.userRepository.save(newUser);
 
-        return new UserIdNameEmailDto(
+        return new UserIdNameEmailRolesDto(
                 persistedUser.getId(),
                 persistedUser.getEmail(),
-                persistedUser.getUsername()
+                persistedUser.getUsername(),
+                getRoles(persistedUser)
         );
     }
 
-    public UserIdNameEmailDto login(UserLoginDto userLoginDto) {
+    public UserIdNameEmailRolesDto login(UserLoginDto userLoginDto) {
         UserDetails foundUser = this.userDetailsService.loadUserByUsername(userLoginDto.email());
         boolean matches = this.passwordEncoder.matches(userLoginDto.password(), foundUser.getPassword());
 
@@ -75,10 +84,11 @@ public class UserService {
 
         Optional<UserEntity> currentUser = this.userRepository.findByEmail(foundUser.getUsername());
 
-        return new UserIdNameEmailDto(
+        return new UserIdNameEmailRolesDto(
                 currentUser.get().getId(),
                 currentUser.get().getEmail(),
-                currentUser.get().getUsername());
+                currentUser.get().getUsername(),
+                getRoles(currentUser.get()));
     }
 
     public UserDetailsOwnerDto findMyProfile(Long id, UserDetails userDetails) {
@@ -93,7 +103,7 @@ public class UserService {
         return this.userMapper.userEntityToUserDetailsDto(userExist);
     }
 
-    public UserEmailDto updateEmail(
+    public UserEmailRolesDto updateEmail(
             Long id,
             UserUpdateEmailDto userUpdateEmailDto,
             UserDetails userDetails
@@ -103,7 +113,7 @@ public class UserService {
         byId.setEmail(userUpdateEmailDto.email());
         UserEntity updatedEmail = this.userRepository.save(byId);
 
-        return new UserEmailDto(updatedEmail.getEmail());
+        return new UserEmailRolesDto(updatedEmail.getEmail(), getRoles(updatedEmail));
     }
 
     public UserUsernameDto updateUsername(
@@ -172,7 +182,7 @@ public class UserService {
         UserEntity updatedUserInfo = this.userRepository.save(byId);
         return new UserInfoDto(updatedUserInfo.getUserInfo());
     }
-    
+
     //TODO: valid user to verified user
     public UserEntity verifiedUser(Long id, UserDetails userDetails) {
         UserEntity byId = userExist(id);
@@ -180,7 +190,7 @@ public class UserService {
         matchUsers(token, byId);
         return byId;
     }
-    
+
     protected void verifiedUser(UserEntity user, UserDetails userDetails) {
         UserEntity token = userExist(userDetails.getUsername());
         matchUsers(user, token);
@@ -204,7 +214,7 @@ public class UserService {
     protected UserEntity userExist(String username) {
         Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
 
-        if(byEmail.isEmpty()) {
+        if (byEmail.isEmpty()) {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);
         }
         return byEmail.get();
@@ -219,4 +229,16 @@ public class UserService {
         return newUser;
     }
 
+    private List<String> getRoles(UserEntity currentUser) {
+        return currentUser
+                .getRoles()
+                .stream()
+                .map(r -> r.getRole().name())
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<UserAllProjection> getAllUsers(Pageable pageable) {
+        return this.userRepository.findAllBy(pageable);
+    }
 }
