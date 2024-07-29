@@ -1,7 +1,17 @@
 package bg.exploreBG.model.enums;
 
 public enum UserRoleEnum {
-    MEMBER,
-    MODERATOR,
-    ADMIN
+    MEMBER("Member"),
+    MODERATOR("Moderator"),
+    ADMIN("Admin");
+
+    private final String value;
+
+    UserRoleEnum(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }
