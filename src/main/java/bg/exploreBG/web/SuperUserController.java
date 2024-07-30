@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,7 +35,7 @@ public class SuperUserController {
      ADMIN
     */
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<Page<UserDataProjection>>> allUsers(
+    public ResponseEntity<Page<UserDataProjection>> allUsers(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
@@ -50,9 +48,7 @@ public class SuperUserController {
 
         Page<UserDataProjection> users = this.userService.getAllUsers(pageable);
 
-        ApiResponse<Page<UserDataProjection>> response = new ApiResponse<>(users);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(users);
     }
 
     @PatchMapping("/{id}/update-role")
@@ -74,8 +70,19 @@ public class SuperUserController {
     /*
      Moderator
     */
-//    @GetMapping("/hiking-trails/review")
-//    public ResponseEntity<ApiResponse<?>> hikingTrailsReview() {
-//        this.hikingTrailService.getAllHikingTrails()
-//    }
+   /*
+   @GetMapping("/hiking-trails/review")
+    public ResponseEntity<ApiResponse<?>> hikingTrailsReview(
+            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
+    ) {
+        Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
+        int currentPage = Math.max(pageNumber - 1, 0);
+
+        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+
+        this.hikingTrailService.getAllHikingTrails(pageable);
+    }*/
 }
