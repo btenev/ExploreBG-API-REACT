@@ -56,7 +56,8 @@ public class SecurityConfig {
                             "/api/users/*/profile"
                     ).permitAll();
 
-                    req.requestMatchers(HttpMethod.GET, "/api/admin/users").hasRole("ADMIN");
+                    req.requestMatchers(HttpMethod.GET, "/api/super-users/users").hasRole("ADMIN");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/update-role");
 
                     req.requestMatchers(
                                     HttpMethod.POST,

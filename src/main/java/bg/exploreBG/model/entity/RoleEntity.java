@@ -3,6 +3,8 @@ package bg.exploreBG.model.entity;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "roles")
 public class RoleEntity {
@@ -15,6 +17,19 @@ public class RoleEntity {
     private UserRoleEnum role;
 
     public RoleEntity() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoleEntity that = (RoleEntity) o;
+        return Objects.equals(getId(), that.getId()) && getRole() == that.getRole();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getRole());
     }
 
     public Long getId() {

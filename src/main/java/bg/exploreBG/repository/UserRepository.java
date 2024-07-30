@@ -1,6 +1,6 @@
 package bg.exploreBG.repository;
 
-import bg.exploreBG.model.dto.user.UserAllProjection;
+import bg.exploreBG.model.dto.user.UserDataProjection;
 import bg.exploreBG.model.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,5 +22,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             LEFT JOIN u.userImage as i
             LEFT JOIN u.roles r
             """)
-    Page<UserAllProjection> findAllBy(Pageable pageable);
+    Page<UserDataProjection> findAllBy(Pageable pageable);
 }

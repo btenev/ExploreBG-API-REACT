@@ -2,14 +2,16 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.user.*;
-import bg.exploreBG.model.dto.user.single.*;
+import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
+import bg.exploreBG.model.dto.user.single.UserGenderDto;
+import bg.exploreBG.model.dto.user.single.UserInfoDto;
+import bg.exploreBG.model.dto.user.single.UserUsernameDto;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
-import bg.exploreBG.repository.RoleRepository;
 import bg.exploreBG.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,20 +32,20 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final UserMapper userMapper;
 
     public UserService(
             UserRepository userRepository,
-            RoleRepository roleRepository,
+            RoleService roleService,
             PasswordEncoder passwordEncoder,
             UserDetailsService userDetailsService,
             UserMapper userMapper
     ) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.userMapper = userMapper;
@@ -56,12 +58,9 @@ public class UserService {
                     HttpStatus.CONFLICT);
         }
 
-        Optional<RoleEntity> optionalRoleEntity = this.roleRepository.findByRole(UserRoleEnum.MEMBER);
-        if (optionalRoleEntity.isEmpty()) {
-            throw new AppException("User role Member does not exist!", HttpStatus.NOT_FOUND);
-        }
+        RoleEntity roleExist = this.roleService.roleExist(UserRoleEnum.MEMBER);
 
-        UserEntity newUser = mapDtoToUserEntity(userRegisterDto, optionalRoleEntity);
+        UserEntity newUser = mapDtoToUserEntity(userRegisterDto, roleExist);
         newUser.setCreationDate(LocalDateTime.now());
 
         UserEntity persistedUser = this.userRepository.save(newUser);
@@ -220,11 +219,11 @@ public class UserService {
         return byEmail.get();
     }
 
-    private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, Optional<RoleEntity> role) {
+    private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, RoleEntity role) {
         UserEntity newUser = new UserEntity();
         newUser.setEmail(userRegisterDto.email());
         newUser.setUsername(userRegisterDto.username());
-        newUser.setRoles(Arrays.asList(role.get()));
+        newUser.setRoles(Arrays.asList(role));
         newUser.setPassword(passwordEncoder.encode(userRegisterDto.password()));
         return newUser;
     }
@@ -238,7 +237,29 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<UserAllProjection> getAllUsers(Pageable pageable) {
+    public Page<UserDataProjection> getAllUsers(Pageable pageable) {
         return this.userRepository.findAllBy(pageable);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserDataDto updateUserRoleToModerator(
+            Long id
+    ) {
+        UserEntity userExist = this.userExist(id);
+
+        List<RoleEntity> userRoles = userExist.getRoles();
+
+        RoleEntity moderator = this.roleService.roleExist(UserRoleEnum.MODERATOR);
+        UserEntity saved;
+
+        if (!userRoles.contains(moderator)) {
+            userRoles.add(moderator);
+            userExist.setRoles(userRoles);
+            saved = this.userRepository.save(userExist);
+        } else {
+            saved = userExist;
+        }
+
+        return this.userMapper.userEntityToUserDataDto(saved);
     }
 }

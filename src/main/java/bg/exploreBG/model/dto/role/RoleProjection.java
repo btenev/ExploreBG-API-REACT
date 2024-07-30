@@ -1,4 +1,4 @@
-package bg.exploreBG.model.dto;
+package bg.exploreBG.model.dto.role;
 
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.serializer.UserRoleEnumSerializer;

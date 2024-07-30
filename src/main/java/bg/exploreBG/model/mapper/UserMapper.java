@@ -1,5 +1,6 @@
 package bg.exploreBG.model.mapper;
 
+import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.UserDetailsDto;
 import bg.exploreBG.model.dto.user.UserDetailsOwnerDto;
 import bg.exploreBG.model.entity.UserEntity;
@@ -15,4 +16,6 @@ public interface UserMapper {
     @Mapping(source = "userImage.imageUrl", target = "imageUrl")
     @Mapping(source = "gender.value", target = "gender")
     UserDetailsOwnerDto userEntityToUserDetailsOwnerDto(UserEntity user);
+
+    UserDataDto userEntityToUserDataDto(UserEntity userEntity);
 }
