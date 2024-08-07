@@ -3,6 +3,7 @@ package bg.exploreBG.model.entity;
 import bg.exploreBG.model.enums.*;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,8 +83,13 @@ public class HikingTrailEntity {
     )
     private List<DestinationEntity> destinations;
 
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
     @ManyToOne
     private UserEntity createdBy;
+
+    private String reviewedBy;
 
     public HikingTrailEntity() {
     }
@@ -228,6 +234,22 @@ public class HikingTrailEntity {
         this.createdBy = createdBy;
     }
 
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(String reviewedBy) {
+        this.reviewedBy = reviewedBy;
+    }
+
     @Override
     public String toString() {
         return "HikingTrailEntity{" +
@@ -247,7 +269,9 @@ public class HikingTrailEntity {
                 ", nextTo='" + nextTo + '\'' +
                 ", trailStatus=" + trailStatus +
                 ", destinations=" + destinations +
+                ", creationDate=" + creationDate +
                 ", createdBy=" + createdBy +
+                ", reviewedBy='" + reviewedBy + '\'' +
                 '}';
     }
 }

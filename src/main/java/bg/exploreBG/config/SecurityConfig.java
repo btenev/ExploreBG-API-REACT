@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserAuthenticationEntryPoint userAuthenticationEntryPoint;
@@ -57,7 +59,9 @@ public class SecurityConfig {
                     ).permitAll();
 
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/users").hasRole("ADMIN");
-                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/update-role");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/update-role").hasRole("ADMIN");
+                    req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/count").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/trails").hasAnyRole("ADMIN", "MODERATOR");
 
                     req.requestMatchers(
                                     HttpMethod.POST,

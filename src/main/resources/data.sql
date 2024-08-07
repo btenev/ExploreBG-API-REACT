@@ -1,4 +1,4 @@
-INSERT INTO roles (id, roles)
+INSERT INTO roles (id, role)
 VALUES (1, 'MEMBER'),
        (2, 'MODERATOR'),
        (3, 'ADMIN');
@@ -16,7 +16,7 @@ VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg
        (4, 'admin@explore.bg', 'admin', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
         '1983-05-15', 'I like watching discovery chanel', LOCALTIME());
 
-INSERT INTO users_roles (roles_id, user_entity_id)
+INSERT INTO user_role (role_id, user_id)
 VALUES (1, 1),
        (2, 2),
        (1, 3),
@@ -41,7 +41,7 @@ VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some 
         'APPROVED'),
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
         'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER',
-        'APPROVED');
+        'PENDING');
 
 INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type, destination_status)
 VALUES (1,
@@ -78,34 +78,35 @@ VALUES (1,
        (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown', 'CULTURAL_HERITAGE', 'APPROVED');
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, image_url, season_visited,
-                          water_available, trail_difficulty, elevation_gained, next_to, trail_status)
+                          water_available, trail_difficulty, elevation_gained, next_to, creation_date, trail_status)
 VALUES (1, 'Selo Zheleznitsa', 'Cherni vrah', 9.00,
         'The route from the village of Zheleznitsa to Cherni vrah (2290 m) is interesting, somewhat varied and above all beautiful. Some say it is the most picturesque ascent of the summit of Vitosha. So far I think so, but I haven''t climbed it on the southern routes yet. Of course, before you go, you should keep in mind that this hike overcomes nearly 1,300 meters of positive elevation gain. Consider your physical strength well and keep in mind that you have to get down somehow, the closest point after that being the Aleko hut.',
-        'https://picsum.photos/seed/picsum/200/300', 'SUMMER', 'NO_INFORMATION', 4, 1258, 'Zheleznitsa', 'APPROVED'),
+        'https://picsum.photos/seed/picsum/200/300', 'SUMMER', 'NO_INFORMATION', 4, 1258, 'Zheleznitsa', LOCALTIME(),
+        'APPROVED'),
        (2, 'Selo Planinovo', 'Vrah Vishegrad', 9.00, 'A nice walk in Sakar mountain', null, 'WINTER', 'NO', 2, 405,
-        'Selo Planinovo', 'APPROVED'),
+        'Selo Planinovo', LOCALTIME(), 'APPROVED'),
        (3, 'hija Perelik', 'vrah Orfei', 7.5,
         'Mount Orpheus has many names, and you may have heard it by some of them - Broad-eared Snowflake, Spiked Hammer, Snowflake, Snowflake, Big Snowflake (there are probably more). It is the second highest peak in the Rhodopes after Golyam Perelik and is only 3 m lower than it. Since Perelik is a war zone and inaccessible, we can only go past it and go to its runner-up. The route follows the red tourist markings and intersects the peaks Shabalieva Kaba (2087 m) and Krastava Chuka (2136 m), which we can visit with a slight detour. The elevation graph looks broken simply because it''s a little over 200 meters. Nothing too complicated.
          We leave the Perelik hut on the main road in the direction of Golyam Perelik peak. At Branch 2, the marking leaves it and a little later the ascent begins. Here are also the first spikes from the winter tourist marking, which are rare in some places, but they are with us up to Mount Orpheus. The route undercuts the highest peak of the Rhodopes and we continue along the ridge. We can define the transition as almost horizontal. Sometimes we go up, sometimes we go down, but the differences in elevation are small.
          Between the peaks of Shabalieva Kaba and Krastava Chuka, a blue marking goes down, which goes down the Gingerska Reka to the main road between the town of Smolyan and the village of Mugla. However, we continue on the red road. We cut down the Hammer Toad and head to the cherished point of our route, which is getting closer. The path itself intersects it from the south, but we deviate from it in the direction of the goal.
          After about 300 m we reach Mount Orpheus. From it you can see the entire Rhodope Mountains and the surrounding area - the best end of our trek. Here we can see that Orpheus is written on the official inscription at the top.',
-        null, 'WINTER', 'NO', 2, 223, 'Smolyan', 'APPROVED'),
+        null, 'WINTER', 'NO', 2, 223, 'Smolyan', LOCALTIME(), 'APPROVED'),
        (4, 'Gara Skakavica', 'Vodopad Skakavica', 1.75, 'Polska Skakavitsa waterfall is one of the most beautiful waterfalls in Bulgaria! Too bad it''s not full year round. It is best to visit it in the spring, perhaps after nature has blossomed, to see it in its full glory.
         The waterfall is easily accessible from the village of Polska Skakavitsa, but there is another route to it that is super interesting. I will describe it, and the starting point can only be reached by train. I especially recommend this hike to the Polska Skakavitsa waterfall with children, because for them it offers an unforgettable adventure - a train ride, a railway trek, passing through a tunnel, walking on forest paths, crossing streams, and a fabulous experience in the rock niches behind the waterfall.',
-        null, 'SUMMER', 'NO', 1, 55, 'Kustendil', 'APPROVED'),
+        null, 'SUMMER', 'NO', 1, 55, 'Kustendil', LOCALTIME(), 'APPROVED'),
        (5, 'Grad Devin', 'Rezervat Kastrakli', 30, 'Polska Skakavitsa waterfall is one of the most beautiful waterfalls in Bulgaria! Too bad it''s not full year round. It is best to visit it in the spring, perhaps after nature has blossomed, to see it in its full glory.
         The waterfall is easily accessible from the village of Polska Skakavitsa, but there is another route to it that is super interesting. I will describe it, and the starting point can only be reached by train. I especially recommend this hike to the Polska Skakavitsa waterfall with children, because for them it offers an unforgettable adventure - a train ride, a railway trek, passing through a tunnel, walking on forest paths, crossing streams, and a fabulous experience in the rock niches behind the waterfall.
         The eco-trail ends in the Lakata area, where there is a turnoff for the Kavour Kale fortress. It diverts us from the road about 800 m in one direction. Not much remains of the fortress itself, but the view from the top is stunning. Two waterfalls can be seen, one of which is about 50 m high and the other consists of five jumps.
         After the fortress, we go without a path along the left bank of the Devinska river. In this direction, we reach the confluence of the Devinska and Sachandere rivers. From here we ascend Mount Karaburun, which turns out to be an astonishingly beautiful place, surrounded by formidable precipices to the south and east. We continue along the ridge on a dirt road and reach almost the source of the Karaburunska River. We catch its course without a path and continue like this until we reach the place where it flows into Devinska.
         We start moving along it and after several crossings, now on one bank, then on the other, we reach the Kemerovo Bridge, where it joins the Katranjidere River. Devinska is on the right, and we pass the other on a nice road. Before long there is another fork in the river bed and we head off on the left tributary, south. We pass a fork where we keep straight and after a few hundred meters we reach a fountain. Shortly after it, a new branch follows, whose eastern branch we take. He takes us to a nice dirt road.
         We only follow him, who accompanies us all the way back. At the junctions, we avoid right turns, except for the one marked as Junction 4. We pass through the Kastrakli reserve and, crossing the ridge of the Devin massifs, make the transition back to Devin.',
-        null, 'SUMMER', 'YES', 3, 667, 'Devin', 'APPROVED'),
+        null, 'SUMMER', 'YES', 3, 667, 'Devin', LOCALTIME(),  'APPROVED'),
        (6, 'Grad Zemen', 'Vrah Tichak', 10, 'This route is the easiest for the ascent of the peak of Zemenska Planina - Tichak peak, although it is 10 km. Long. This is mainly due to the road that accompanies us all the way - from the bottom to the very top. With normal preparation, it shouldn''t take more than two hours. It should be noted that Tichak itself is not accessible, as it is located in a war zone, but we get relatively close to it. There is no tourist marking, but since it is impossible to get lost, we have recorded 4 marking points.,
         We start from the entrance of the limestone quarry, located in the northern part of the city, which is passed under the bridge on the road to the Zemen Monastery. Initially, the pavement was paved. It goes on like this for a while, then switches to concrete. The road winds upwards and slowly gains elevation. From the first two turns there is a magnificent view of Zemen and the hills in the distance. Then, for several kilometers, we walk in the open. The road turns into asphalt and gradually enters the forest.
         So we walk for about 2 km and come out into the open again, with Tichak towering in front of us. We continue to walk up the road, leaving it for a bit at one point, just for a change and to feel that we have a mountain under our feet. We pass by a monument to fallen partisans, then we go down to the road again.
         So we go to the top, where we are met by the big barrier of the division. Be careful not to startle the German shepherds guarding the yard when you realize there is a hole in the fence and they can get out. At least handsome Rex was untied and out, but we had no trouble with him, either because the soldier was with us, or because the dog himself was good.
         Anyway, our route ends here. We see the peak nearby, on which there is a pile of military equipment, then we make our way down. If we don''t want to go to Zemen, we can go down to the village of Dobri dol by one of the two routes - "route 1" and the more circuitous, but pleasant "route 2".',
-        null, 'SUMMER', 'NO', 2, 690, 'Pernik', 'APPROVED'),
+        null, 'SUMMER', 'NO', 2, 690, 'Pernik', LOCALTIME(), 'PENDING'),
        (7, 'Grad Karlovo', 'Vrah Botev', 17.25, 'The route to Mount Botev (2376 m) via the Ravnets hut is one of the two options for climbing from Karlovo. It respects with its long initial ascent from the foothills to the ridge of Stara planina. For the first 7 kilometers (about 4:30 hours), 1400 meters of elevation gain are overcome. The trek then starts on almost flat terrain for nearly 3 hours, before the final ascent of Mount Botev.
         Such load distribution is somewhat good. Thus, most of the climb is overcome with the freshest strength, followed by a long horizontal walk for a "rest" before the steep finish. In addition, leaving early avoids the heat on the hardest section.
         In general, the sections Karlovo - Ravnets hut and Ravnets hut - Botev peak are 2:30 and 5:45 respectively. Given that combined they form a very long transition and serious fatigue accumulates, I add half an hour to the total time.
@@ -119,10 +120,10 @@ VALUES (1, 'Selo Zheleznitsa', 'Cherni vrah', 9.00,
         After another 10 minutes, we are at the big junction Petolatchka. On the left is the Vasil Levski hut. Straight along the ridge is the winter route to the ridge of Stara Planina. Straight ahead, to the right along the ridge, is our route to Mount Botev. To the right is Rai Hut. To this point, we add another 1:15 hours and the total is already about 5:45 hours.
         The path continues along the green marking, which is shared with the route from Vasil Levski hut to Botev peak. There is almost no slope to Derin dere, the first of three before the Botev shelter. From there on we have easy climbs and then descents to the rest of the gullies and so on to the shelter. After Derin dere we can now walk more calmly from the point of view of the sheepdogs. There isn''t much to describe in this section. Zaslon Botev is like a hut, so in addition to shelter, you can support yourself with food and drinks there. We are here in 1:30 hours from Petolatchka and 7:15 hours from Karlovo.
         Next is the final ascent on the route from Karlovo to Mount Botev. We''ve gotten used to the slight incline, but it''s time to tighten our legs again. The path from here is quite wide and winds in serpentines to the highest point of Stara Planina. We are already following the red marking. Due to accumulated fatigue, the ascent may take about an hour. Upstairs, you can also support yourself with food and drinks in the Botev peak tourist bedroom. Descent can be by one of the other routes for climbing Mount Botev.',
-        null, 'SUMMER', 'YES', 5, 1867, 'Karlovo', 'APPROVED'),
+        null, 'SUMMER', 'YES', 5, 1867, 'Karlovo', LOCALTIME(), 'APPROVED'),
        (8, 'Grad Klisura', 'Vrah Vejen', 12,
         'The ascent of Mount Vezhen from the town of Klisura is a rather long and difficult trek from the foot of Stara Planina to one of its highest peaks. 1600 meters of elevation gain are overcome in 12 kilometers! Since we are almost all the time moving outdoors on a steep incline, this can be a very tiring endeavor during the summer months. Still, the old mountain ridge is a nice experience, and it is not easily accessible in this part.',
-        null, 'SUMMER', 'YES', 4, 1428, 'Klisura', 'APPROVED');
+        null, 'SUMMER', 'YES', 4, 1428, 'Klisura', LOCALTIME(), 'PENDING');
 
 INSERT INTO hiking_trail_activity (hiking_trail_id, activity)
 VALUES (1, 'HIKING'),

@@ -2,9 +2,13 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
+import bg.exploreBG.model.dto.EntitiesForApprovalCountDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
-import bg.exploreBG.model.dto.user.UserDataProjection;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
+import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.service.AccommodationService;
+import bg.exploreBG.service.DestinationService;
 import bg.exploreBG.service.HikingTrailService;
 import bg.exploreBG.service.UserService;
 import jakarta.validation.Valid;
@@ -19,14 +23,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/super-users")
 public class SuperUserController {
-
+    private final AccommodationService accommodationService;
+    private final DestinationService destinationService;
     private final HikingTrailService hikingTrailService;
     private final UserService userService;
 
     public SuperUserController(
+            AccommodationService accommodationService,
+            DestinationService destinationService,
             HikingTrailService hikingTrailService,
             UserService userService
     ) {
+        this.accommodationService = accommodationService;
+        this.destinationService = destinationService;
         this.hikingTrailService = hikingTrailService;
         this.userService = userService;
     }
@@ -35,7 +44,7 @@ public class SuperUserController {
      ADMIN
     */
     @GetMapping("/users")
-    public ResponseEntity<Page<UserDataProjection>> allUsers(
+    public ResponseEntity<Page<UserDataDto>> allUsers(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
@@ -46,7 +55,7 @@ public class SuperUserController {
 
         Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
 
-        Page<UserDataProjection> users = this.userService.getAllUsers(pageable);
+        Page<UserDataDto> users = this.userService.getAllUsers(pageable);
 
         return ResponseEntity.ok(users);
     }
@@ -85,4 +94,37 @@ public class SuperUserController {
 
         this.hikingTrailService.getAllHikingTrails(pageable);
     }*/
+
+    @GetMapping("/waiting-approval/count")
+    public ResponseEntity<ApiResponse<EntitiesForApprovalCountDto>> waitingForApprovalCount() {
+        int accommodationCount = this.accommodationService.getPendingApprovalAccommodationCount();
+        int destinationCount = this.destinationService.getPendingApprovalDestinationCount();
+        int trailCount = this.hikingTrailService.getPendingApprovalTrailCount();
+
+        EntitiesForApprovalCountDto countDto =
+                new EntitiesForApprovalCountDto(accommodationCount,destinationCount, trailCount);
+
+        ApiResponse<EntitiesForApprovalCountDto> response = new ApiResponse<>(countDto);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/waiting-approval/trails")
+    public ResponseEntity<Page<HikingTrailForApprovalDto>> waitingForApprovalTrails(
+            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
+    ) {
+        Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
+        int currentPage = Math.max(pageNumber - 1, 0);
+
+        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+
+        Page<HikingTrailForApprovalDto> forApproval =
+                this.hikingTrailService
+                        .getAllHikingTrailsForApproval(StatusEnum.PENDING, pageable);
+
+        return ResponseEntity.ok(forApproval);
+    }
 }

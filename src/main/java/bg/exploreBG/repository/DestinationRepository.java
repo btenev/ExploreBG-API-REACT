@@ -7,6 +7,7 @@ import bg.exploreBG.model.enums.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.Set;
 
 @Repository
 public interface DestinationRepository extends JpaRepository<DestinationEntity, Long> {
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    int countDestinationEntitiesByDestinationStatus(StatusEnum status);
     /*                             ---Not necessary.Projection does the job---
            @Query(" SELECT new bg.exploreBG.model.dto.destination.DestinationBasicDto(d.id, d.name, d.imageUrl, d.nextTo) " +
                   " FROM DestinationEntity d" +

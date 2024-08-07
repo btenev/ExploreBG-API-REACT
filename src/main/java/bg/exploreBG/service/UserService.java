@@ -237,7 +237,7 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<UserDataProjection> getAllUsers(Pageable pageable) {
+    public Page<UserDataDto> getAllUsers(Pageable pageable) {
         return this.userRepository.findAllBy(pageable);
     }
 

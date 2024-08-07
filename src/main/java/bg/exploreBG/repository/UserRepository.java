@@ -1,5 +1,6 @@
 package bg.exploreBG.repository;
 
+import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.UserDataProjection;
 import bg.exploreBG.model.entity.UserEntity;
 import org.springframework.data.domain.Page;
@@ -17,10 +18,11 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Query("""
-            SELECT u.id AS id, u.username AS username, i.imageUrl AS imageUrl, u.creationDate AS creationDate, r AS roles
+            SELECT  u.id AS id, u.username AS username, i.imageUrl AS imageUrl, u.creationDate AS creationDate,
+            r AS roles
             FROM UserEntity u
             LEFT JOIN u.userImage as i
-            LEFT JOIN u.roles r
+            LEFT JOIN u.roles as r
             """)
-    Page<UserDataProjection> findAllBy(Pageable pageable);
+    Page<UserDataDto> findAllBy(Pageable pageable);
 }

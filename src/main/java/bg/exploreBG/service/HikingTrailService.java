@@ -9,6 +9,7 @@ import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
@@ -24,9 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -99,6 +102,7 @@ public class HikingTrailService {
 
         newHikingTrail.setTrailStatus(StatusEnum.PENDING);
         newHikingTrail.setCreatedBy(validUser);
+        newHikingTrail.setCreationDate(LocalDateTime.now());
 
         if (!hikingTrailCreateDto.destinations().isEmpty()) {
             List<DestinationEntity> destinationEntities =
@@ -416,4 +420,15 @@ public class HikingTrailService {
         return this.destinationService.getDestinationsByIds(destinationIds);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public int getPendingApprovalTrailCount() {
+        return this.hikingTrailRepository
+                .countHikingTrailEntitiesByTrailStatus(StatusEnum.PENDING);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public Page<HikingTrailForApprovalDto> getAllHikingTrailsForApproval(StatusEnum status, Pageable pageable) {
+        return this.hikingTrailRepository
+                .getHikingTrailEntitiesByTrailStatus(status, pageable);
+    }
 }

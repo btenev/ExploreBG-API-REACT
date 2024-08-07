@@ -3,6 +3,7 @@ package bg.exploreBG.model.entity;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -12,9 +13,12 @@ public class RoleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "roles", nullable = false)
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
+
+    @ManyToMany(mappedBy = "roles")
+    private List<UserEntity> users;
 
     public RoleEntity() {
     }
@@ -46,5 +50,13 @@ public class RoleEntity {
 
     public void setRole(UserRoleEnum role) {
         this.role = role;
+    }
+
+    public List<UserEntity> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<UserEntity> users) {
+        this.users = users;
     }
 }

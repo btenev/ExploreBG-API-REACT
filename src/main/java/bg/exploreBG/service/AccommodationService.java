@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -91,5 +92,11 @@ public class AccommodationService {
 
         AccommodationEntity saved = this.accommodationRepository.save(newAccommodation);
         return new AccommodationIdDto(saved.getId());
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public int getPendingApprovalAccommodationCount() {
+        return this.accommodationRepository
+                .countAccommodationEntitiesByAccommodationStatus(StatusEnum.PENDING);
     }
 }

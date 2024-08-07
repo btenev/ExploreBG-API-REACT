@@ -41,6 +41,11 @@ public class UserEntity {
     private LocalDateTime creationDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
     private List<RoleEntity> roles = new ArrayList<>();
 
     // TODO: Think about FavouriteEntity implementation
@@ -55,16 +60,16 @@ public class UserEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserEntity user = (UserEntity) o;
-        return Objects
-                .equals(getId(), user.getId())
-                && Objects.equals(getEmail(), user.getEmail())
-                && Objects.equals(getUsername(), user.getUsername());
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(
+                getId(), that.getId()) &&
+                Objects.equals(getEmail(), that.getEmail()) &&
+                Objects.equals(getUsername(), that.getUsername());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getEmail(), getUsername());
+        return Objects.hash(getId());
     }
 
     public Long getId() {
