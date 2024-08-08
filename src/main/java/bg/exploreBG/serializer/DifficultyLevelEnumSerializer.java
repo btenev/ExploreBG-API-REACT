@@ -1,6 +1,6 @@
 package bg.exploreBG.serializer;
 
-import bg.exploreBG.model.enums.UserRoleEnum;
+import bg.exploreBG.model.enums.DifficultyLevelEnum;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class UserRoleEnumSerializer extends JsonSerializer<UserRoleEnum> {
+public class DifficultyLevelEnumSerializer extends JsonSerializer<DifficultyLevelEnum> {
     @Override
     public void serialize(
-            UserRoleEnum value,
+            DifficultyLevelEnum value,
             JsonGenerator gen,
             SerializerProvider serializers
     ) throws IOException {
-        gen.writeString(value.getValue());
+        gen.writeNumber(value.getLevel());
     }
 }

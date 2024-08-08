@@ -4,13 +4,17 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.EntitiesForApprovalCountDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
+import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
+import bg.exploreBG.model.dto.user.UserDataProjection;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.AccommodationService;
 import bg.exploreBG.service.DestinationService;
 import bg.exploreBG.service.HikingTrailService;
 import bg.exploreBG.service.UserService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/super-users")
@@ -43,19 +49,27 @@ public class SuperUserController {
     /*
      ADMIN
     */
+//    @GetMapping("/users")
+//    public ResponseEntity<Page<UserDataProjection>> allUsers(
+//            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
+//            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+//            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+//            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
+//    ) {
+//        Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
+//        int currentPage = Math.max(pageNumber - 1, 0);
+//
+//        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+//
+//        Page<UserDataProjection> users = this.userService.getAllUsers(pageable);
+//
+//        return ResponseEntity.ok(users);
+//    }
+    @Transactional
     @GetMapping("/users")
-    public ResponseEntity<Page<UserDataDto>> allUsers(
-            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
-    ) {
-        Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
-        int currentPage = Math.max(pageNumber - 1, 0);
+    public ResponseEntity<List<UserClassDataDto>> allUsers() {
 
-        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
-
-        Page<UserDataDto> users = this.userService.getAllUsers(pageable);
+        List<UserClassDataDto> users = this.userService.getAllUsers();
 
         return ResponseEntity.ok(users);
     }
@@ -76,27 +90,8 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    /*
-     Moderator
-    */
-   /*
-   @GetMapping("/hiking-trails/review")
-    public ResponseEntity<ApiResponse<?>> hikingTrailsReview(
-            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
-    ) {
-        Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
-        int currentPage = Math.max(pageNumber - 1, 0);
-
-        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
-
-        this.hikingTrailService.getAllHikingTrails(pageable);
-    }*/
-
     @GetMapping("/waiting-approval/count")
-    public ResponseEntity<ApiResponse<EntitiesForApprovalCountDto>> waitingForApprovalCount() {
+    public ResponseEntity<EntitiesForApprovalCountDto> waitingForApprovalCount() {
         int accommodationCount = this.accommodationService.getPendingApprovalAccommodationCount();
         int destinationCount = this.destinationService.getPendingApprovalDestinationCount();
         int trailCount = this.hikingTrailService.getPendingApprovalTrailCount();
@@ -104,9 +99,7 @@ public class SuperUserController {
         EntitiesForApprovalCountDto countDto =
                 new EntitiesForApprovalCountDto(accommodationCount,destinationCount, trailCount);
 
-        ApiResponse<EntitiesForApprovalCountDto> response = new ApiResponse<>(countDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(countDto);
     }
 
     @GetMapping("/waiting-approval/trails")
@@ -126,5 +119,15 @@ public class SuperUserController {
                         .getAllHikingTrailsForApproval(StatusEnum.PENDING, pageable);
 
         return ResponseEntity.ok(forApproval);
+    }
+
+    @Transactional
+    @GetMapping("/review/trail/{id}")
+    public ResponseEntity<HikingTrailReviewDto> reviewNewTrail(
+            @PathVariable Long id
+    ) {
+        HikingTrailReviewDto toReview = this.hikingTrailService.reviewTrail(id);
+
+        return ResponseEntity.ok(toReview);
     }
 }

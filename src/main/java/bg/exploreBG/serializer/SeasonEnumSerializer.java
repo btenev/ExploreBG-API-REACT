@@ -1,6 +1,6 @@
 package bg.exploreBG.serializer;
 
-import bg.exploreBG.model.enums.UserRoleEnum;
+import bg.exploreBG.model.enums.SeasonEnum;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class UserRoleEnumSerializer extends JsonSerializer<UserRoleEnum> {
+public class SeasonEnumSerializer extends JsonSerializer<SeasonEnum> {
     @Override
     public void serialize(
-            UserRoleEnum value,
+            SeasonEnum value,
             JsonGenerator gen,
             SerializerProvider serializers
     ) throws IOException {

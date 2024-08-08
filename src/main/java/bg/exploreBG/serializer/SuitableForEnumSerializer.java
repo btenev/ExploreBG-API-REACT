@@ -1,21 +1,27 @@
 package bg.exploreBG.serializer;
 
-import bg.exploreBG.model.enums.UserRoleEnum;
+import bg.exploreBG.model.enums.SuitableForEnum;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
-public class UserRoleEnumSerializer extends JsonSerializer<UserRoleEnum> {
+public class SuitableForEnumSerializer extends JsonSerializer<List<SuitableForEnum>> {
+
     @Override
     public void serialize(
-            UserRoleEnum value,
+            List<SuitableForEnum> value,
             JsonGenerator gen,
             SerializerProvider serializers
     ) throws IOException {
-        gen.writeString(value.getValue());
+        gen.writeStartArray();
+        for (SuitableForEnum suitableForEnum : value) {
+            gen.writeString(suitableForEnum.getValue());
+        }
+        gen.writeEndArray();
     }
 }

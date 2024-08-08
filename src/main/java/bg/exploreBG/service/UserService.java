@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.role.RoleDto;
 import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
 import bg.exploreBG.model.dto.user.single.UserGenderDto;
@@ -23,9 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -237,8 +236,31 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<UserDataDto> getAllUsers(Pageable pageable) {
+    public Page<UserDataProjection> getAllUsers(Pageable pageable) {
         return this.userRepository.findAllBy(pageable);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserClassDataDto> getAllUsers() {
+        Map<Long, UserClassDataDto> userDataDtoMap = new LinkedHashMap<>();
+
+        return this.userRepository.getAllUsers().map(tuple -> {
+
+                    UserClassDataDto userDataDto =
+                            userDataDtoMap.computeIfAbsent(tuple.get("id", Long.class),
+                                    id -> new UserClassDataDto(
+                                            tuple.get("id", Long.class),
+                                            tuple.get("username", String.class),
+                                            tuple.get("imageUrl", String.class),
+                                            tuple.get("creationDate", LocalDateTime.class)
+                                    ));
+                    userDataDto.getRoles()
+                            .add(new RoleDto((tuple.get("role", UserRoleEnum.class))));
+
+                    return userDataDto;
+                })
+                .distinct()
+                .toList();
     }
 
     @PreAuthorize("hasRole('ADMIN')")

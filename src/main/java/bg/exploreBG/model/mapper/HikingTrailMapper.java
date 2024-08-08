@@ -2,6 +2,7 @@ package bg.exploreBG.model.mapper;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.SuitableForEnum;
@@ -21,6 +22,8 @@ public interface HikingTrailMapper {
     @Mapping(source = "waterAvailable.value", target = "waterAvailable")
     @Mapping(source = "activity", target = "activity")
     HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity hikingTrailEntity);
+
+    HikingTrailReviewDto hikingTrailEntityToHikingTrailReviewDto(HikingTrailEntity hikingTrailEntity);
 
     default List<String> suitableForEnumToStringValue (List<SuitableForEnum> activities) {
         return activities

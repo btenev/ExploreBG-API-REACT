@@ -13,10 +13,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
+
+    Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);
+
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto(

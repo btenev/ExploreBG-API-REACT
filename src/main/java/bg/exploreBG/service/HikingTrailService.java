@@ -7,10 +7,7 @@ import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
+import bg.exploreBG.model.dto.hikingTrail.*;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.entity.*;
@@ -403,7 +400,32 @@ public class HikingTrailService {
         if (trailById.isEmpty()) {
             throw new AppException("Hiking trail not found!", HttpStatus.NOT_FOUND);
         }
+
         return trailById.get();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    private HikingTrailEntity hikingTrailExistAndPending(Long id) {
+        Optional<HikingTrailEntity> byIdAndStatusPending =
+                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.PENDING);
+
+        if (byIdAndStatusPending.isEmpty()) {
+            throw new AppException("Hiking trail not found or not pending!", HttpStatus.NOT_FOUND);
+        }
+
+        return byIdAndStatusPending.get();
+    }
+
+    //TODO: use this method for members
+    private HikingTrailEntity hikingTrailExistAndApproved(Long id) {
+        Optional<HikingTrailEntity> byIdAndTrailStatus =
+                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.APPROVED);
+
+        if (byIdAndTrailStatus.isEmpty()) {
+            throw new AppException("Hiking trail not found or not approved!", HttpStatus.NOT_FOUND);
+        }
+
+        return byIdAndTrailStatus.get();
     }
 
     private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
@@ -427,8 +449,18 @@ public class HikingTrailService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public Page<HikingTrailForApprovalDto> getAllHikingTrailsForApproval(StatusEnum status, Pageable pageable) {
+    public Page<HikingTrailForApprovalDto> getAllHikingTrailsForApproval(
+            StatusEnum status,
+            Pageable pageable
+    ) {
         return this.hikingTrailRepository
                 .getHikingTrailEntitiesByTrailStatus(status, pageable);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public HikingTrailReviewDto reviewTrail(Long id) {
+        HikingTrailEntity currentTrail = hikingTrailExistAndPending(id);
+
+        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
     }
 }
