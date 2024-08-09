@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
@@ -404,18 +405,6 @@ public class HikingTrailService {
         return trailById.get();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    private HikingTrailEntity hikingTrailExistAndPending(Long id) {
-        Optional<HikingTrailEntity> byIdAndStatusPending =
-                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.PENDING);
-
-        if (byIdAndStatusPending.isEmpty()) {
-            throw new AppException("Hiking trail not found or not pending!", HttpStatus.NOT_FOUND);
-        }
-
-        return byIdAndStatusPending.get();
-    }
-
     //TODO: use this method for members
     private HikingTrailEntity hikingTrailExistAndApproved(Long id) {
         Optional<HikingTrailEntity> byIdAndTrailStatus =
@@ -426,6 +415,27 @@ public class HikingTrailService {
         }
 
         return byIdAndTrailStatus.get();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    private HikingTrailEntity hikingTrailExistAndInReview(Long id, UserDetails userDetails) {
+        Optional<HikingTrailEntity> currentTrail = this.hikingTrailRepository
+                .findByIdAndTrailStatusAndReviewedBy(id, StatusEnum.REVIEW, userDetails.getUsername());
+
+        return currentTrail.orElse(null);
+
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    private HikingTrailEntity hikingTrailExistAndPending(Long id) {
+        Optional<HikingTrailEntity> byIdAndStatusPending =
+                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.PENDING);
+
+        if (byIdAndStatusPending.isEmpty()) {
+            throw new AppException("Hiking trail not found or not pending!", HttpStatus.NOT_FOUND);
+        }
+
+        return byIdAndStatusPending.get();
     }
 
     private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
@@ -458,9 +468,88 @@ public class HikingTrailService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public HikingTrailReviewDto reviewTrail(Long id) {
-        HikingTrailEntity currentTrail = hikingTrailExistAndPending(id);
+    public HikingTrailReviewDto reviewTrail(Long id, UserDetails userDetails) {
+
+        HikingTrailEntity currentTrail = hikingTrailExistAndInReview(id, userDetails);
+
+        if (currentTrail == null) {
+            currentTrail = hikingTrailExistAndPending(id);
+        }
 
         return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public boolean claimTrailReview(
+            Long id,
+            ReviewBooleanDto reviewBooleanDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = hikingTrailExist(id);
+
+        if (reviewBooleanDto.review()) { // claim item for review
+
+            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by you
+                    && currentTrail.getReviewedBy().equals(userDetails.getUsername())) {
+                throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
+            }
+
+            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by another user
+                    && !currentTrail.getReviewedBy().equals(userDetails.getUsername())) {
+                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
+            }
+
+            if (currentTrail.getTrailStatus().equals(StatusEnum.APPROVED)) { // already approved by another user
+                throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
+            }
+
+            UserEntity userExist = this.userService.userExist(userDetails.getUsername());
+
+            currentTrail.setTrailStatus(StatusEnum.REVIEW);
+            currentTrail.setReviewedBy(userExist.getUsername());
+        } else {
+            if (currentTrail.getTrailStatus().equals(StatusEnum.APPROVED)) { // already approved by another user
+                throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
+            }
+
+            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by another user
+                    && !currentTrail.getReviewedBy().equals(userDetails.getUsername())) {
+                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
+            }
+
+
+            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by you
+                    && currentTrail.getReviewedBy().equals(userDetails.getUsername())) {
+
+                currentTrail.setTrailStatus(StatusEnum.PENDING);
+                currentTrail.setReviewedBy(null);
+            }
+        }
+        this.hikingTrailRepository.save(currentTrail);
+//        // claim item for review
+//        if (reviewBooleanDto.review()) {
+//            currentTrail = hikingTrailExistAndPending(id);
+//
+//            // TODO: put username in details and take it from there
+//            UserEntity userExist = this.userService.userExist(userDetails.getUsername());
+//
+//            currentTrail.setTrailStatus(StatusEnum.REVIEW);
+//            currentTrail.setReviewedBy(userExist.getUsername());
+//        } else {
+//            // cancel review
+//            currentTrail = hikingTrailExistAndInReview(id, userDetails);
+//
+//            // item no longer available
+//            if (currentTrail == null) {
+//                return false;
+//            }
+//
+//            currentTrail.setTrailStatus(StatusEnum.PENDING);
+//            currentTrail.setReviewedBy(null);
+//        }
+//
+//        this.hikingTrailRepository.save(currentTrail);
+
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.SuccessStringDto;
 import bg.exploreBG.model.dto.role.RoleDto;
 import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
@@ -127,7 +128,7 @@ public class UserService {
         return new UserUsernameDto(updatedUsername.getUsername());
     }
 
-    public PasswordChangeSuccessDto updatePassword(
+    public SuccessStringDto updatePassword(
             Long id,
             UserUpdatePasswordDto updatePassword,
             UserDetails userDetails
@@ -141,7 +142,7 @@ public class UserService {
 
         byId.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
         this.userRepository.save(byId);
-        return new PasswordChangeSuccessDto("Password updated successfully!");
+        return new SuccessStringDto("Password updated successfully!");
     }
 
     public UserGenderDto updateGender(
@@ -254,7 +255,8 @@ public class UserService {
                                             tuple.get("imageUrl", String.class),
                                             tuple.get("creationDate", LocalDateTime.class)
                                     ));
-                    userDataDto.getRoles()
+                    userDataDto
+                            .getRoles()
                             .add(new RoleDto((tuple.get("role", UserRoleEnum.class))));
 
                     return userDataDto;

@@ -2,6 +2,7 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.model.dto.ApiResponse;
+import bg.exploreBG.model.dto.SuccessStringDto;
 import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.dto.user.single.*;
 import bg.exploreBG.model.dto.user.UserIdNameDto;
@@ -131,15 +132,15 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/update-password")
-    public ResponseEntity<ApiResponse<PasswordChangeSuccessDto>> updatePassword(
+    public ResponseEntity<ApiResponse<SuccessStringDto>> updatePassword(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdatePasswordDto updatePassword,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        PasswordChangeSuccessDto successes =
+        SuccessStringDto successes =
                 this.userService.updatePassword(id, updatePassword, userDetails);
 
-        ApiResponse<PasswordChangeSuccessDto> response = new ApiResponse<>(successes);
+        ApiResponse<SuccessStringDto> response = new ApiResponse<>(successes);
 
         return ResponseEntity.ok(response);
     }

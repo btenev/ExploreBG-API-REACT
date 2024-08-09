@@ -18,6 +18,7 @@ import java.util.Set;
 
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
+    Optional<HikingTrailEntity> findByIdAndTrailStatusAndReviewedBy(Long id, StatusEnum trailStatus, String createdBy);
 
     Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);
 

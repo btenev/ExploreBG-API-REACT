@@ -3,11 +3,12 @@ package bg.exploreBG.web;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.EntitiesForApprovalCountDto;
+import bg.exploreBG.model.dto.ReviewBooleanDto;
+import bg.exploreBG.model.dto.SuccessBooleanDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
-import bg.exploreBG.model.dto.user.UserDataProjection;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.AccommodationService;
@@ -22,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -97,7 +100,7 @@ public class SuperUserController {
         int trailCount = this.hikingTrailService.getPendingApprovalTrailCount();
 
         EntitiesForApprovalCountDto countDto =
-                new EntitiesForApprovalCountDto(accommodationCount,destinationCount, trailCount);
+                new EntitiesForApprovalCountDto(accommodationCount, destinationCount, trailCount);
 
         return ResponseEntity.ok(countDto);
     }
@@ -121,13 +124,28 @@ public class SuperUserController {
         return ResponseEntity.ok(forApproval);
     }
 
+    //Add data ???
     @Transactional
     @GetMapping("/review/trail/{id}")
-    public ResponseEntity<HikingTrailReviewDto> reviewNewTrail(
-            @PathVariable Long id
+    public ResponseEntity<ApiResponse<HikingTrailReviewDto>> reviewNewTrail(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailReviewDto toReview = this.hikingTrailService.reviewTrail(id);
+        HikingTrailReviewDto toReview = this.hikingTrailService.reviewTrail(id, userDetails);
 
-        return ResponseEntity.ok(toReview);
+        ApiResponse<HikingTrailReviewDto> response = new ApiResponse<>(toReview);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/review/trail/{id}/claim")
+    public ResponseEntity<SuccessBooleanDto> claimNewTrailReview(
+            @PathVariable Long id,
+            @RequestBody ReviewBooleanDto reviewBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = this.hikingTrailService.claimTrailReview(id,reviewBooleanDto, userDetails);
+
+        return ResponseEntity.ok(new SuccessBooleanDto(success));
     }
 }
