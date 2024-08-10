@@ -16,6 +16,7 @@ import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
+import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.repository.HikingTrailRepository;
 import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
@@ -468,15 +469,20 @@ public class HikingTrailService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public HikingTrailReviewDto reviewTrail(Long id, UserDetails userDetails) {
+    public HikingTrailReviewDto reviewTrail(Long id, ExploreBgUserDetails userDetails) {
 
-        HikingTrailEntity currentTrail = hikingTrailExistAndInReview(id, userDetails);
+        HikingTrailEntity currentTrail = hikingTrailExist(id);
 
-        if (currentTrail == null) {
-            currentTrail = hikingTrailExistAndPending(id);
+        StatusEnum trailStatus = currentTrail.getTrailStatus();
+        String reviewedBy = currentTrail.getReviewedBy();
+
+        if (trailStatus.equals(StatusEnum.PENDING)
+                || trailStatus.equals(StatusEnum.REVIEW) && reviewedBy.equals(userDetails.getProfileName())
+        ) {
+            return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
         }
 
-        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
+        throw new AppException("Item with invalid status for review!", HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")

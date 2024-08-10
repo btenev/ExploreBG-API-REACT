@@ -33,6 +33,7 @@ public class ExploreBgUserDetailService implements UserDetailsService {
         return new ExploreBgUserDetails(
                 userEntity.getEmail(),
                 userEntity.getPassword(),
+                userEntity.getUsername(),
                 userEntity
                         .getRoles()
                         .stream()

@@ -10,11 +10,17 @@ public class ExploreBgUserDetails implements UserDetails {
     private final Collection<GrantedAuthority> authorities;
     private final String email;
     private final String password;
+    private final String profileName;
 
-    public ExploreBgUserDetails(String email, String password, Collection<GrantedAuthority> authorities) {
+    public ExploreBgUserDetails(String email, String password, String username, Collection<GrantedAuthority> authorities) {
         this.email = email;
         this.password = password;
+        this.profileName = username;
         this.authorities = authorities;
+    }
+
+    public String getProfileName() {
+        return this.profileName;
     }
 
     @Override

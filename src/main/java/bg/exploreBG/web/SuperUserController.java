@@ -11,6 +11,7 @@ import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.AccommodationService;
 import bg.exploreBG.service.DestinationService;
 import bg.exploreBG.service.HikingTrailService;
@@ -129,9 +130,9 @@ public class SuperUserController {
     @GetMapping("/review/trail/{id}")
     public ResponseEntity<ApiResponse<HikingTrailReviewDto>> reviewNewTrail(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
     ) {
-        HikingTrailReviewDto toReview = this.hikingTrailService.reviewTrail(id, userDetails);
+        HikingTrailReviewDto toReview = this.hikingTrailService.reviewTrail(id, exploreBgUserDetails);
 
         ApiResponse<HikingTrailReviewDto> response = new ApiResponse<>(toReview);
 
