@@ -7,6 +7,7 @@ import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.SuccessBooleanDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
@@ -120,7 +121,7 @@ public class SuperUserController {
 
         Page<HikingTrailForApprovalDto> forApproval =
                 this.hikingTrailService
-                        .getAllHikingTrailsForApproval(StatusEnum.PENDING, pageable);
+                        .getAllHikingTrailsForApproval(List.of(StatusEnum.PENDING, StatusEnum.REVIEW), pageable);
 
         return ResponseEntity.ok(forApproval);
     }
@@ -140,13 +141,30 @@ public class SuperUserController {
     }
 
     @PatchMapping("/review/trail/{id}/claim")
-    public ResponseEntity<SuccessBooleanDto> claimNewTrailReview(
+    public ResponseEntity<ApiResponse<Boolean>> claimNewTrailReview(
             @PathVariable Long id,
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean success = this.hikingTrailService.claimTrailReview(id,reviewBooleanDto, userDetails);
 
-        return ResponseEntity.ok(new SuccessBooleanDto(success));
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    @PatchMapping("/approve/trail/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> approveNewTrail(
+            @PathVariable Long id,
+            @Valid @RequestBody HikingTrailCreateOrReviewDto trailCreateOrReviewDto,
+            @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
+    ) {
+        boolean approved =
+                this.hikingTrailService.approveTrail(id, trailCreateOrReviewDto, exploreBgUserDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(approved);
+
+        return ResponseEntity.ok(response);
     }
 }

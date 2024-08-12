@@ -70,7 +70,7 @@ public class DestinationService {
     }
 
     public List<DestinationEntity> getDestinationsByIds(List<Long> ids) {
-        return this.destinationRepository.findAllByIdIn(ids);
+        return this.destinationRepository.findAllByIdInAndDestinationStatus(ids, StatusEnum.APPROVED);
     }
 
     public DestinationIdDto createDestination(

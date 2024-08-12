@@ -236,12 +236,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public Page<UserDataProjection> getAllUsers(Pageable pageable) {
         return this.userRepository.findAllBy(pageable);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public List<UserClassDataDto> getAllUsers() {
         Map<Long, UserClassDataDto> userDataDtoMap = new LinkedHashMap<>();
 

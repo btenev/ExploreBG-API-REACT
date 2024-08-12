@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
             """)
     Page<UserDataProjection> findAllBy(Pageable pageable);
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Override
     Stream<Tuple> getAllUsers();
 }

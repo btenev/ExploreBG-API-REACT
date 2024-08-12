@@ -15,9 +15,6 @@ public interface HikeMapper {
     @Mapping(target = "hikeName", expression = "java(hikeEntity.getStartPoint() + ' ' + '-' + ' ' + hikeEntity.getEndPoint())")
     HikeBasicDto hikeEntityToHikeBasicDto(HikeEntity hikeEntity);
 
-    @Mapping(source = "hikingTrail.trailDifficulty.level", target = "hikingTrail.trailDifficulty")
-    @Mapping(source = "hikingTrail.seasonVisited.value", target = "hikingTrail.seasonVisited")
-    @Mapping(source = "hikingTrail.activity", target = "hikingTrail.activity")
     @Mapping(target = "hikeName", expression = "java(hikeEntity.getStartPoint() + ' ' + '-' + ' ' + hikeEntity.getEndPoint())")
     HikeDetailsDto hikeEntityToHikeDetailsDto(HikeEntity hikeEntity);
 

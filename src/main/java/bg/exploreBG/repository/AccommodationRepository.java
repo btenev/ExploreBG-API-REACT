@@ -31,5 +31,5 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
 
     List<AccommodationBasicDto> findAllByAccommodationStatus(StatusEnum accommodationStatus);
 
-    List<AccommodationEntity> findAllByIdIn(List<Long> ids);
+    List<AccommodationEntity> findAllByIdInAndAccommodationStatus(List<Long> ids, StatusEnum statusEnum);
 }

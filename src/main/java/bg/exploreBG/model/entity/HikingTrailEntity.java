@@ -38,6 +38,7 @@ public class HikingTrailEntity {
     @Enumerated(EnumType.STRING)
     private WaterAvailabilityEnum waterAvailable;
 
+    //TODO: discuss with Ivo if one accommodation entity can belong to more than one hiking trail
     @ManyToMany
     @JoinTable(
             name = "hiking_trails_available_huts",
@@ -76,7 +77,8 @@ public class HikingTrailEntity {
     @Enumerated(EnumType.STRING)
     private StatusEnum trailStatus;
 
-    @OneToMany
+    //TODO: discuss with Ivo if one destination entity can belong to more than one hiking trail
+    @ManyToMany
     @JoinTable(name = "hiking_trails_destinations",
                joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
@@ -88,7 +90,7 @@ public class HikingTrailEntity {
 
     @ManyToOne
     private UserEntity createdBy;
-
+    @Column(name = "reviewed_by")
     private String reviewedBy;
 
     public HikingTrailEntity() {

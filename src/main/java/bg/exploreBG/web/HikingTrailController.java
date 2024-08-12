@@ -40,6 +40,9 @@ public class HikingTrailController {
         this.hikingTrailService = hikingTrailService;
     }
 
+    /*
+    APPROVED
+    */
     @GetMapping("/random")
     public ResponseEntity<ApiResponse<List<HikingTrailBasicDto>>> getFourRandomHikingTrails() {
         List<HikingTrailBasicDto> randomTrails =
@@ -50,6 +53,9 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
+    /*
+    APPROVED
+    */
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(
@@ -62,6 +68,23 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
+    @Transactional
+    @GetMapping("/{id}/auth")
+    public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrailAuth(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikingTrailDetailsDto hikingTrail =
+                this.hikingTrailService.getHikingTrailAuthenticated(id, userDetails);
+
+        ApiResponse<HikingTrailDetailsDto> response = new ApiResponse<>(hikingTrail);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /*
+    APPROVED
+    */
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<Page<HikingTrailBasicDto>>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
@@ -84,13 +107,13 @@ public class HikingTrailController {
     @PostMapping("/create/{id}")
     public ResponseEntity<ApiResponse<HikingTrailIdDto>> createHikingTrail(
             @PathVariable Long id,
-            @Valid @RequestBody HikingTrailCreateDto hikingTrailCreateDto,
+            @Valid @RequestBody HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-//        logger.debug("Display create hiking trail request {}", hikingTrailCreateDto);
+//        logger.debug("Display create hiking trail request {}", hikingTrailCreateOrReviewDto);
 
         Long newHikingTrailId =
-                this.hikingTrailService.createHikingTrail(id, hikingTrailCreateDto, userDetails);
+                this.hikingTrailService.createHikingTrail(id, hikingTrailCreateOrReviewDto, userDetails);
 
         HikingTrailIdDto hikingTrailIdDto = new HikingTrailIdDto(newHikingTrailId);
 
@@ -254,6 +277,9 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
+    /*
+    APPROVED
+    */
     @GetMapping("/select")
     public ResponseEntity<List<HikingTrailIdTrailNameDto>> select() {
         List<HikingTrailIdTrailNameDto> selected = this.hikingTrailService.selectAll();

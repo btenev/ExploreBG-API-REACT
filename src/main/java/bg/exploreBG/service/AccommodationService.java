@@ -73,7 +73,7 @@ public class AccommodationService {
     }
 
     public List<AccommodationEntity> getAccommodationsById(List<Long> ids) {
-        return  this.accommodationRepository.findAllByIdIn(ids);
+        return  this.accommodationRepository.findAllByIdInAndAccommodationStatus(ids, StatusEnum.APPROVED);
     }
 
     public AccommodationIdDto createAccommodation(

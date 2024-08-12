@@ -58,11 +58,12 @@ public class SecurityConfig {
                             "/api/users/*/profile"
                     ).permitAll();
 
-                    req.requestMatchers(HttpMethod.GET, "/api/super-users/users").hasRole("ADMIN");
+                    req.requestMatchers(HttpMethod.GET, "/api/super-users/users").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/update-role").hasRole("ADMIN");
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/count").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/trails").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/review/trail/{id:[1-9]+}").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/approve/trail/{id:[1-9]+}").hasAnyRole("ADMIN", "MODERATOR");
 
                     req.requestMatchers(
                                     HttpMethod.POST,

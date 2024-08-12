@@ -4,6 +4,9 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
+import bg.exploreBG.model.enums.*;
+import bg.exploreBG.serializer.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
 
@@ -14,15 +17,21 @@ public record HikingTrailDetailsDto(
         Double totalDistance,
         String trailInfo,
         String imageUrl,
-        String seasonVisited,
-        String waterAvailable,
+        @JsonSerialize(using = SeasonEnumSerializer.class)
+        SeasonEnum seasonVisited,
+        @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)
+        WaterAvailabilityEnum waterAvailable,
         List<AccommodationBasicDto> availableHuts,
-        int trailDifficulty,
-        List<String> activity,
+        @JsonSerialize(using = DifficultyLevelEnumSerializer.class)
+        DifficultyLevelEnum trailDifficulty,
+        @JsonSerialize(using = SuitableForEnumSerializer.class)
+        List<SuitableForEnum> activity,
         List<CommentDto> comments,
         Integer elevationGained,
         String nextTo,
         UserBasicInfo createdBy,
+        @JsonSerialize(using = StatusEnumSerializer.class)
+        StatusEnum trailStatus,
         List<DestinationBasicDto> destinations
 ) {
 }

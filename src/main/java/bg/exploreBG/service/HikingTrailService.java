@@ -75,27 +75,38 @@ public class HikingTrailService {
     }
 
     public HikingTrailDetailsDto getHikingTrail(Long id) {
-        HikingTrailEntity trailById = hikingTrailExist(id);
+        HikingTrailEntity trailById = hikingTrailExistAndApproved(id);
 
         return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trailById);
     }
 
+    public HikingTrailDetailsDto getHikingTrailAuthenticated(Long id, UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        Optional<HikingTrailEntity> possibleOwner = this.hikingTrailRepository
+                .findByIdAndStatusApprovedOrStatusPendingAndOwner(id, username);
+
+        if (possibleOwner.isEmpty()) {
+            throw new AppException("HikingTrail not found or invalid status!", HttpStatus.BAD_REQUEST);
+        }
+
+        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(possibleOwner.get());
+    }
+
     public Page<HikingTrailBasicDto> getAllHikingTrails(Pageable pageable) {
         return this.hikingTrailRepository
-                .findAll(pageable)
-                .map(this.hikingTrailMapper::hikingTrailEntityToHikingTrailBasicDto);
+                .findAllByTrailStatus(StatusEnum.APPROVED, pageable);
     }
 
     public Long createHikingTrail(
             Long id,
-            HikingTrailCreateDto hikingTrailCreateDto,
+            HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
             UserDetails userDetails
     ) {
         UserEntity validUser = this.userService.verifiedUser(id, userDetails);
 
         HikingTrailEntity newHikingTrail =
                 this.hikingTrailMapper
-                        .hikingTrailCreateDtoToHikingTrailEntity(hikingTrailCreateDto);
+                        .hikingTrailCreateDtoToHikingTrailEntity(hikingTrailCreateOrReviewDto);
 
 //        logger.debug("{}", newHikingTrail);
 
@@ -103,15 +114,15 @@ public class HikingTrailService {
         newHikingTrail.setCreatedBy(validUser);
         newHikingTrail.setCreationDate(LocalDateTime.now());
 
-        if (!hikingTrailCreateDto.destinations().isEmpty()) {
+        if (!hikingTrailCreateOrReviewDto.destinations().isEmpty()) {
             List<DestinationEntity> destinationEntities =
-                    mapDtoToDestinationEntities(hikingTrailCreateDto.destinations());
+                    mapDtoToDestinationEntities(hikingTrailCreateOrReviewDto.destinations());
             newHikingTrail.setDestinations(destinationEntities);
         }
 
-        if (!hikingTrailCreateDto.availableHuts().isEmpty()) {
+        if (!hikingTrailCreateOrReviewDto.availableHuts().isEmpty()) {
             List<AccommodationEntity> accommodationEntities
-                    = mapDtoToAccommodationEntities(hikingTrailCreateDto.availableHuts());
+                    = mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
 
@@ -461,11 +472,11 @@ public class HikingTrailService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public Page<HikingTrailForApprovalDto> getAllHikingTrailsForApproval(
-            StatusEnum status,
+            List<StatusEnum> statuses,
             Pageable pageable
     ) {
         return this.hikingTrailRepository
-                .getHikingTrailEntitiesByTrailStatus(status, pageable);
+                .getHikingTrailEntitiesByTrailStatus(statuses, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -554,6 +565,99 @@ public class HikingTrailService {
 //        }
 //
 //        this.hikingTrailRepository.save(currentTrail);
+
+        return true;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public boolean approveTrail(
+            Long id,
+            HikingTrailCreateOrReviewDto trailCreateOrReview,
+            ExploreBgUserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        StatusEnum trailStatus = currentTrail.getTrailStatus();
+
+        if (trailStatus.equals(StatusEnum.APPROVED)) {
+            throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (trailStatus.equals(StatusEnum.PENDING)) {
+            throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
+        }
+
+        String reviewedBy = currentTrail.getReviewedBy();
+
+        if (trailStatus.equals(StatusEnum.REVIEW) && !reviewedBy.equals(userDetails.getProfileName())) {
+            throw new AppException("The item has already been claimed by another user! You can not approved it!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!currentTrail.getStartPoint().equals(trailCreateOrReview.startPoint())) {
+            currentTrail.setStartPoint(trailCreateOrReview.startPoint());
+        }
+
+        if (!currentTrail.getEndPoint().equals(trailCreateOrReview.endPoint())) {
+            currentTrail.setEndPoint(trailCreateOrReview.endPoint());
+        }
+
+        if (!currentTrail.getTotalDistance().equals(trailCreateOrReview.totalDistance())) {
+            currentTrail.setTotalDistance(trailCreateOrReview.totalDistance());
+        }
+
+        if (!currentTrail.getTrailInfo().equals(trailCreateOrReview.trailInfo())) {
+            currentTrail.setTrailInfo(trailCreateOrReview.trailInfo());
+        }
+
+        if (!currentTrail.getSeasonVisited().equals(trailCreateOrReview.seasonVisited())) {
+            currentTrail.setSeasonVisited(trailCreateOrReview.seasonVisited());
+        }
+
+        if (!currentTrail.getWaterAvailable().equals(trailCreateOrReview.waterAvailable())) {
+            currentTrail.setWaterAvailable(trailCreateOrReview.waterAvailable());
+        }
+
+        if (!currentTrail.getTrailDifficulty().equals(trailCreateOrReview.trailDifficulty())) {
+            currentTrail.setTrailDifficulty(trailCreateOrReview.trailDifficulty());
+        }
+
+        if (!currentTrail.getActivity().equals(trailCreateOrReview.activity())) {
+            currentTrail.setActivity(trailCreateOrReview.activity());
+        }
+
+        if (!currentTrail.getElevationGained().equals(trailCreateOrReview.elevationGained())) {
+            currentTrail.setElevationGained(trailCreateOrReview.elevationGained());
+        }
+
+        if (!currentTrail.getNextTo().equals(trailCreateOrReview.nextTo())) {
+            currentTrail.setNextTo(trailCreateOrReview.nextTo());
+        }
+
+        List<DestinationIdDto> destinationIdDto =
+                currentTrail.getDestinations()
+                        .stream()
+                        .map(de -> new DestinationIdDto(de.getId()))
+                        .toList();
+
+        if (!destinationIdDto.equals(trailCreateOrReview.destinations())) {
+            List<DestinationEntity> destinationEntities =
+                    mapDtoToDestinationEntities(trailCreateOrReview.destinations());
+            currentTrail.setDestinations(destinationEntities);
+        }
+
+        List<AccommodationIdDto> accommodationIdDto =
+                currentTrail.getAvailableHuts()
+                        .stream().map(a -> new AccommodationIdDto(a.getId()))
+                        .toList();
+
+        if (!accommodationIdDto.equals(trailCreateOrReview.availableHuts())) {
+            List<AccommodationEntity> accommodationEntities =
+                    mapDtoToAccommodationEntities(trailCreateOrReview.availableHuts());
+            currentTrail.setAvailableHuts(accommodationEntities);
+        }
+
+        currentTrail.setTrailStatus(StatusEnum.APPROVED);
+
+        this.hikingTrailRepository.save(currentTrail);
 
         return true;
     }

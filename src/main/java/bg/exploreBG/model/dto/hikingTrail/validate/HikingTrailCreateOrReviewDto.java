@@ -12,7 +12,7 @@ import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-public record HikingTrailCreateDto(
+public record HikingTrailCreateOrReviewDto(
         @NotNull(message = "err-start-point-required")
         @Pattern(
                 regexp = "^[A-Za-z]+(\\s?[A-Za-z]+)*$",
