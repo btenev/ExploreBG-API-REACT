@@ -55,7 +55,7 @@ public class SecurityConfig {
                             "/api/hikes/*",
                             "/api/trails/*",
                             "/api/utility/**",
-                            "/api/users/*/profile"
+                            "/api/users/{id:[1-9]+}/profile"
                     ).permitAll();
 
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/users").hasAnyRole("ADMIN", "MODERATOR");
