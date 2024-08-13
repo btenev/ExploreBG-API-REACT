@@ -266,24 +266,31 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public UserDataDto updateUserRoleToModerator(
-            Long id
+    public UserDataDto addRemoveModeratorRoleToUserRoles(
+            Long id,
+            UserModRoleDto mod
     ) {
         UserEntity userExist = this.userExist(id);
-
         List<RoleEntity> userRoles = userExist.getRoles();
-
         RoleEntity moderator = this.roleService.roleExist(UserRoleEnum.MODERATOR);
-        UserEntity saved;
 
-        if (!userRoles.contains(moderator)) {
+        if (mod.moderator()) { // add role moderator
+            if (userRoles.contains(moderator)) {
+                throw new AppException("The user is already a moderator!", HttpStatus.BAD_REQUEST);
+            }
+
             userRoles.add(moderator);
             userExist.setRoles(userRoles);
-            saved = this.userRepository.save(userExist);
-        } else {
-            saved = userExist;
+        } else { // remove moderator
+            if (!userRoles.contains(moderator)) {
+                throw new AppException("You cannot remove the moderator role because the user does not have one!", HttpStatus.BAD_REQUEST);
+            }
+
+            userRoles.remove(moderator);
+            userExist.setRoles(userRoles);
         }
 
+        UserEntity saved = this.userRepository.save(userExist);
         return this.userMapper.userEntityToUserDataDto(saved);
     }
 }

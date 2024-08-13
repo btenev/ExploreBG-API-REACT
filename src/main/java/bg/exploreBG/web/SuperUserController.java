@@ -4,7 +4,6 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.EntitiesForApprovalCountDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
-import bg.exploreBG.model.dto.SuccessBooleanDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
@@ -80,15 +79,12 @@ public class SuperUserController {
     }
 
     @PatchMapping("/{id}/update-role")
-    public ResponseEntity<ApiResponse<UserDataDto>> updateRoleToModerator(
+    public ResponseEntity<ApiResponse<UserDataDto>> addRemoveModeratorRole(
             @PathVariable Long id,
             @Valid @RequestBody UserModRoleDto userModRoleDto
     ) {
-        if (!userModRoleDto.moderator()) {
-            throw new AppException("Invalid request!", HttpStatus.BAD_REQUEST);
-        }
 
-        UserDataDto updatedUserRole = this.userService.updateUserRoleToModerator(id);
+        UserDataDto updatedUserRole = this.userService.addRemoveModeratorRoleToUserRoles(id, userModRoleDto);
 
         ApiResponse<UserDataDto> response = new ApiResponse<>(updatedUserRole);
 
