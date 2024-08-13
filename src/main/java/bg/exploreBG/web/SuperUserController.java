@@ -9,6 +9,7 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
+import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
@@ -91,6 +92,18 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{id}/lock-account")
+    public ResponseEntity<ApiResponse<Boolean>> lockUnlockUserAccount(
+            @PathVariable Long id,
+            @RequestBody UserAccountLockUnlockDto userAccountLockUnlockDto
+    ) {
+        boolean success = this.userService.lockOrUnlockUserAccount(id, userAccountLockUnlockDto);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/waiting-approval/count")
     public ResponseEntity<EntitiesForApprovalCountDto> waitingForApprovalCount() {
         int accommodationCount = this.accommodationService.getPendingApprovalAccommodationCount();
@@ -142,7 +155,7 @@ public class SuperUserController {
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.hikingTrailService.claimTrailReview(id,reviewBooleanDto, userDetails);
+        boolean success = this.hikingTrailService.claimTrailReview(id, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 

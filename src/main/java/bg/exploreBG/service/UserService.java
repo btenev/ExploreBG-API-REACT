@@ -62,6 +62,7 @@ public class UserService {
 
         UserEntity newUser = mapDtoToUserEntity(userRegisterDto, roleExist);
         newUser.setCreationDate(LocalDateTime.now());
+        newUser.setAccountNonLocked(true);
 
         UserEntity persistedUser = this.userRepository.save(newUser);
 
@@ -292,5 +293,32 @@ public class UserService {
 
         UserEntity saved = this.userRepository.save(userExist);
         return this.userMapper.userEntityToUserDataDto(saved);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public boolean lockOrUnlockUserAccount(
+            Long id,
+            UserAccountLockUnlockDto lockUnlockDto
+    ) {
+        UserEntity userExist = userExist(id);
+
+        boolean accountNonLocked = userExist.isAccountNonLocked();
+
+        if (lockUnlockDto.lockAccount()) { // lock account - true
+            if (!accountNonLocked) {
+                throw new AppException("The account of this user is already locked!", HttpStatus.BAD_REQUEST);
+            }
+
+            userExist.setAccountNonLocked(false);
+        } else {  // unlock account - false
+            if (accountNonLocked) {
+                throw new AppException("The account of this user has already been unlocked!", HttpStatus.BAD_REQUEST);
+            }
+
+            userExist.setAccountNonLocked(true);
+        }
+
+        this.userRepository.save(userExist);
+        return true;
     }
 }

@@ -3,18 +3,18 @@ VALUES (1, 'MEMBER'),
        (2, 'MODERATOR'),
        (3, 'ADMIN');
 
-INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date)
+INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date, is_account_non_locked)
 VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
         '1983-05-10',
-        'some very interesting info', LOCALTIME()),
+        'some very interesting info', LOCALTIME(), true),
        (2, 'provider@explore.bg', 'provider', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'FEMALE',
         '1979-02-01',
-        'not so interesting info', LOCALTIME()),
+        'not so interesting info', LOCALTIME(), true),
        (3, 'member_two@explore.bg', 'memberTwo', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
         '1965-03-08',
-        'i like like travelling, hiking, exploring the world', LOCALTIME()),
+        'i like like travelling, hiking, exploring the world', LOCALTIME(), true),
        (4, 'admin@explore.bg', 'admin', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
-        '1983-05-15', 'I like watching discovery chanel', LOCALTIME());
+        '1983-05-15', 'I like watching discovery chanel', LOCALTIME(), true);
 
 INSERT INTO user_role (role_id, user_id)
 VALUES (1, 1),

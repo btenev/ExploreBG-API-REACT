@@ -40,6 +40,9 @@ public class UserEntity {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
+    @Column(name = "is_account_non_locked")
+    private boolean isAccountNonLocked;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
@@ -158,5 +161,13 @@ public class UserEntity {
 
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public boolean isAccountNonLocked() {
+        return isAccountNonLocked;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        isAccountNonLocked = accountNonLocked;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ExploreBgUserDetailService implements UserDetailsService {
@@ -23,10 +24,19 @@ public class ExploreBgUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return this.userRepository
-                .findByEmail(username)
-                .map(this::map)
-                .orElseThrow(() -> new AppException("Unknown user!", HttpStatus.NOT_FOUND));
+        Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
+
+        if (byEmail.isEmpty()) {
+            throw new AppException("Unknown user!", HttpStatus.NOT_FOUND);
+        }
+
+        UserEntity isPresent = byEmail.get();
+
+        if (!isPresent.isAccountNonLocked()) {
+            throw new AppException("Your account has been locked. You temporarily do not have access to it.", HttpStatus.FORBIDDEN);
+        }
+
+        return map(isPresent);
     }
 
     private UserDetails map(UserEntity userEntity) {
@@ -34,6 +44,7 @@ public class ExploreBgUserDetailService implements UserDetailsService {
                 userEntity.getEmail(),
                 userEntity.getPassword(),
                 userEntity.getUsername(),
+                userEntity.isAccountNonLocked(),
                 userEntity
                         .getRoles()
                         .stream()

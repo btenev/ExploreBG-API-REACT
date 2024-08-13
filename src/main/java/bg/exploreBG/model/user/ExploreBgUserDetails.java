@@ -12,10 +12,19 @@ public class ExploreBgUserDetails implements UserDetails {
     private final String password;
     private final String profileName;
 
-    public ExploreBgUserDetails(String email, String password, String username, Collection<GrantedAuthority> authorities) {
+    private final boolean isAccountNonLocked;
+
+    public ExploreBgUserDetails(
+            String email,
+            String password,
+            String username,
+            boolean isAccountNonLocked,
+            Collection<GrantedAuthority> authorities
+    ) {
         this.email = email;
         this.password = password;
         this.profileName = username;
+        this.isAccountNonLocked = isAccountNonLocked;
         this.authorities = authorities;
     }
 
@@ -45,7 +54,7 @@ public class ExploreBgUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.isAccountNonLocked;
     }
 
     @Override
