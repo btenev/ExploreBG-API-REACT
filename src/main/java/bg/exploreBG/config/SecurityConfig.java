@@ -64,6 +64,7 @@ public class SecurityConfig {
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/trails").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/review/trail/{id:[1-9]+}").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.PATCH, "/api/super-users/approve/trail/{id:[1-9]+}").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/lock-account").hasAnyRole("ADMIN", "MODERATOR");
 
                     req.requestMatchers(
                                     HttpMethod.POST,

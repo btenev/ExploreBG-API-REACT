@@ -3,7 +3,7 @@ VALUES (1, 'MEMBER'),
        (2, 'MODERATOR'),
        (3, 'ADMIN');
 
-INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date, is_account_non_locked)
+INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date, account_non_locked)
 VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
         '1983-05-10',
         'some very interesting info', LOCALTIME(), true),

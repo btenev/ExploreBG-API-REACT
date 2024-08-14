@@ -51,7 +51,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
          FROM HikingTrailEntity t
          JOIN t.createdBy cb
          WHERE t.id = :id
-         AND t.trailStatus = 'PENDING'
+         AND t.trailStatus IN (bg.exploreBG.model.enums.StatusEnum.PENDING, bg.exploreBG.model.enums.StatusEnum.REVIEW)
          AND cb.email = :email
            """)
     Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(@Param("id") Long id, @Param("email")String email);

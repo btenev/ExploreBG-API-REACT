@@ -254,7 +254,8 @@ public class UserService {
                                             tuple.get("id", Long.class),
                                             tuple.get("username", String.class),
                                             tuple.get("imageUrl", String.class),
-                                            tuple.get("creationDate", LocalDateTime.class)
+                                            tuple.get("creationDate", LocalDateTime.class),
+                                            tuple.get("accountNonLocked", Boolean.class)
                                     ));
                     userDataDto
                             .getRoles()

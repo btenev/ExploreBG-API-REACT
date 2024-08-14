@@ -11,13 +11,15 @@ public class UserClassDataDto {
     private final String username;
     private final String imageUrl;
     private final LocalDateTime creationDate;
-    private  List<RoleDto> roles;
+    private final boolean accountNonLocked;
+    private final List<RoleDto> roles;
 
-    public UserClassDataDto(Long id, String username, String imageUrl, LocalDateTime creationDate) {
+    public UserClassDataDto(Long id, String username, String imageUrl, LocalDateTime creationDate, boolean accountNonLocked) {
         this.id = id;
         this.username = username;
         this.imageUrl = imageUrl;
         this.creationDate = creationDate;
+        this.accountNonLocked = accountNonLocked;
         this.roles = new ArrayList<>();
     }
 
@@ -37,12 +39,11 @@ public class UserClassDataDto {
         return creationDate;
     }
 
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
     public List<RoleDto> getRoles() {
         return roles;
     }
 }
-//Long id,
-//String username,
-//String imageUrl,
-//LocalDateTime creationDate,
-//List<RoleDto> roles

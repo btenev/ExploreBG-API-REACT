@@ -18,6 +18,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                         u.username as username,
                         i.imageUrl as imageUrl,
                         u.creationDate as creationDate,
+                        u.accountNonLocked as accountNonLocked,
                         r.role as role
                         FROM UserEntity as u
                         LEFT JOIN u.userImage as i

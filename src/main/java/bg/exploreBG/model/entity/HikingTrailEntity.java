@@ -84,12 +84,12 @@ public class HikingTrailEntity {
                inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
     )
     private List<DestinationEntity> destinations;
-
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
     @ManyToOne
     private UserEntity createdBy;
+
     @Column(name = "reviewed_by")
     private String reviewedBy;
 

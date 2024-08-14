@@ -40,8 +40,8 @@ public class UserEntity {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
-    @Column(name = "is_account_non_locked")
-    private boolean isAccountNonLocked;
+    @Column(name = "account_non_locked")
+    private boolean accountNonLocked;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -164,10 +164,10 @@ public class UserEntity {
     }
 
     public boolean isAccountNonLocked() {
-        return isAccountNonLocked;
+        return accountNonLocked;
     }
 
     public void setAccountNonLocked(boolean accountNonLocked) {
-        isAccountNonLocked = accountNonLocked;
+        this.accountNonLocked = accountNonLocked;
     }
 }
