@@ -3,8 +3,11 @@ package bg.exploreBG.web;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.EntitiesForApprovalUnderReviewCountDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationApprovalReviewCountDto;
+import bg.exploreBG.model.dto.accommodation.DestinationApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
+import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
@@ -106,21 +109,24 @@ public class SuperUserController {
     public ResponseEntity<EntitiesForApprovalUnderReviewCountDto> waitingForApprovalUnderReviewCount() {
         int accommodationCountPending = this.accommodationService.getPendingApprovalAccommodationCount();
         int accommodationCountReview = this.accommodationService.getUnderReviewAccommodationCount();
+        AccommodationApprovalReviewCountDto accommodations
+                = new AccommodationApprovalReviewCountDto(accommodationCountPending, accommodationCountReview);
 
         int destinationCountPending = this.destinationService.getPendingApprovalDestinationCount();
         int destinationCountReview = this.destinationService.getUnderReviewDestinationCount();
+        DestinationApprovalReviewCountDto destinations
+                = new DestinationApprovalReviewCountDto(destinationCountPending, destinationCountReview);
 
         int trailCountPending = this.hikingTrailService.getPendingApprovalTrailCount();
         int trailCountReview = this.hikingTrailService.getUnderReviewTrailCount();
+        TrailApprovalReviewCountDto trails
+                = new TrailApprovalReviewCountDto(trailCountPending, trailCountReview);
 
         EntitiesForApprovalUnderReviewCountDto countDto =
                 new EntitiesForApprovalUnderReviewCountDto(
-                        accommodationCountPending,
-                        accommodationCountReview,
-                        destinationCountPending,
-                        destinationCountReview,
-                        trailCountPending,
-                        trailCountReview
+                        accommodations,
+                        destinations,
+                        trails
                 );
 
         return ResponseEntity.ok(countDto);

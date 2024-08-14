@@ -1,11 +1,12 @@
 package bg.exploreBG.model.dto;
 
+import bg.exploreBG.model.dto.accommodation.AccommodationApprovalReviewCountDto;
+import bg.exploreBG.model.dto.accommodation.DestinationApprovalReviewCountDto;
+import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
+
 public record EntitiesForApprovalUnderReviewCountDto(
-        int accommodationsPending,
-        int accommodationsReview,
-        int destinationsPending,
-        int destinationsReview,
-        int trailsPending,
-        int trailsReview
+        AccommodationApprovalReviewCountDto accommodations,
+        DestinationApprovalReviewCountDto destinations,
+        TrailApprovalReviewCountDto trails
 ) {
 }
