@@ -10,6 +10,7 @@ public record UserDataDto(
         String username,
         String imageUrl,
         LocalDateTime creationDate,
+        boolean accountNonLocked,
         List<RoleDto> roles
 ) {
 }

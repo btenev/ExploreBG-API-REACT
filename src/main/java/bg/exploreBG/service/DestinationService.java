@@ -91,6 +91,13 @@ public class DestinationService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getPendingApprovalDestinationCount() {
-        return this.destinationRepository.countDestinationEntitiesByDestinationStatus(StatusEnum.PENDING);
+        return this.destinationRepository
+                .countDestinationEntitiesByDestinationStatus(StatusEnum.PENDING);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public int getUnderReviewDestinationCount() {
+        return this.destinationRepository
+                .countDestinationEntitiesByDestinationStatus(StatusEnum.REVIEW);
     }
 }

@@ -1,7 +1,7 @@
 package bg.exploreBG.repository;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -56,23 +56,22 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
            """)
     Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(@Param("id") Long id, @Param("email")String email);
 
-    Optional<HikingTrailEntity> findByIdAndTrailStatusAndReviewedBy(Long id, StatusEnum trailStatus, String createdBy);
-
     Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    @Query("""
-            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto(
-            t.id,
-            CONCAT(t.startPoint, ' - ', t.endPoint),
-            t.trailStatus,
-            t.creationDate,
-            t.reviewedBy
-            )
-            FROM HikingTrailEntity t
-            WHERE t.trailStatus in ?1
-            """)
-    Page<HikingTrailForApprovalDto> getHikingTrailEntitiesByTrailStatus(List<StatusEnum> trailStatus, Pageable pageable);
+//    @Query("""
+//            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto(
+//            t.id,
+//            CONCAT(t.startPoint, ' - ', t.endPoint),
+//            t.trailStatus,
+//            t.creationDate,
+//            new bg.exploreBG.model.dto.user.UserIdNameDto(rb.id, rb.username) as reviewedBy
+//            )
+//            FROM HikingTrailEntity t
+//            JOIN t.reviewedBy rb
+//            WHERE t.trailStatus in ?1
+//            """)
+    Page<HikingTrailForApprovalProjection> getHikingTrailEntitiesByTrailStatusIn(List<StatusEnum> trailStatus, Pageable pageable);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     int countHikingTrailEntitiesByTrailStatus(StatusEnum status);

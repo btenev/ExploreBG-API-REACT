@@ -90,8 +90,8 @@ public class HikingTrailEntity {
     @ManyToOne
     private UserEntity createdBy;
 
-    @Column(name = "reviewed_by")
-    private String reviewedBy;
+    @ManyToOne
+    private UserEntity reviewedBy;
 
     public HikingTrailEntity() {
     }
@@ -244,11 +244,11 @@ public class HikingTrailEntity {
         this.creationDate = creationDate;
     }
 
-    public String getReviewedBy() {
+    public UserEntity getReviewedBy() {
         return reviewedBy;
     }
 
-    public void setReviewedBy(String reviewedBy) {
+    public void setReviewedBy(UserEntity reviewedBy) {
         this.reviewedBy = reviewedBy;
     }
 

@@ -1,10 +1,9 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.EntitiesForApprovalCountDto;
+import bg.exploreBG.model.dto.EntitiesForApprovalUnderReviewCountDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -105,19 +103,31 @@ public class SuperUserController {
     }
 
     @GetMapping("/waiting-approval/count")
-    public ResponseEntity<EntitiesForApprovalCountDto> waitingForApprovalCount() {
-        int accommodationCount = this.accommodationService.getPendingApprovalAccommodationCount();
-        int destinationCount = this.destinationService.getPendingApprovalDestinationCount();
-        int trailCount = this.hikingTrailService.getPendingApprovalTrailCount();
+    public ResponseEntity<EntitiesForApprovalUnderReviewCountDto> waitingForApprovalUnderReviewCount() {
+        int accommodationCountPending = this.accommodationService.getPendingApprovalAccommodationCount();
+        int accommodationCountReview = this.accommodationService.getUnderReviewAccommodationCount();
 
-        EntitiesForApprovalCountDto countDto =
-                new EntitiesForApprovalCountDto(accommodationCount, destinationCount, trailCount);
+        int destinationCountPending = this.destinationService.getPendingApprovalDestinationCount();
+        int destinationCountReview = this.destinationService.getUnderReviewDestinationCount();
+
+        int trailCountPending = this.hikingTrailService.getPendingApprovalTrailCount();
+        int trailCountReview = this.hikingTrailService.getUnderReviewTrailCount();
+
+        EntitiesForApprovalUnderReviewCountDto countDto =
+                new EntitiesForApprovalUnderReviewCountDto(
+                        accommodationCountPending,
+                        accommodationCountReview,
+                        destinationCountPending,
+                        destinationCountReview,
+                        trailCountPending,
+                        trailCountReview
+                );
 
         return ResponseEntity.ok(countDto);
     }
 
     @GetMapping("/waiting-approval/trails")
-    public ResponseEntity<Page<HikingTrailForApprovalDto>> waitingForApprovalTrails(
+    public ResponseEntity<Page<HikingTrailForApprovalProjection>> waitingForApprovalTrails(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
@@ -128,7 +138,7 @@ public class SuperUserController {
 
         Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
 
-        Page<HikingTrailForApprovalDto> forApproval =
+        Page<HikingTrailForApprovalProjection> forApproval =
                 this.hikingTrailService
                         .getAllHikingTrailsForApproval(List.of(StatusEnum.PENDING, StatusEnum.REVIEW), pageable);
 

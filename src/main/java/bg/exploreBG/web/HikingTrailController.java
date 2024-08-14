@@ -11,6 +11,7 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
+import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -122,6 +123,15 @@ public class HikingTrailController {
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
                 .body(response);
+    }
+
+    @GetMapping ("/{id}/reviewer")
+    public ResponseEntity<ApiResponse<UserIdDto>> getHikingTrailReviewer(@PathVariable Long id) {
+        UserIdDto reviewerId = this.hikingTrailService.getReviewerId(id);
+
+        ApiResponse<UserIdDto> response = new ApiResponse<>(reviewerId);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/update-start-point")

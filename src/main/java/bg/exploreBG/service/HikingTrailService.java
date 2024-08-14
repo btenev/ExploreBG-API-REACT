@@ -11,6 +11,7 @@ import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.*;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
+import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
@@ -430,15 +431,6 @@ public class HikingTrailService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    private HikingTrailEntity hikingTrailExistAndInReview(Long id, UserDetails userDetails) {
-        Optional<HikingTrailEntity> currentTrail = this.hikingTrailRepository
-                .findByIdAndTrailStatusAndReviewedBy(id, StatusEnum.REVIEW, userDetails.getUsername());
-
-        return currentTrail.orElse(null);
-
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     private HikingTrailEntity hikingTrailExistAndPending(Long id) {
         Optional<HikingTrailEntity> byIdAndStatusPending =
                 this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.PENDING);
@@ -471,12 +463,18 @@ public class HikingTrailService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public Page<HikingTrailForApprovalDto> getAllHikingTrailsForApproval(
+    public int getUnderReviewTrailCount() {
+        return this.hikingTrailRepository
+                .countHikingTrailEntitiesByTrailStatus(StatusEnum.REVIEW);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public Page<HikingTrailForApprovalProjection> getAllHikingTrailsForApproval(
             List<StatusEnum> statuses,
             Pageable pageable
     ) {
         return this.hikingTrailRepository
-                .getHikingTrailEntitiesByTrailStatus(statuses, pageable);
+                .getHikingTrailEntitiesByTrailStatusIn(statuses, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -485,7 +483,7 @@ public class HikingTrailService {
         HikingTrailEntity currentTrail = hikingTrailExist(id);
 
         StatusEnum trailStatus = currentTrail.getTrailStatus();
-        String reviewedBy = currentTrail.getReviewedBy();
+        String reviewedBy = currentTrail.getReviewedBy().getUsername();
 
         if (trailStatus.equals(StatusEnum.PENDING)
                 || trailStatus.equals(StatusEnum.REVIEW) && reviewedBy.equals(userDetails.getProfileName())
@@ -503,17 +501,20 @@ public class HikingTrailService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = hikingTrailExist(id);
+        UserEntity reviewedByUser = currentTrail.getReviewedBy();
+        String reviewedByUserUsername = reviewedByUser.getUsername();
+
         UserEntity userExist = this.userService.userExist(userDetails.getUsername());
 
         if (reviewBooleanDto.review()) { // claim item for review
 
             if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by you
-                    && currentTrail.getReviewedBy().equals(userExist.getUsername())) {
+                    && reviewedByUserUsername.equals(userExist.getUsername())) {
                 throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
             }
 
             if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by another user
-                    && !currentTrail.getReviewedBy().equals(userExist.getUsername())) {
+                    && !reviewedByUserUsername.equals(userExist.getUsername())) {
                 throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
             }
 
@@ -522,20 +523,20 @@ public class HikingTrailService {
             }
 
             currentTrail.setTrailStatus(StatusEnum.REVIEW);
-            currentTrail.setReviewedBy(userExist.getUsername());
+            currentTrail.setReviewedBy(reviewedByUser);
         } else {
             if (currentTrail.getTrailStatus().equals(StatusEnum.APPROVED)) { // already approved by another user
                 throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
             }
 
             if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by another user
-                    && !currentTrail.getReviewedBy().equals(userExist.getUsername())) {
+                    && !reviewedByUserUsername.equals(userExist.getUsername())) {
                 throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
             }
 
 
             if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by you
-                    && currentTrail.getReviewedBy().equals(userExist.getUsername())) {
+                    && reviewedByUserUsername.equals(userExist.getUsername())) {
 
                 currentTrail.setTrailStatus(StatusEnum.PENDING);
                 currentTrail.setReviewedBy(null);
@@ -586,7 +587,7 @@ public class HikingTrailService {
             throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
         }
 
-        String reviewedBy = currentTrail.getReviewedBy();
+        String reviewedBy = currentTrail.getReviewedBy().getUsername();
 
         if (trailStatus.equals(StatusEnum.REVIEW) && !reviewedBy.equals(userDetails.getProfileName())) {
             throw new AppException("The item has already been claimed by another user! You can not approved it!", HttpStatus.BAD_REQUEST);
@@ -660,5 +661,14 @@ public class HikingTrailService {
         this.hikingTrailRepository.save(currentTrail);
 
         return true;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public UserIdDto getReviewerId(Long id) {
+        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        Long reviewerId =
+                currentTrail.getReviewedBy() != null
+                        ? currentTrail.getReviewedBy().getId() : null;
+        return new UserIdDto(reviewerId);
     }
 }

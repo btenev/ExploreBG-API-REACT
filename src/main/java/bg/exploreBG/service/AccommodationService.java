@@ -99,4 +99,10 @@ public class AccommodationService {
         return this.accommodationRepository
                 .countAccommodationEntitiesByAccommodationStatus(StatusEnum.PENDING);
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public int getUnderReviewAccommodationCount() {
+        return this.accommodationRepository
+                .countAccommodationEntitiesByAccommodationStatus(StatusEnum.REVIEW);
+    }
 }
