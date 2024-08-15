@@ -483,10 +483,13 @@ public class HikingTrailService {
         HikingTrailEntity currentTrail = hikingTrailExist(id);
 
         StatusEnum trailStatus = currentTrail.getTrailStatus();
-        String reviewedBy = currentTrail.getReviewedBy().getUsername();
+        String reviewedBy = currentTrail.getReviewedBy() != null
+                ? currentTrail.getReviewedBy().getUsername() : null;
+
 
         if (trailStatus.equals(StatusEnum.PENDING)
-                || trailStatus.equals(StatusEnum.REVIEW) && reviewedBy.equals(userDetails.getProfileName())
+                || reviewedBy != null
+                && trailStatus.equals(StatusEnum.REVIEW) && reviewedBy.equals(userDetails.getProfileName())
         ) {
             return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
         }
