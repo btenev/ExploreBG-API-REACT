@@ -504,72 +504,59 @@ public class HikingTrailService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = hikingTrailExist(id);
-        UserEntity reviewedByUser = currentTrail.getReviewedBy();
-        String reviewedByUserUsername = reviewedByUser.getUsername();
+        StatusEnum trailStatus = currentTrail.getTrailStatus();
 
-        UserEntity userExist = this.userService.userExist(userDetails.getUsername());
+        UserEntity reviewedByUser = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy() : null;
+        String reviewedByUserUsername = reviewedByUser != null ? reviewedByUser.getUsername() : null;
+
+        UserEntity currentUser = this.userService.userExist(userDetails.getUsername());
 
         if (reviewBooleanDto.review()) { // claim item for review
 
-            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by you
-                    && reviewedByUserUsername.equals(userExist.getUsername())) {
-                throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
+            if (reviewedByUser == null) { // no user - should be pending
+                currentTrail.setTrailStatus(StatusEnum.REVIEW);
+                currentTrail.setReviewedBy(currentUser);
+            } else { // has user but...
+
+                if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by you
+                        && reviewedByUserUsername.equals(currentUser.getUsername())) {
+                    throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
+                }
+
+                if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by another user
+                        && !reviewedByUserUsername.equals(currentUser.getUsername())) {
+                    throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
+                }
+
+                if (trailStatus.equals(StatusEnum.APPROVED)) { // already approved
+                    throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
+                }
             }
-
-            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by another user
-                    && !reviewedByUserUsername.equals(userExist.getUsername())) {
-                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
-            }
-
-            if (currentTrail.getTrailStatus().equals(StatusEnum.APPROVED)) { // already approved by another user
-                throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
-            }
-
-            currentTrail.setTrailStatus(StatusEnum.REVIEW);
-            currentTrail.setReviewedBy(reviewedByUser);
-        } else {
-            if (currentTrail.getTrailStatus().equals(StatusEnum.APPROVED)) { // already approved by another user
-                throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
-            }
-
-            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by another user
-                    && !reviewedByUserUsername.equals(userExist.getUsername())) {
-                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
-            }
-
-
-            if (currentTrail.getTrailStatus().equals(StatusEnum.REVIEW) // already claimed by you
-                    && reviewedByUserUsername.equals(userExist.getUsername())) {
+        } else { // cancel claim
+            if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by you
+                    && reviewedByUserUsername != null
+                    && reviewedByUserUsername.equals(currentUser.getUsername())) {
 
                 currentTrail.setTrailStatus(StatusEnum.PENDING);
                 currentTrail.setReviewedBy(null);
+            } else {
+                if (trailStatus.equals(StatusEnum.PENDING)) {
+                    throw new AppException("You cannot cancel the review for an item that you haven't claimed!", HttpStatus.BAD_REQUEST);
+                }
+
+                if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by another user
+                        && reviewedByUserUsername != null
+                        && !reviewedByUserUsername.equals(currentUser.getUsername())) {
+                    throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
+                }
+
+                if (trailStatus.equals(StatusEnum.APPROVED)) { // already approved
+                    throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
+                }
             }
         }
-        this.hikingTrailRepository.save(currentTrail);
-//        // claim item for review
-//        if (reviewBooleanDto.review()) {
-//            currentTrail = hikingTrailExistAndPending(id);
-//
-//            // TODO: put username in details and take it from there
-//            UserEntity userExist = this.userService.userExist(userDetails.getUsername());
-//
-//            currentTrail.setTrailStatus(StatusEnum.REVIEW);
-//            currentTrail.setReviewedBy(userExist.getUsername());
-//        } else {
-//            // cancel review
-//            currentTrail = hikingTrailExistAndInReview(id, userDetails);
-//
-//            // item no longer available
-//            if (currentTrail == null) {
-//                return false;
-//            }
-//
-//            currentTrail.setTrailStatus(StatusEnum.PENDING);
-//            currentTrail.setReviewedBy(null);
-//        }
-//
-//        this.hikingTrailRepository.save(currentTrail);
 
+        this.hikingTrailRepository.save(currentTrail);
         return true;
     }
 
@@ -581,20 +568,21 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = hikingTrailExist(id);
         StatusEnum trailStatus = currentTrail.getTrailStatus();
+        String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
 
-        if (trailStatus.equals(StatusEnum.APPROVED)) {
-            throw new AppException("The item has already been approved by another user!", HttpStatus.BAD_REQUEST);
-        }
 
-        if (trailStatus.equals(StatusEnum.PENDING)) {
+        if (reviewedByUserProfile == null) {
             throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
         }
 
-        String reviewedBy = currentTrail.getReviewedBy().getUsername();
-
-        if (trailStatus.equals(StatusEnum.REVIEW) && !reviewedBy.equals(userDetails.getProfileName())) {
+        if (trailStatus.equals(StatusEnum.REVIEW) && !reviewedByUserProfile.equals(userDetails.getProfileName())) {
             throw new AppException("The item has already been claimed by another user! You can not approved it!", HttpStatus.BAD_REQUEST);
         }
+
+        if (trailStatus.equals(StatusEnum.APPROVED)) {
+            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
+        }
+
 
         if (!currentTrail.getStartPoint().equals(trailCreateOrReview.startPoint())) {
             currentTrail.setStartPoint(trailCreateOrReview.startPoint());
