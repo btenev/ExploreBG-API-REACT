@@ -20,7 +20,17 @@ import java.util.Set;
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
 
-    Page<HikingTrailBasicDto> findAllByTrailStatus(StatusEnum statusEnum, Pageable pageable);
+    @Query("""
+            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
+            h.id,
+            CONCAT(h.startPoint, ' - ', h.endPoint),
+            h.trailInfo,
+            h.imageUrl
+            )
+            FROM HikingTrailEntity h
+            WHERE h.trailStatus = :statusEnum
+            """)
+    Page<HikingTrailBasicDto> findAllByTrailStatus(@Param("statusEnum")StatusEnum statusEnum, Pageable pageable);
 
     /*
    Investigate
@@ -40,21 +50,21 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
 
     @Query("""
-         SELECT t
-         FROM HikingTrailEntity t
-         WHERE t.id = :id
-         AND t.trailStatus = 'APPROVED'
+            SELECT t
+            FROM HikingTrailEntity t
+            WHERE t.id = :id
+            AND t.trailStatus = 'APPROVED'
 
-         UNION
+            UNION
 
-         SELECT t
-         FROM HikingTrailEntity t
-         JOIN t.createdBy cb
-         WHERE t.id = :id
-         AND t.trailStatus IN (bg.exploreBG.model.enums.StatusEnum.PENDING, bg.exploreBG.model.enums.StatusEnum.REVIEW)
-         AND cb.email = :email
-           """)
-    Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(@Param("id") Long id, @Param("email")String email);
+            SELECT t
+            FROM HikingTrailEntity t
+            JOIN t.createdBy cb
+            WHERE t.id = :id
+            AND t.trailStatus IN (bg.exploreBG.model.enums.StatusEnum.PENDING, bg.exploreBG.model.enums.StatusEnum.REVIEW)
+            AND cb.email = :email
+              """)
+    Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(@Param("id") Long id, @Param("email") String email);
 
     Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);
 

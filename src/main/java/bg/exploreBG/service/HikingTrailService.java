@@ -591,8 +591,11 @@ public class HikingTrailService {
         if (!currentTrail.getEndPoint().equals(trailCreateOrReview.endPoint())) {
             currentTrail.setEndPoint(trailCreateOrReview.endPoint());
         }
-
-        if (!currentTrail.getTotalDistance().equals(trailCreateOrReview.totalDistance())) {
+        // totalDistance == null -> new value != null
+        if (currentTrail.getTotalDistance() == null && trailCreateOrReview.totalDistance() != null
+                || (currentTrail.getTotalDistance() != null
+                && !currentTrail.getTotalDistance().equals(trailCreateOrReview.totalDistance()))
+        ) {
             currentTrail.setTotalDistance(trailCreateOrReview.totalDistance());
         }
 
@@ -616,7 +619,10 @@ public class HikingTrailService {
             currentTrail.setActivity(trailCreateOrReview.activity());
         }
 
-        if (!currentTrail.getElevationGained().equals(trailCreateOrReview.elevationGained())) {
+        if (currentTrail.getElevationGained() == null && trailCreateOrReview.elevationGained() != null
+                || (currentTrail.getElevationGained() != null
+                && !currentTrail.getElevationGained().equals(trailCreateOrReview.elevationGained()))
+        ) {
             currentTrail.setElevationGained(trailCreateOrReview.elevationGained());
         }
 

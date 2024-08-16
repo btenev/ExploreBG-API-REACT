@@ -126,12 +126,10 @@ public class HikingTrailController {
     }
 
     @GetMapping ("/{id}/reviewer")
-    public ResponseEntity<ApiResponse<UserIdDto>> getHikingTrailReviewer(@PathVariable Long id) {
+    public ResponseEntity<UserIdDto> getHikingTrailReviewer(@PathVariable Long id) {
         UserIdDto reviewerId = this.hikingTrailService.getReviewerId(id);
 
-        ApiResponse<UserIdDto> response = new ApiResponse<>(reviewerId);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(reviewerId);
     }
 
     @PatchMapping("/{id}/update-start-point")

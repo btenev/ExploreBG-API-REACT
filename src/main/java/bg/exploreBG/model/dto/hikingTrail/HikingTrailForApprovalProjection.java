@@ -10,13 +10,10 @@ import java.time.LocalDateTime;
 
 public interface HikingTrailForApprovalProjection {
     Long getId();
-
-    @Value("#{target.startPoint + ' ' + target.endPoint}")
+    @Value("#{target.startPoint + ' - ' + target.endPoint}")
     String getName();
-
     @JsonSerialize(using = StatusEnumSerializer.class)
     StatusEnum getTrailStatus();
-
     LocalDateTime getCreationDate();
     UserIdNameProjection getReviewedBy();
 }

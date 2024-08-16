@@ -42,7 +42,7 @@ public record HikingTrailCreateOrReviewDto(
 
         @NotNull(message = "err-trail-info-required")
         @Pattern(
-                regexp = "^[a-zA-Z0-9\\-.,\\s\\n()'`:;?!@]*$",
+                regexp = "^[a-zA-Z0-9\\-.,\\s\\n()'`:;?!@\"]*$",
                 message = "err-trail-info-regex"
         )
         @Size(
