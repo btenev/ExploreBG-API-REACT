@@ -1,7 +1,7 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
-import bg.exploreBG.model.dto.image.validate.ImageCreateNewImageDto;
+import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
 import bg.exploreBG.model.validation.PermittedImageFileFormat;
 import bg.exploreBG.model.validation.PermittedImageFileSize;
 import bg.exploreBG.service.ImageService;
@@ -26,20 +26,21 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-    @PostMapping(value = "/upload/{id}")
-    public ResponseEntity<ImageIdPlusUrlDto> upload(
-            @PathVariable Long id,
-            @Valid @RequestPart("data") ImageCreateNewImageDto imageCreateNewImageDto,
+    /*
+    TODO: Changed /create/{id} to /user - id is not necessary, @PatchMapping instead of POST - tell Ivo
+     */
+    @PatchMapping( "/user")
+    public ResponseEntity<ImageIdPlusUrlDto> saveImage(
+//            @PathVariable Long id,
+            @Valid @RequestPart("data") ImageCreateImageDto imageCreateImageDto,
             @PermittedImageFileSize @PermittedImageFileFormat @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-
-//        if (imageCreateNewImageDto.folder().equals("User")) {}
         ImageIdPlusUrlDto imageIdPlusUrlDto =
                 this.imageService
-                        .uploadProfileImage(
-                                id,
-                                imageCreateNewImageDto,
+                        .saveProfileImage(
+//                                id,
+                                imageCreateImageDto,
                                 file,
                                 userDetails
                         );
@@ -48,4 +49,21 @@ public class ImageController {
                 .created(URI.create("/api/images/" + imageIdPlusUrlDto.id()))
                 .body(imageIdPlusUrlDto);
     }
+/*
+POST /api/images/user - Creates or updates a single image entity for a user.
+DELETE /api/images/user - Deletes a single image entity for a user.
+
+POST /api/images/trail/{id} - Creates a collection of images for the specific trail {id}. ([]multipart file)
+DELETE /api/images/trail/{id} - Deletes multiple images for the specific trail {id}. (JSON body: { "ids": [] })
+
+POST /api/images/accommodation/{id} - Creates a collection of images for the specific accommodation {id}. ([]multipart file)
+DELETE /api/images/accommodation/{id} - Deletes multiple images for the specific accommodation {id}. (JSON body: { "ids": [] })
+
+POST /api/images/destination/{id} - Creates a collection of images for the specific destination {id}. ([]multipart file)
+DELETE /api/images/destination/{id} - Deletes multiple images for the specific destination {id}. (JSON body: { "ids": [] })
+
+POST /api/images/hike/{id} - Creates a collection of images for the specific hike {id}. ([]multipart file)
+DELETE /api/images/hike/{id} - Deletes multiple images for the specific hike {id}. (JS
+*/
+
 }

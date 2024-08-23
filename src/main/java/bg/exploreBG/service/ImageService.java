@@ -2,88 +2,119 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
-import bg.exploreBG.model.dto.image.validate.ImageCreateNewImageDto;
+import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.repository.ImageRepository;
-import bg.exploreBG.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+import java.util.UUID;
+
 @Service
 public class ImageService {
 
+    private final ImageRepository imageRepository;
     private final UserService userService;
     private final CloudinaryService cloudinaryService;
-    private final ImageRepository imageRepository;
-    private final UserRepository userRepository;
 
     public ImageService(
-            UserService userService,
-            CloudinaryService cloudinaryService,
             ImageRepository imageRepository,
-            UserRepository userRepository
+            UserService userService,
+            CloudinaryService cloudinaryService
     ) {
+        this.imageRepository = imageRepository;
         this.userService = userService;
         this.cloudinaryService = cloudinaryService;
-        this.imageRepository = imageRepository;
-        this.userRepository = userRepository;
     }
 
-    public ImageIdPlusUrlDto uploadProfileImage(
-            Long id,
-            ImageCreateNewImageDto imageCreateNewImageDto,
+    public ImageIdPlusUrlDto saveProfileImage(
+//            Long id,
+            ImageCreateImageDto imageCreateImageDto,
             MultipartFile file,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.verifiedUser(id, userDetails);
-        String cloudinaryId = validUser.getId().toString();
+        UserEntity loggedUser = this.userService.getUserEntity(userDetails.getUsername());
 
-        ImageEntity newImage = createNewImageEntity(imageCreateNewImageDto, file, cloudinaryId);
-        ImageEntity userImage = validUser.getUserImage();
+        ImageEntity userImage = loggedUser.getUserImage();
+        ImageEntity newImage;
+
         if (userImage == null) {
-            validUser.setUserImage(newImage);
+//            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+            String cloudinaryId = String.valueOf(UUID.randomUUID());
+
+            newImage = createImageEntity(
+                    imageCreateImageDto,
+                    file,
+                    cloudinaryId
+            );
+
         } else {
-            userImage.setImageUrl(newImage.getImageUrl());
-            userImage.setImageName(newImage.getImageName());
-            validUser.setUserImage(userImage);
+            newImage = updateImageEntity(
+                    imageCreateImageDto,
+                    file,
+                    userImage
+            );
         }
 
-        UserEntity savedUser = this.userRepository.save(validUser);
-        ImageEntity savedUserImage = savedUser.getUserImage();
+        ImageEntity saved = this.imageRepository.save(newImage);
 
-        return new ImageIdPlusUrlDto(savedUserImage.getId(), savedUserImage.getImageUrl());
+        loggedUser.setUserImage(saved);
+
+        this.userService.saveUserEntity(loggedUser);
+
+        return new ImageIdPlusUrlDto(saved.getId(), saved.getImageUrl());
     }
 
-    private ImageEntity createNewImageEntity(
-            ImageCreateNewImageDto imageCreateNewImageDto,
+    private ImageEntity createImageEntity(
+            ImageCreateImageDto imageDto,
             MultipartFile file,
             String cloudinaryId
     ) {
-        String cloudinaryUrl = uploadToCloudinary(
+        Map<String, String> response = validateUploadResult(
                 file,
-                imageCreateNewImageDto.folder(),
+                imageDto.folder(),
                 cloudinaryId
         );
 
         ImageEntity image = new ImageEntity();
-        image.setImageName(imageCreateNewImageDto.name());
-        image.setImageUrl(cloudinaryUrl);
+        image.setImageName(imageDto.name());
+        image.setImageUrl(response.get("url"));
+        image.setFolder(response.get("folder"));
+        image.setCloudId(response.get("public_id"));
 
         return image;
     }
 
-    private String uploadToCloudinary(
+    private ImageEntity updateImageEntity(
+            ImageCreateImageDto imageCreateImageDto,
+            MultipartFile file,
+            ImageEntity current
+    ) {
+        Map<String, String> response = validateUploadResult(
+                file,
+                imageCreateImageDto.folder(),
+                current.getCloudId()
+        );
+
+        current.setImageName(imageCreateImageDto.name());
+        current.setImageUrl(response.get("url"));
+
+        return current;
+    }
+
+    private Map<String, String> validateUploadResult(
             MultipartFile multipartFile,
             String folder,
             String cloudinaryId
     ) {
-        String url = cloudinaryService.uploadFile(multipartFile, folder, cloudinaryId);
-        if (url == null) {
+        Map<String, String> cloudinaryResult = cloudinaryService.uploadFile(multipartFile, folder, cloudinaryId);
+        if (cloudinaryResult.isEmpty()) {
             throw new AppException("Invalid image url!", HttpStatus.BAD_REQUEST);
         }
-        return url;
+        return cloudinaryResult;
     }
 }

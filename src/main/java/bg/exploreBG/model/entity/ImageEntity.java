@@ -13,6 +13,11 @@ public class ImageEntity {
     @Column(name = "image_name")
     private String imageName;
 
+    @Column(name = "cloud_id")
+    private String cloudId;
+
+    private String folder;
+
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -35,6 +40,22 @@ public class ImageEntity {
         this.imageName = imageName;
     }
 
+    public String getCloudId() {
+        return cloudId;
+    }
+
+    public void setCloudId(String cloudId) {
+        this.cloudId = cloudId;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -48,6 +69,8 @@ public class ImageEntity {
         return "ImageEntity{" +
                 "id=" + id +
                 ", imageName='" + imageName + '\'' +
+                ", cloudId='" + cloudId + '\'' +
+                ", folder='" + folder + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }

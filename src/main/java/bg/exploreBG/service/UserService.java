@@ -98,7 +98,7 @@ public class UserService {
     }
 
     public UserDetailsDto findProfileById(Long id) {
-        UserEntity userExist = userExist(id);
+        UserEntity userExist = getUserEntity(id);
 
         return this.userMapper.userEntityToUserDetailsDto(userExist);
     }
@@ -185,14 +185,14 @@ public class UserService {
 
     //TODO: valid user to verified user
     public UserEntity verifiedUser(Long id, UserDetails userDetails) {
-        UserEntity byId = userExist(id);
-        UserEntity token = userExist(userDetails.getUsername());
+        UserEntity byId = getUserEntity(id);
+        UserEntity token = getUserEntity(userDetails.getUsername());
         matchUsers(token, byId);
         return byId;
     }
 
     protected void verifiedUser(UserEntity user, UserDetails userDetails) {
-        UserEntity token = userExist(userDetails.getUsername());
+        UserEntity token = getUserEntity(userDetails.getUsername());
         matchUsers(user, token);
     }
 
@@ -202,7 +202,7 @@ public class UserService {
         }
     }
 
-    private UserEntity userExist(Long id) {
+    private UserEntity getUserEntity(Long id) {
         Optional<UserEntity> byId = this.userRepository.findById(id);
 
         if (byId.isEmpty()) {
@@ -211,7 +211,7 @@ public class UserService {
         return byId.get();
     }
 
-    protected UserEntity userExist(String username) {
+    protected UserEntity getUserEntity(String username) {
         Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
 
         if (byEmail.isEmpty()) {
@@ -272,7 +272,7 @@ public class UserService {
             Long id,
             UserModRoleDto mod
     ) {
-        UserEntity userExist = this.userExist(id);
+        UserEntity userExist = this.getUserEntity(id);
         List<RoleEntity> userRoles = userExist.getRoles();
         RoleEntity moderator = this.roleService.roleExist(UserRoleEnum.MODERATOR);
 
@@ -301,7 +301,7 @@ public class UserService {
             Long id,
             UserAccountLockUnlockDto lockUnlockDto
     ) {
-        UserEntity userExist = userExist(id);
+        UserEntity userExist = getUserEntity(id);
 
         boolean accountNonLocked = userExist.isAccountNonLocked();
 
@@ -321,5 +321,9 @@ public class UserService {
 
         this.userRepository.save(userExist);
         return true;
+    }
+
+    public UserEntity saveUserEntity(UserEntity user) {
+        return this.userRepository.save(user);
     }
 }

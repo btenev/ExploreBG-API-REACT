@@ -17,22 +17,37 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public String uploadFile(
+    public Map<String, String> uploadFile(
             MultipartFile file,
             String folderName,
             String cloudinaryId
-            ) {
-            try{
-                Map<String, Object> options = new HashMap<>();
-                options.put("folder", folderName);
-//                options.put("overwrite", true);
-                options.put("public_id", cloudinaryId);
-                Map uploadedFile = cloudinary.uploader().upload(file.getBytes(), options);
-                String publicId = (String) uploadedFile.get("public_id");
-                return cloudinary.url().secure(true).publicId(publicId).generate();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                return null;
-            }
+    ) {
+        try {
+            Map<String, Object> options = new HashMap<>();
+            options.put("folder", folderName);
+            options.put("overwrite", true);
+            options.put("public_id", cloudinaryId);
+
+            Map uploadResult = this.cloudinary.uploader().upload(file.getBytes(), options);
+
+            String publicIdFolder = (String) uploadResult.get("public_id");
+            String[] split = publicIdFolder.split("/");
+            String folder = split[0];
+            String id = split[1];
+
+            String version = uploadResult.get("version").toString();
+
+            String generatedUrl = this.cloudinary.url().secure(true).publicId(publicIdFolder).version(version).generate();
+
+            Map<String, String> result = new HashMap<>();
+            result.put("public_id", id);
+            result.put("folder", folder);
+            result.put("url", generatedUrl);
+            result.put("version", version);
+            return result;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

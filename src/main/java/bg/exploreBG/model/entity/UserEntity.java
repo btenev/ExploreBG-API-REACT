@@ -31,7 +31,7 @@ public class UserEntity {
     @Column(name = "birthdate")
     private LocalDate birthdate;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private ImageEntity userImage;
 
     @Column(name = "user_info", columnDefinition = "TEXT")
