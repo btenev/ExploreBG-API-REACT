@@ -93,6 +93,9 @@ public class HikingTrailEntity {
     @ManyToOne
     private UserEntity reviewedBy;
 
+    @OneToOne
+    private GpxEntity gpxFile;
+
     public HikingTrailEntity() {
     }
 
@@ -252,6 +255,14 @@ public class HikingTrailEntity {
         this.reviewedBy = reviewedBy;
     }
 
+    public GpxEntity getGpxFile() {
+        return gpxFile;
+    }
+
+    public void setGpxFile(GpxEntity gpxFile) {
+        this.gpxFile = gpxFile;
+    }
+
     @Override
     public String toString() {
         return "HikingTrailEntity{" +
@@ -273,7 +284,8 @@ public class HikingTrailEntity {
                 ", destinations=" + destinations +
                 ", creationDate=" + creationDate +
                 ", createdBy=" + createdBy +
-                ", reviewedBy='" + reviewedBy + '\'' +
+                ", reviewedBy=" + reviewedBy +
+                ", gpxFile=" + gpxFile +
                 '}';
     }
 }
