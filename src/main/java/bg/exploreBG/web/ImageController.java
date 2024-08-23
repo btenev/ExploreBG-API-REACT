@@ -1,5 +1,6 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
 import bg.exploreBG.model.validation.PermittedImageFileFormat;
@@ -30,7 +31,7 @@ public class ImageController {
     TODO: Changed /create/{id} to /user - id is not necessary, @PatchMapping instead of POST - tell Ivo
      */
     @PatchMapping( "/user")
-    public ResponseEntity<ImageIdPlusUrlDto> saveImage(
+    public ResponseEntity<ApiResponse<ImageIdPlusUrlDto>> saveImage(
 //            @PathVariable Long id,
             @Valid @RequestPart("data") ImageCreateImageDto imageCreateImageDto,
             @PermittedImageFileSize @PermittedImageFileFormat @RequestPart("file") MultipartFile file,
@@ -45,9 +46,11 @@ public class ImageController {
                                 userDetails
                         );
 
+        ApiResponse<ImageIdPlusUrlDto> response = new ApiResponse<>(imageIdPlusUrlDto);
+
         return ResponseEntity
                 .created(URI.create("/api/images/" + imageIdPlusUrlDto.id()))
-                .body(imageIdPlusUrlDto);
+                .body(response);
     }
 /*
 POST /api/images/user - Creates or updates a single image entity for a user.

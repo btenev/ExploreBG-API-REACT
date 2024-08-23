@@ -24,7 +24,12 @@ dependencies {
 	implementation("com.auth0:java-jwt:4.4.0")
 	// https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
 	implementation("com.cloudinary:cloudinary-http44:1.38.0")
-
+	// file utils
+	implementation ("commons-io:commons-io:2.16.1")
+	// gpx parser
+	implementation ("io.jenetics:jpx:2.3.0")
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/s3
+	implementation("software.amazon.awssdk:s3:2.27.7")
 
 	runtimeOnly("com.mysql:mysql-connector-j")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
