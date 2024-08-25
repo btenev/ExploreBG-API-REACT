@@ -20,6 +20,9 @@ import java.util.Set;
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
 
+
+    Optional<HikingTrailEntity> findByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
+
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
             h.id,
@@ -47,7 +50,6 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
                    )
             """)
    */
-
 
     @Query("""
             SELECT t

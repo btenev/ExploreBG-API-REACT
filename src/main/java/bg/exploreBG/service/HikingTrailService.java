@@ -430,6 +430,21 @@ public class HikingTrailService {
         return byIdAndTrailStatus.get();
     }
 
+    protected HikingTrailEntity hikingTrailExistApprovedPendingUserOwner(Long id, String username) {
+
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository
+                .findByIdAndTrailStatusInAndCreatedByEmail(
+                        id,
+                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                        username);
+        logger.info("user id " + id + "username " + username);
+        if (exist.isEmpty()) {
+            throw new AppException("Hiking trail not found or status is incorrect!", HttpStatus.BAD_REQUEST);
+        }
+
+        return exist.get();
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     private HikingTrailEntity hikingTrailExistAndPending(Long id) {
         Optional<HikingTrailEntity> byIdAndStatusPending =
@@ -509,7 +524,7 @@ public class HikingTrailService {
         UserEntity reviewedByUser = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy() : null;
         String reviewedByUserUsername = reviewedByUser != null ? reviewedByUser.getUsername() : null;
 
-        UserEntity currentUser = this.userService.userExist(userDetails.getUsername());
+        UserEntity currentUser = this.userService.getUserEntity(userDetails.getUsername());
 
         if (reviewBooleanDto.review()) { // claim item for review
 
@@ -668,4 +683,9 @@ public class HikingTrailService {
                         ? currentTrail.getReviewedBy().getId() : null;
         return new UserIdDto(reviewerId);
     }
+
+    public HikingTrailEntity saveHikingTrailEntity(HikingTrailEntity hikingTrail) {
+        return this.hikingTrailRepository.save(hikingTrail);
+    }
+
 }
