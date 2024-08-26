@@ -20,7 +20,6 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/images")
 public class ImageController {
-
     private final ImageService imageService;
 
     public ImageController(ImageService imageService) {

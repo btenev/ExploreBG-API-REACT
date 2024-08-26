@@ -22,7 +22,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/hikes")
 public class HikeController {
-
     public final HikeService hikeService;
 
     public HikeController(HikeService hikeService) {

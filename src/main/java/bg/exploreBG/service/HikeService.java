@@ -84,7 +84,7 @@ public class HikeService {
 
         if (hikeCreateDto.hikingTrail() != null) {
             HikingTrailEntity hikingTrailEntity =
-                    this.hikingTrailService.hikingTrailExist(hikeCreateDto.hikingTrail().id());
+                    this.hikingTrailService.getHikingTrailById(hikeCreateDto.hikingTrail().id());
             newHike.setHikingTrail(hikingTrailEntity);
         }
 

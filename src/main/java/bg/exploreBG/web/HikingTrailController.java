@@ -32,9 +32,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/trails")
 public class HikingTrailController {
-
     private static final Logger logger = LoggerFactory.getLogger(HikingTrailController.class);
-
     private final HikingTrailService hikingTrailService;
 
     public HikingTrailController(HikingTrailService hikingTrailService) {

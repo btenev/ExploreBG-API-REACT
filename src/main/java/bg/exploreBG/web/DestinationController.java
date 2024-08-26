@@ -25,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/destinations")
 public class DestinationController {
-
     private static final Logger logger = LoggerFactory.getLogger(DestinationController.class);
     private final DestinationService destinationService;
 

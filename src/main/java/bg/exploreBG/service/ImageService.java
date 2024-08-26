@@ -37,7 +37,7 @@ public class ImageService {
             MultipartFile file,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = this.userService.getUserEntity(userDetails.getUsername());
+        UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         ImageEntity userImage = loggedUser.getUserImage();
         ImageEntity newImage;

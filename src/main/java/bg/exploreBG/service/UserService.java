@@ -98,7 +98,7 @@ public class UserService {
     }
 
     public UserDetailsDto findProfileById(Long id) {
-        UserEntity userExist = getUserEntity(id);
+        UserEntity userExist = getUserEntityById(id);
 
         return this.userMapper.userEntityToUserDetailsDto(userExist);
     }
@@ -185,14 +185,14 @@ public class UserService {
 
     //TODO: valid user to verified user
     public UserEntity verifiedUser(Long id, UserDetails userDetails) {
-        UserEntity byId = getUserEntity(id);
-        UserEntity token = getUserEntity(userDetails.getUsername());
+        UserEntity byId = getUserEntityById(id);
+        UserEntity token = getUserEntityByEmail(userDetails.getUsername());
         matchUsers(token, byId);
         return byId;
     }
 
     protected void verifiedUser(UserEntity user, UserDetails userDetails) {
-        UserEntity token = getUserEntity(userDetails.getUsername());
+        UserEntity token = getUserEntityByEmail(userDetails.getUsername());
         matchUsers(user, token);
     }
 
@@ -202,7 +202,7 @@ public class UserService {
         }
     }
 
-    private UserEntity getUserEntity(Long id) {
+    private UserEntity getUserEntityById(Long id) {
         Optional<UserEntity> byId = this.userRepository.findById(id);
 
         if (byId.isEmpty()) {
@@ -211,7 +211,7 @@ public class UserService {
         return byId.get();
     }
 
-    protected UserEntity getUserEntity(String username) {
+    protected UserEntity getUserEntityByEmail(String username) {
         Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
 
         if (byEmail.isEmpty()) {
@@ -272,7 +272,7 @@ public class UserService {
             Long id,
             UserModRoleDto mod
     ) {
-        UserEntity userExist = this.getUserEntity(id);
+        UserEntity userExist = this.getUserEntityById(id);
         List<RoleEntity> userRoles = userExist.getRoles();
         RoleEntity moderator = this.roleService.roleExist(UserRoleEnum.MODERATOR);
 
@@ -301,7 +301,7 @@ public class UserService {
             Long id,
             UserAccountLockUnlockDto lockUnlockDto
     ) {
-        UserEntity userExist = getUserEntity(id);
+        UserEntity userExist = getUserEntityById(id);
 
         boolean accountNonLocked = userExist.isAccountNonLocked();
 
