@@ -42,7 +42,7 @@ public class GpxService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getHikingTrailByIdAndStatusForUser(id, userDetails.getUsername());
+                this.hikingTrailService.getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         GpxEntity gpxCurrentTrail = currentTrail.getGpxFile();
 

@@ -135,7 +135,8 @@ public class HikingTrailService {
             HikingTrailUpdateStartPointDto hikingTrailStartPointDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !hikingTrailStartPointDto.startPoint().equals(currentTrail.getStartPoint());
         HikingTrailEntity saved;
@@ -155,7 +156,8 @@ public class HikingTrailService {
             HikingTrailUpdateEndPointDto hikingTrailEndPointDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !hikingTrailEndPointDto.endPoint().equals(currentTrail.getEndPoint());
         HikingTrailEntity saved;
@@ -175,7 +177,8 @@ public class HikingTrailService {
             HikingTrailUpdateTotalDistanceDto trailTotalDistanceDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !trailTotalDistanceDto.totalDistance().equals(currentTrail.getTotalDistance());
         HikingTrailEntity saved;
@@ -195,7 +198,8 @@ public class HikingTrailService {
             HikingTrailUpdateElevationGainedDto elevationGainedDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !elevationGainedDto.elevationGained().equals(currentTrail.getElevationGained());
         HikingTrailEntity saved;
@@ -215,7 +219,8 @@ public class HikingTrailService {
             HikingTrailUpdateWaterAvailableDto hikingTrailWaterAvailableDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !hikingTrailWaterAvailableDto.waterAvailable().equals(currentTrail.getWaterAvailable());
         HikingTrailEntity saved;
@@ -235,7 +240,8 @@ public class HikingTrailService {
             HikingTrailUpdateActivityDto hikingTrailActivityDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
         List<SuitableForEnum> currentTrailActivity = currentTrail.getActivity();
 
         boolean noMatch = !hikingTrailActivityDto.activity().equals(currentTrailActivity);
@@ -256,7 +262,8 @@ public class HikingTrailService {
             HikingTrailUpdateTrailInfoDto trailInfoDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !trailInfoDto.trailInfo().equals(currentTrail.getTrailInfo());
         HikingTrailEntity saved;
@@ -276,7 +283,8 @@ public class HikingTrailService {
             HikingTrailUpdateAvailableHutsDto hikingTrailAvailableHutsDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
         List<AccommodationEntity> currentTrailAvailableHuts = currentTrail.getAvailableHuts();
         List<AccommodationIdDto> currentHutsDto =
                 currentTrailAvailableHuts
@@ -308,7 +316,8 @@ public class HikingTrailService {
             HikingTrailUpdateDestinationsDto hikingTrailDestinationsDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
         List<DestinationEntity> currentTrailDestinations = currentTrail.getDestinations();
         List<DestinationIdDto> destinationIdDto =
                 currentTrailDestinations
@@ -340,7 +349,8 @@ public class HikingTrailService {
             HikingTrailUpdateTrailDifficultyDto hikingTrailDifficultyDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
         boolean noMatch = !currentTrail.getTrailDifficulty().equals(hikingTrailDifficultyDto.trailDifficulty());
         HikingTrailEntity saved;
@@ -407,18 +417,6 @@ public class HikingTrailService {
                                 HttpStatus.BAD_REQUEST));
     }
 
-    /*
-    TODO: direct method in the hiking repo - findByIdAndCreatedBy_Username.
-    */
-    private HikingTrailEntity checkTrailOwnershipAndReturn(Long id, UserDetails userDetails) {
-
-        HikingTrailEntity currentTrail = getHikingTrailById(id);
-        UserEntity createdBy = currentTrail.getCreatedBy();
-
-        this.userService.verifiedUser(createdBy, userDetails); // throws exception if no match
-        return currentTrail;
-    }
-
     protected HikingTrailEntity getHikingTrailById(Long id) {
         Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
 
@@ -441,30 +439,20 @@ public class HikingTrailService {
         return byIdAndTrailStatus.get();
     }
 
-    protected HikingTrailEntity getHikingTrailByIdAndStatusForUser(Long id, String username) {
+    public HikingTrailEntity getTrailByIdWithStatusAndOwner(Long id, String email) {
         Optional<HikingTrailEntity> exist = this.hikingTrailRepository
                 .findByIdAndTrailStatusInAndCreatedByEmail(
                         id,
                         List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
-                        username);
-        logger.info("user id " + id + "username " + username);
+                        email);
+        logger.info("user id " + id + "username " + email);
         if (exist.isEmpty()) {
-            throw new AppException("Hiking trail not found or status is incorrect!", HttpStatus.BAD_REQUEST);
+            throw new AppException(
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    HttpStatus.BAD_REQUEST);
         }
 
         return exist.get();
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    private HikingTrailEntity hikingTrailExistAndPending(Long id) {
-        Optional<HikingTrailEntity> byIdAndStatusPending =
-                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.PENDING);
-
-        if (byIdAndStatusPending.isEmpty()) {
-            throw new AppException("Hiking trail not found or not pending!", HttpStatus.NOT_FOUND);
-        }
-
-        return byIdAndStatusPending.get();
     }
 
     private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
