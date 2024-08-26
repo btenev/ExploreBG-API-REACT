@@ -20,6 +20,7 @@ import java.util.Set;
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
 
+    Optional<HikingTrailEntity> findByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
     Optional<HikingTrailEntity> findByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
 

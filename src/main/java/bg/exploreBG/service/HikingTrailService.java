@@ -76,7 +76,7 @@ public class HikingTrailService {
     }
 
     public HikingTrailDetailsDto getHikingTrail(Long id) {
-        HikingTrailEntity trailById = hikingTrailExistAndApproved(id);
+        HikingTrailEntity trailById = getApprovedHikingTrailById(id);
 
         return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trailById);
     }
@@ -135,7 +135,7 @@ public class HikingTrailService {
             HikingTrailUpdateStartPointDto hikingTrailStartPointDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !hikingTrailStartPointDto.startPoint().equals(currentTrail.getStartPoint());
         HikingTrailEntity saved;
@@ -155,7 +155,7 @@ public class HikingTrailService {
             HikingTrailUpdateEndPointDto hikingTrailEndPointDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !hikingTrailEndPointDto.endPoint().equals(currentTrail.getEndPoint());
         HikingTrailEntity saved;
@@ -175,7 +175,7 @@ public class HikingTrailService {
             HikingTrailUpdateTotalDistanceDto trailTotalDistanceDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !trailTotalDistanceDto.totalDistance().equals(currentTrail.getTotalDistance());
         HikingTrailEntity saved;
@@ -195,7 +195,7 @@ public class HikingTrailService {
             HikingTrailUpdateElevationGainedDto elevationGainedDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !elevationGainedDto.elevationGained().equals(currentTrail.getElevationGained());
         HikingTrailEntity saved;
@@ -215,7 +215,7 @@ public class HikingTrailService {
             HikingTrailUpdateWaterAvailableDto hikingTrailWaterAvailableDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !hikingTrailWaterAvailableDto.waterAvailable().equals(currentTrail.getWaterAvailable());
         HikingTrailEntity saved;
@@ -235,7 +235,7 @@ public class HikingTrailService {
             HikingTrailUpdateActivityDto hikingTrailActivityDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         List<SuitableForEnum> currentTrailActivity = currentTrail.getActivity();
 
         boolean noMatch = !hikingTrailActivityDto.activity().equals(currentTrailActivity);
@@ -256,7 +256,7 @@ public class HikingTrailService {
             HikingTrailUpdateTrailInfoDto trailInfoDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !trailInfoDto.trailInfo().equals(currentTrail.getTrailInfo());
         HikingTrailEntity saved;
@@ -276,7 +276,7 @@ public class HikingTrailService {
             HikingTrailUpdateAvailableHutsDto hikingTrailAvailableHutsDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         List<AccommodationEntity> currentTrailAvailableHuts = currentTrail.getAvailableHuts();
         List<AccommodationIdDto> currentHutsDto =
                 currentTrailAvailableHuts
@@ -308,7 +308,7 @@ public class HikingTrailService {
             HikingTrailUpdateDestinationsDto hikingTrailDestinationsDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         List<DestinationEntity> currentTrailDestinations = currentTrail.getDestinations();
         List<DestinationIdDto> destinationIdDto =
                 currentTrailDestinations
@@ -340,7 +340,7 @@ public class HikingTrailService {
             HikingTrailUpdateTrailDifficultyDto hikingTrailDifficultyDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = verifiedHikingTrail(id, userDetails);
+        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
 
         boolean noMatch = !currentTrail.getTrailDifficulty().equals(hikingTrailDifficultyDto.trailDifficulty());
         HikingTrailEntity saved;
@@ -365,7 +365,7 @@ public class HikingTrailService {
             CommentCreateDto commentDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = hikingTrailExist(trailId);
+        HikingTrailEntity currentTrail = getHikingTrailById(trailId);
         UserEntity userCommenting = this.userService.verifiedUser(id, userDetails);
 
         CommentEntity savedComment = this.commentService.saveComment(commentDto, userCommenting);
@@ -389,7 +389,7 @@ public class HikingTrailService {
             Long trailId,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = hikingTrailExist(trailId); // trail exist
+        HikingTrailEntity currentTrail = getHikingTrailById(trailId); // trail exist
         CommentEntity commentToDelete = this.commentService.verifiedComment(commentId, userDetails);
 
         boolean removedFromTrail = currentTrail.getComments().remove(commentToDelete);
@@ -399,16 +399,27 @@ public class HikingTrailService {
         return removedFromTrail && removedFromDatabase;
     }
 
-    private HikingTrailEntity verifiedHikingTrail(Long id, UserDetails userDetails) {
+    public HikingTrailEntity getTrailIfOwner(Long id, UserDetails userDetails) {
+        return this.hikingTrailRepository
+                .findByIdAndCreatedBy_Email(id, userDetails.getUsername())
+                .orElseThrow(() ->
+                        new AppException("Trail not found or not owned by the user!",
+                                HttpStatus.BAD_REQUEST));
+    }
 
-        HikingTrailEntity currentTrail = hikingTrailExist(id);
+    /*
+    TODO: direct method in the hiking repo - findByIdAndCreatedBy_Username.
+    */
+    private HikingTrailEntity checkTrailOwnershipAndReturn(Long id, UserDetails userDetails) {
+
+        HikingTrailEntity currentTrail = getHikingTrailById(id);
         UserEntity createdBy = currentTrail.getCreatedBy();
 
         this.userService.verifiedUser(createdBy, userDetails); // throws exception if no match
         return currentTrail;
     }
 
-    protected HikingTrailEntity hikingTrailExist(Long id) {
+    protected HikingTrailEntity getHikingTrailById(Long id) {
         Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
 
         if (trailById.isEmpty()) {
@@ -419,7 +430,7 @@ public class HikingTrailService {
     }
 
     //TODO: use this method for members
-    private HikingTrailEntity hikingTrailExistAndApproved(Long id) {
+    private HikingTrailEntity getApprovedHikingTrailById(Long id) {
         Optional<HikingTrailEntity> byIdAndTrailStatus =
                 this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.APPROVED);
 
@@ -430,8 +441,7 @@ public class HikingTrailService {
         return byIdAndTrailStatus.get();
     }
 
-    protected HikingTrailEntity hikingTrailExistApprovedPendingUserOwner(Long id, String username) {
-
+    protected HikingTrailEntity getHikingTrailByIdAndStatusForUser(Long id, String username) {
         Optional<HikingTrailEntity> exist = this.hikingTrailRepository
                 .findByIdAndTrailStatusInAndCreatedByEmail(
                         id,
@@ -495,7 +505,7 @@ public class HikingTrailService {
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public HikingTrailReviewDto reviewTrail(Long id, ExploreBgUserDetails userDetails) {
 
-        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        HikingTrailEntity currentTrail = getHikingTrailById(id);
 
         StatusEnum trailStatus = currentTrail.getTrailStatus();
         String reviewedBy = currentTrail.getReviewedBy() != null
@@ -518,13 +528,13 @@ public class HikingTrailService {
             ReviewBooleanDto reviewBooleanDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        HikingTrailEntity currentTrail = getHikingTrailById(id);
         StatusEnum trailStatus = currentTrail.getTrailStatus();
 
         UserEntity reviewedByUser = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy() : null;
         String reviewedByUserUsername = reviewedByUser != null ? reviewedByUser.getUsername() : null;
 
-        UserEntity currentUser = this.userService.getUserEntity(userDetails.getUsername());
+        UserEntity currentUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         if (reviewBooleanDto.review()) { // claim item for review
 
@@ -581,7 +591,7 @@ public class HikingTrailService {
             HikingTrailCreateOrReviewDto trailCreateOrReview,
             ExploreBgUserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        HikingTrailEntity currentTrail = getHikingTrailById(id);
         StatusEnum trailStatus = currentTrail.getTrailStatus();
         String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
 
@@ -677,7 +687,7 @@ public class HikingTrailService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public UserIdDto getReviewerId(Long id) {
-        HikingTrailEntity currentTrail = hikingTrailExist(id);
+        HikingTrailEntity currentTrail = getHikingTrailById(id);
         Long reviewerId =
                 currentTrail.getReviewedBy() != null
                         ? currentTrail.getReviewedBy().getId() : null;
