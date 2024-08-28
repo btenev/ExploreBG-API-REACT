@@ -31,8 +31,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,6 +101,10 @@ public class HikingTrailService {
                 .findAllByTrailStatus(StatusEnum.APPROVED, pageable);
     }
 
+    public List<HikingTrailIdTrailNameDto> selectAll() {
+        return this.hikingTrailRepository.findAllBy();
+    }
+
     public Long createHikingTrail(
             Long id,
             HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
@@ -132,179 +139,138 @@ public class HikingTrailService {
 
     public HikingTrailStartPointDto updateHikingTrailStartPoint(
             Long id,
-            HikingTrailUpdateStartPointDto hikingTrailStartPointDto,
+            HikingTrailUpdateStartPointDto newStartPoint,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !hikingTrailStartPointDto.startPoint().equals(currentTrail.getStartPoint());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getStartPoint, currentTrail::setStartPoint, newStartPoint.startPoint());
 
-        if (noMatch) {
-            currentTrail.setStartPoint(hikingTrailStartPointDto.startPoint());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailStartPointDto(saved.getStartPoint());
+        return new HikingTrailStartPointDto(currentTrail.getStartPoint());
     }
 
     public HikingTrailEndPointDto updateHikingTrailEndPoint(
             Long id,
-            HikingTrailUpdateEndPointDto hikingTrailEndPointDto,
+            HikingTrailUpdateEndPointDto newEndPoint,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !hikingTrailEndPointDto.endPoint().equals(currentTrail.getEndPoint());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, newEndPoint.endPoint());
 
-        if (noMatch) {
-            currentTrail.setEndPoint(hikingTrailEndPointDto.endPoint());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailEndPointDto(saved.getEndPoint());
+        return new HikingTrailEndPointDto(currentTrail.getEndPoint());
     }
 
     public HikingTrailTotalDistanceDto updateHikingTrailTotalDistance(
             Long id,
-            HikingTrailUpdateTotalDistanceDto trailTotalDistanceDto,
+            HikingTrailUpdateTotalDistanceDto newTotalDistance,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !trailTotalDistanceDto.totalDistance().equals(currentTrail.getTotalDistance());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, newTotalDistance.totalDistance());
 
-        if (noMatch) {
-            currentTrail.setTotalDistance(trailTotalDistanceDto.totalDistance());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailTotalDistanceDto(saved.getTotalDistance());
+        return new HikingTrailTotalDistanceDto(currentTrail.getTotalDistance());
     }
 
     public HikingTrailElevationGainedDto updateHikingTrailElevationGained(
             Long id,
-            HikingTrailUpdateElevationGainedDto elevationGainedDto,
+            HikingTrailUpdateElevationGainedDto newElevationGained,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !elevationGainedDto.elevationGained().equals(currentTrail.getElevationGained());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, newElevationGained.elevationGained());
 
-        if (noMatch) {
-            currentTrail.setElevationGained(elevationGainedDto.elevationGained());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailElevationGainedDto(saved.getElevationGained());
+        return new HikingTrailElevationGainedDto(currentTrail.getElevationGained());
     }
 
     public HikingTrailWaterAvailableDto updateHikingTrailWaterAvailable(
             Long id,
-            HikingTrailUpdateWaterAvailableDto hikingTrailWaterAvailableDto,
+            HikingTrailUpdateWaterAvailableDto newWaterAvailable,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !hikingTrailWaterAvailableDto.waterAvailable().equals(currentTrail.getWaterAvailable());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, newWaterAvailable.waterAvailable());
 
-        if (noMatch) {
-            currentTrail.setWaterAvailable(hikingTrailWaterAvailableDto.waterAvailable());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailWaterAvailableDto(saved.getWaterAvailable().getValue());
+        return new HikingTrailWaterAvailableDto(currentTrail.getWaterAvailable().getValue());
     }
 
     public HikingTrailActivityDto updateHikingTrailActivity(
             Long id,
-            HikingTrailUpdateActivityDto hikingTrailActivityDto,
+            HikingTrailUpdateActivityDto newActivity,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
-        List<SuitableForEnum> currentTrailActivity = currentTrail.getActivity();
+        /*TODO: Test Object.equals with list, might need to change to set*/
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, newActivity.activity());
 
-        boolean noMatch = !hikingTrailActivityDto.activity().equals(currentTrailActivity);
-        HikingTrailEntity saved;
-
-        if (noMatch) {
-            currentTrail.setActivity(hikingTrailActivityDto.activity());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailActivityDto(saved.getActivity().stream().map(SuitableForEnum::getValue).collect(Collectors.toList()));
+        return new HikingTrailActivityDto(currentTrail.getActivity().stream().map(SuitableForEnum::getValue).collect(Collectors.toList()));
     }
 
     public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
             Long id,
-            HikingTrailUpdateTrailInfoDto trailInfoDto,
+            HikingTrailUpdateTrailInfoDto newTrailInfo,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !trailInfoDto.trailInfo().equals(currentTrail.getTrailInfo());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, newTrailInfo.trailInfo());
 
-        if (noMatch) {
-            currentTrail.setTrailInfo(trailInfoDto.trailInfo());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailTrailInfoDto(saved.getTrailInfo());
+        return new HikingTrailTrailInfoDto(currentTrail.getTrailInfo());
     }
 
     public List<AccommodationBasicDto> updateHikingTrailAvailableHuts(
             Long id,
-            HikingTrailUpdateAvailableHutsDto hikingTrailAvailableHutsDto,
+            HikingTrailUpdateAvailableHutsDto newHuts,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
-        List<AccommodationEntity> currentTrailAvailableHuts = currentTrail.getAvailableHuts();
-        List<AccommodationIdDto> currentHutsDto =
-                currentTrailAvailableHuts
-                        .stream()
-                        .map(ae -> new AccommodationIdDto(ae.getId()))
-                        .toList();
+        /*TODO: Test Object.equals with list, might need to change to set*/
+        boolean isUpdated = updateAccommodationList(currentTrail, newHuts.availableHuts());
 
-        boolean noMatch = !currentHutsDto.equals(hikingTrailAvailableHutsDto.availableHuts());
-        HikingTrailEntity saved;
-
-        if (noMatch) {
-            List<AccommodationEntity> newSelection =
-                    mapDtoToAccommodationEntities(hikingTrailAvailableHutsDto.availableHuts());
-            currentTrail.setAvailableHuts(newSelection);
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return saved
+        return currentTrail
                 .getAvailableHuts()
                 .stream()
                 .map(hut -> new AccommodationBasicDto(hut.getId(), hut.getAccommodationName()))
@@ -313,31 +279,19 @@ public class HikingTrailService {
 
     public List<DestinationBasicDto> updateHikingTrailDestinations(
             Long id,
-            HikingTrailUpdateDestinationsDto hikingTrailDestinationsDto,
+            HikingTrailUpdateDestinationsDto newDestinations,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
-        List<DestinationEntity> currentTrailDestinations = currentTrail.getDestinations();
-        List<DestinationIdDto> destinationIdDto =
-                currentTrailDestinations
-                        .stream()
-                        .map(de -> new DestinationIdDto(de.getId()))
-                        .toList();
+        /*TODO: Test Object.equals with list, might need to change to set*/
+        boolean isUpdated = updateDestinationList(currentTrail, newDestinations.destinations());
 
-        boolean noMatch = !destinationIdDto.equals(hikingTrailDestinationsDto.destinations());
-        HikingTrailEntity saved;
-
-        if (noMatch) {
-            List<DestinationEntity> newSelection =
-                    mapDtoToDestinationEntities(hikingTrailDestinationsDto.destinations());
-            currentTrail.setDestinations(newSelection);
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return saved
+        return currentTrail
                 .getDestinations()
                 .stream()
                 .map(destination -> new DestinationBasicDto(destination.getId(), destination.getDestinationName()))
@@ -346,27 +300,19 @@ public class HikingTrailService {
 
     public HikingTrailDifficultyDto updateHikingTrailDifficulty(
             Long id,
-            HikingTrailUpdateTrailDifficultyDto hikingTrailDifficultyDto,
+            HikingTrailUpdateTrailDifficultyDto newDifficulty,
             UserDetails userDetails
     ) {
-//        HikingTrailEntity currentTrail = checkTrailOwnershipAndReturn(id, userDetails);
         HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
 
-        boolean noMatch = !currentTrail.getTrailDifficulty().equals(hikingTrailDifficultyDto.trailDifficulty());
-        HikingTrailEntity saved;
+        boolean isUpdated = updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, newDifficulty.trailDifficulty());
 
-        if (noMatch) {
-            currentTrail.setTrailDifficulty(hikingTrailDifficultyDto.trailDifficulty());
-            saved = this.hikingTrailRepository.save(currentTrail);
-        } else {
-            saved = currentTrail;
+        if (isUpdated) {
+            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail = this.hikingTrailRepository.save(currentTrail);
         }
 
-        return new HikingTrailDifficultyDto(saved.getTrailDifficulty().getLevel());
-    }
-
-    public List<HikingTrailIdTrailNameDto> selectAll() {
-        return this.hikingTrailRepository.findAllBy();
+        return new HikingTrailDifficultyDto(currentTrail.getTrailDifficulty().getLevel());
     }
 
     public CommentDto addNewTrailComment(
@@ -407,66 +353,6 @@ public class HikingTrailService {
         boolean removedFromDatabase = this.commentService.deleteComment(commentToDelete);
 
         return removedFromTrail && removedFromDatabase;
-    }
-
-    public HikingTrailEntity getTrailIfOwner(Long id, UserDetails userDetails) {
-        return this.hikingTrailRepository
-                .findByIdAndCreatedBy_Email(id, userDetails.getUsername())
-                .orElseThrow(() ->
-                        new AppException("Trail not found or not owned by the user!",
-                                HttpStatus.BAD_REQUEST));
-    }
-
-    protected HikingTrailEntity getHikingTrailById(Long id) {
-        Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
-
-        if (trailById.isEmpty()) {
-            throw new AppException("Hiking trail not found!", HttpStatus.NOT_FOUND);
-        }
-
-        return trailById.get();
-    }
-
-    //TODO: use this method for members
-    private HikingTrailEntity getApprovedHikingTrailById(Long id) {
-        Optional<HikingTrailEntity> byIdAndTrailStatus =
-                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.APPROVED);
-
-        if (byIdAndTrailStatus.isEmpty()) {
-            throw new AppException("Hiking trail not found or not approved!", HttpStatus.NOT_FOUND);
-        }
-
-        return byIdAndTrailStatus.get();
-    }
-
-    public HikingTrailEntity getTrailByIdWithStatusAndOwner(Long id, String email) {
-        Optional<HikingTrailEntity> exist = this.hikingTrailRepository
-                .findByIdAndTrailStatusInAndCreatedByEmail(
-                        id,
-                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
-                        email);
-        logger.info("user id " + id + "username " + email);
-        if (exist.isEmpty()) {
-            throw new AppException(
-                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        return exist.get();
-    }
-
-    private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
-
-        List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
-
-        return this.accommodationService.getAccommodationsById(accommodationIds);
-    }
-
-    private List<DestinationEntity> mapDtoToDestinationEntities(List<DestinationIdDto> ids) {
-
-        List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
-
-        return this.destinationService.getDestinationsByIds(destinationIds);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -513,60 +399,21 @@ public class HikingTrailService {
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean claimTrailReview(
             Long id,
-            ReviewBooleanDto reviewBooleanDto,
+            ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = getHikingTrailById(id);
         StatusEnum trailStatus = currentTrail.getTrailStatus();
 
-        UserEntity reviewedByUser = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy() : null;
-        String reviewedByUserUsername = reviewedByUser != null ? reviewedByUser.getUsername() : null;
+        UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
-        UserEntity currentUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity reviewedByUser = currentTrail.getReviewedBy();
+        String reviewedByUserName = reviewedByUser != null ? reviewedByUser.getUsername() : null;
 
-        if (reviewBooleanDto.review()) { // claim item for review
-
-            if (reviewedByUser == null) { // no user - should be pending
-                currentTrail.setTrailStatus(StatusEnum.REVIEW);
-                currentTrail.setReviewedBy(currentUser);
-            } else { // has user but...
-
-                if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by you
-                        && reviewedByUserUsername.equals(currentUser.getUsername())) {
-                    throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
-                }
-
-                if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by another user
-                        && !reviewedByUserUsername.equals(currentUser.getUsername())) {
-                    throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
-                }
-
-                if (trailStatus.equals(StatusEnum.APPROVED)) { // already approved
-                    throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
-                }
-            }
-        } else { // cancel claim
-            if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by you
-                    && reviewedByUserUsername != null
-                    && reviewedByUserUsername.equals(currentUser.getUsername())) {
-
-                currentTrail.setTrailStatus(StatusEnum.PENDING);
-                currentTrail.setReviewedBy(null);
-            } else {
-                if (trailStatus.equals(StatusEnum.PENDING)) {
-                    throw new AppException("You cannot cancel the review for an item that you haven't claimed!", HttpStatus.BAD_REQUEST);
-                }
-
-                if (trailStatus.equals(StatusEnum.REVIEW) // already claimed by another user
-                        && reviewedByUserUsername != null
-                        && !reviewedByUserUsername.equals(currentUser.getUsername())) {
-                    throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
-                }
-
-                if (trailStatus.equals(StatusEnum.APPROVED)) { // already approved
-                    throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
-                }
-            }
+        if (reviewBoolean.review()) {
+            handleClaimReview(currentTrail, trailStatus, reviewedByUserName, loggedUser);
+        } else {
+            handleCancelClaim(currentTrail, trailStatus, reviewedByUserName, loggedUser);
         }
 
         this.hikingTrailRepository.save(currentTrail);
@@ -580,91 +427,9 @@ public class HikingTrailService {
             ExploreBgUserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = getHikingTrailById(id);
-        StatusEnum trailStatus = currentTrail.getTrailStatus();
-        String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
+        validateTrailApproval(currentTrail, userDetails);
 
-
-        if (reviewedByUserProfile == null) {
-            throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
-        }
-
-        if (trailStatus.equals(StatusEnum.REVIEW) && !reviewedByUserProfile.equals(userDetails.getProfileName())) {
-            throw new AppException("The item has already been claimed by another user! You can not approved it!", HttpStatus.BAD_REQUEST);
-        }
-
-        if (trailStatus.equals(StatusEnum.APPROVED)) {
-            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
-        }
-
-
-        if (!currentTrail.getStartPoint().equals(trailCreateOrReview.startPoint())) {
-            currentTrail.setStartPoint(trailCreateOrReview.startPoint());
-        }
-
-        if (!currentTrail.getEndPoint().equals(trailCreateOrReview.endPoint())) {
-            currentTrail.setEndPoint(trailCreateOrReview.endPoint());
-        }
-        // totalDistance == null -> new value != null
-        if (currentTrail.getTotalDistance() == null && trailCreateOrReview.totalDistance() != null
-                || (currentTrail.getTotalDistance() != null
-                && !currentTrail.getTotalDistance().equals(trailCreateOrReview.totalDistance()))
-        ) {
-            currentTrail.setTotalDistance(trailCreateOrReview.totalDistance());
-        }
-
-        if (!currentTrail.getTrailInfo().equals(trailCreateOrReview.trailInfo())) {
-            currentTrail.setTrailInfo(trailCreateOrReview.trailInfo());
-        }
-
-        if (!currentTrail.getSeasonVisited().equals(trailCreateOrReview.seasonVisited())) {
-            currentTrail.setSeasonVisited(trailCreateOrReview.seasonVisited());
-        }
-
-        if (!currentTrail.getWaterAvailable().equals(trailCreateOrReview.waterAvailable())) {
-            currentTrail.setWaterAvailable(trailCreateOrReview.waterAvailable());
-        }
-
-        if (!currentTrail.getTrailDifficulty().equals(trailCreateOrReview.trailDifficulty())) {
-            currentTrail.setTrailDifficulty(trailCreateOrReview.trailDifficulty());
-        }
-
-        if (!currentTrail.getActivity().equals(trailCreateOrReview.activity())) {
-            currentTrail.setActivity(trailCreateOrReview.activity());
-        }
-
-        if (currentTrail.getElevationGained() == null && trailCreateOrReview.elevationGained() != null
-                || (currentTrail.getElevationGained() != null
-                && !currentTrail.getElevationGained().equals(trailCreateOrReview.elevationGained()))
-        ) {
-            currentTrail.setElevationGained(trailCreateOrReview.elevationGained());
-        }
-
-        if (!currentTrail.getNextTo().equals(trailCreateOrReview.nextTo())) {
-            currentTrail.setNextTo(trailCreateOrReview.nextTo());
-        }
-
-        List<DestinationIdDto> destinationIdDto =
-                currentTrail.getDestinations()
-                        .stream()
-                        .map(de -> new DestinationIdDto(de.getId()))
-                        .toList();
-
-        if (!destinationIdDto.equals(trailCreateOrReview.destinations())) {
-            List<DestinationEntity> destinationEntities =
-                    mapDtoToDestinationEntities(trailCreateOrReview.destinations());
-            currentTrail.setDestinations(destinationEntities);
-        }
-
-        List<AccommodationIdDto> accommodationIdDto =
-                currentTrail.getAvailableHuts()
-                        .stream().map(a -> new AccommodationIdDto(a.getId()))
-                        .toList();
-
-        if (!accommodationIdDto.equals(trailCreateOrReview.availableHuts())) {
-            List<AccommodationEntity> accommodationEntities =
-                    mapDtoToAccommodationEntities(trailCreateOrReview.availableHuts());
-            currentTrail.setAvailableHuts(accommodationEntities);
-        }
+        updateTrailFields(currentTrail, trailCreateOrReview);
 
         currentTrail.setTrailStatus(StatusEnum.APPROVED);
 
@@ -682,8 +447,191 @@ public class HikingTrailService {
         return new UserIdDto(reviewerId);
     }
 
+    public HikingTrailEntity getTrailIfOwner(Long id, UserDetails userDetails) {
+        return this.hikingTrailRepository
+                .findByIdAndCreatedBy_Email(id, userDetails.getUsername())
+                .orElseThrow(() ->
+                        new AppException("Trail not found or not owned by the user!",
+                                HttpStatus.BAD_REQUEST));
+    }
+
+    public HikingTrailEntity getTrailByIdWithStatusAndOwner(Long id, String email) {
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository
+                .findByIdAndTrailStatusInAndCreatedByEmail(
+                        id,
+                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                        email);
+        logger.info("user id " + id + "username " + email);
+        if (exist.isEmpty()) {
+            throw new AppException(
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        return exist.get();
+    }
+
     public HikingTrailEntity saveHikingTrailEntity(HikingTrailEntity hikingTrail) {
         return this.hikingTrailRepository.save(hikingTrail);
     }
 
+    protected HikingTrailEntity getHikingTrailById(Long id) {
+        Optional<HikingTrailEntity> trailById = this.hikingTrailRepository.findById(id);
+
+        if (trailById.isEmpty()) {
+            throw new AppException("Hiking trail not found!", HttpStatus.NOT_FOUND);
+        }
+
+        return trailById.get();
+    }
+
+    //TODO: use this method for members
+    private HikingTrailEntity getApprovedHikingTrailById(Long id) {
+        Optional<HikingTrailEntity> byIdAndTrailStatus =
+                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.APPROVED);
+
+        if (byIdAndTrailStatus.isEmpty()) {
+            throw new AppException("Hiking trail not found or not approved!", HttpStatus.NOT_FOUND);
+        }
+
+        return byIdAndTrailStatus.get();
+    }
+
+    private void validateTrailApproval(
+            HikingTrailEntity currentTrail,
+            ExploreBgUserDetails userDetails
+    ) {
+        StatusEnum trailStatus = currentTrail.getTrailStatus();
+        String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
+
+
+        if (reviewedByUserProfile == null) {
+            throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (trailStatus.equals(StatusEnum.REVIEW) && !reviewedByUserProfile.equals(userDetails.getProfileName())) {
+            throw new AppException("The item has already been claimed by another user! You can not approved it!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (trailStatus.equals(StatusEnum.APPROVED)) {
+            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void updateTrailFields(
+            HikingTrailEntity currentTrail,
+            HikingTrailCreateOrReviewDto trailCreateOrReview
+    ) {
+        updateFieldIfDifferent(currentTrail::getStartPoint, currentTrail::setStartPoint, trailCreateOrReview.startPoint());
+        updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, trailCreateOrReview.endPoint());
+        updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, trailCreateOrReview.totalDistance());
+        updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, trailCreateOrReview.trailInfo());
+        updateFieldIfDifferent(currentTrail::getSeasonVisited, currentTrail::setSeasonVisited, trailCreateOrReview.seasonVisited());
+        updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, trailCreateOrReview.waterAvailable());
+        updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, trailCreateOrReview.trailDifficulty());
+        updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, trailCreateOrReview.activity());
+        updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, trailCreateOrReview.elevationGained());
+        updateFieldIfDifferent(currentTrail::getNextTo, currentTrail::setNextTo, trailCreateOrReview.nextTo());
+
+        updateAccommodationList(currentTrail, trailCreateOrReview.availableHuts());
+        updateDestinationList(currentTrail, trailCreateOrReview.destinations());
+    }
+
+    private <T> boolean updateFieldIfDifferent(Supplier<T> getter, Consumer<T> setter, T newValue) {
+        T currentValue = getter.get();
+
+        if (!Objects.equals(currentValue, newValue)) {
+            setter.accept(newValue);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean updateAccommodationList(HikingTrailEntity currentTrail, List<AccommodationIdDto> newHuts) {
+        List<AccommodationIdDto> currentHuts = currentTrail.getAvailableHuts()
+                .stream()
+                .map(a -> new AccommodationIdDto(a.getId()))
+                .toList();
+
+        if (!Objects.equals(currentHuts, newHuts)) {
+            List<AccommodationEntity> accommodationEntities = mapDtoToAccommodationEntities(newHuts);
+            currentTrail.setAvailableHuts(accommodationEntities);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean updateDestinationList(HikingTrailEntity currentTrail, List<DestinationIdDto> newDestinations) {
+        List<DestinationIdDto> currentDestinations = currentTrail.getDestinations()
+                .stream()
+                .map(de -> new DestinationIdDto(de.getId()))
+                .toList();
+
+        if (!Objects.equals(currentDestinations, newDestinations)) {
+            List<DestinationEntity> destinationEntities = mapDtoToDestinationEntities(newDestinations);
+            currentTrail.setDestinations(destinationEntities);
+            return true;
+        }
+        return false;
+    }
+
+    private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
+
+        List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
+
+        return this.accommodationService.getAccommodationsById(accommodationIds);
+    }
+
+    private List<DestinationEntity> mapDtoToDestinationEntities(List<DestinationIdDto> ids) {
+
+        List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
+
+        return this.destinationService.getDestinationsByIds(destinationIds);
+    }
+
+    private void handleClaimReview(
+            HikingTrailEntity trail,
+            StatusEnum trailStatus,
+            String reviewedByUserName,
+            UserEntity loggedUser
+    ) {
+        if (trailStatus.equals(StatusEnum.REVIEW)) {
+            if (Objects.equals(reviewedByUserName, loggedUser.getUsername())) {
+                throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
+            } else {
+                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        if (trailStatus.equals(StatusEnum.APPROVED)) {
+            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
+        }
+
+        trail.setTrailStatus(StatusEnum.REVIEW);
+        trail.setReviewedBy(loggedUser);
+    }
+
+    private void handleCancelClaim(
+            HikingTrailEntity trail,
+            StatusEnum trailStatus,
+            String reviewedByUserName,
+            UserEntity loggedUser
+    ) {
+        if (trailStatus.equals(StatusEnum.PENDING)) {
+            throw new AppException("You cannot cancel the review for an item that you haven't claimed!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (trailStatus.equals(StatusEnum.REVIEW)) {
+            if (Objects.equals(reviewedByUserName, loggedUser.getUsername())) {
+                trail.setTrailStatus(StatusEnum.PENDING);
+                trail.setReviewedBy(null);
+            } else {
+                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        if (trailStatus.equals(StatusEnum.APPROVED)) {
+            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
+        }
+    }
 }
