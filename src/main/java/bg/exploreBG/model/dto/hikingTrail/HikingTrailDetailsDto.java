@@ -1,5 +1,6 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
+import bg.exploreBG.model.dto.GpxUrlDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
@@ -30,6 +31,7 @@ public record HikingTrailDetailsDto(
         Integer elevationGained,
         String nextTo,
         UserBasicInfo createdBy,
+        String gpxUrl,
         @JsonSerialize(using = StatusEnumSerializer.class)
         StatusEnum trailStatus,
         List<DestinationBasicDto> destinations

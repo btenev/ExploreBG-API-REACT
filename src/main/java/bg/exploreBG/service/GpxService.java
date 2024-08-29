@@ -1,9 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.GpxCreateNewGpxDto;
 import bg.exploreBG.model.dto.GpxUrlDto;
-import bg.exploreBG.model.dto.SuccessBooleanDto;
 import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.repository.GpxRepository;
@@ -37,7 +35,7 @@ public class GpxService {
 
     public GpxUrlDto saveGpxFileIfOwner(
             Long id,
-            GpxCreateNewGpxDto gpxCreateNewGpxDto,
+            String folder,
             MultipartFile file,
             UserDetails userDetails
     ) {
@@ -53,7 +51,7 @@ public class GpxService {
 
         String awsId = String.valueOf(UUID.randomUUID()).concat(".gpx");
 
-        GpxEntity newGpx = createNewGpxEntity(gpxCreateNewGpxDto, file, awsId);
+        GpxEntity newGpx = createNewGpxEntity(file, folder, awsId);
         GpxEntity saved = this.gpxRepository.save(newGpx);
 
         currentTrail.setGpxFile(saved);
@@ -64,7 +62,7 @@ public class GpxService {
     }
 
     @Transactional
-    public SuccessBooleanDto deleteGpxFileIfOwner(
+    public boolean deleteGpxFileIfOwner(
             Long id,
             UserDetails userDetails
     ) {
@@ -86,21 +84,17 @@ public class GpxService {
 
         this.gpxRepository.delete(gpxFile);
 
-        return new SuccessBooleanDto(deleted);
+        return deleted;
     }
 
     private GpxEntity createNewGpxEntity(
-            GpxCreateNewGpxDto gpxCreateNewGpxDto,
             MultipartFile file,
+            String folder,
             String awsId
     ) {
-        String name = gpxCreateNewGpxDto.name();
-        String folder = gpxCreateNewGpxDto.folder();
-
         String url = uploadS3GpxFileWithValidation(folder, awsId, file);
 
         GpxEntity gpx = new GpxEntity();
-        gpx.setGpxName(name);
         gpx.setCloudId(awsId);
         gpx.setGpxUrl(url);
         gpx.setFolder(folder);

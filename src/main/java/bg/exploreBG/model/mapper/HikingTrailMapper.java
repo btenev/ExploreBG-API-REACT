@@ -17,6 +17,7 @@ public interface HikingTrailMapper {
     @Mapping(target = "trailName", expression = "java(hikingTrailEntity.getStartPoint() + ' ' + '-' + ' ' + hikingTrailEntity.getEndPoint())")
     HikingTrailBasicDto hikingTrailEntityToHikingTrailBasicDto(HikingTrailEntity hikingTrailEntity);
 
+    @Mapping(target = "gpxUrl", source = "gpxFile.gpxUrl")
     HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity hikingTrailEntity);
 
     HikingTrailReviewDto hikingTrailEntityToHikingTrailReviewDto(HikingTrailEntity hikingTrailEntity);

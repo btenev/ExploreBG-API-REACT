@@ -9,9 +9,6 @@ public class GpxEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-
-    private String gpxName;
-
     private String cloudId;
 
     private String folder;
@@ -27,14 +24,6 @@ public class GpxEntity {
 
     public void setId(Long id) {
         Id = id;
-    }
-
-    public String getGpxName() {
-        return gpxName;
-    }
-
-    public void setGpxName(String gpxName) {
-        this.gpxName = gpxName;
     }
 
     public String getCloudId() {
@@ -65,7 +54,6 @@ public class GpxEntity {
     public String toString() {
         return "GpxEntity{" +
                 "Id=" + Id +
-                ", gpxName='" + gpxName + '\'' +
                 ", cloudId='" + cloudId + '\'' +
                 ", folder='" + folder + '\'' +
                 ", gpxUrl='" + gpxUrl + '\'' +
