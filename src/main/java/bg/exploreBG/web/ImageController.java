@@ -3,15 +3,19 @@ package bg.exploreBG.web;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
-import bg.exploreBG.model.validation.PermittedImageFileFormat;
-import bg.exploreBG.model.validation.PermittedImageFileSize;
+import bg.exploreBG.model.validation.PermittedFileType;
+import bg.exploreBG.model.validation.MaxFileSize;
 import bg.exploreBG.service.ImageService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -29,11 +33,17 @@ public class ImageController {
     /*
     TODO: Changed /create/{id} to /user - id is not necessary, @PatchMapping instead of POST - tell Ivo
      */
-    @PatchMapping( "/user")
+    @PatchMapping("/user")
     public ResponseEntity<ApiResponse<ImageIdPlusUrlDto>> saveImage(
 //            @PathVariable Long id,
             @Valid @RequestPart("data") ImageCreateImageDto imageCreateImageDto,
-            @PermittedImageFileSize @PermittedImageFileFormat @RequestPart("file") MultipartFile file,
+            @NotNull(message = "A file must be provided. Please choose a file to upload.")
+            @MaxFileSize(maxSize = 3)
+            @PermittedFileType(
+                    allowedTypes = {"image/png", "image/jpg", "image/jpeg", "image/gif"},
+                    message = "Only GIF, PNG, and JPG image formats are allowed."
+            )
+            @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         ImageIdPlusUrlDto imageIdPlusUrlDto =

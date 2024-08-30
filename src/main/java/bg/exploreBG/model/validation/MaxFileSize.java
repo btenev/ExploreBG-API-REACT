@@ -10,11 +10,12 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {PermittedImageFileFormatValidator.class})
-public @interface PermittedImageFileFormat {
-    String message() default "Only GIF, PNG or JPG images are allowed";
+@Constraint(validatedBy = MaxFileSizeValidator.class)
+public @interface MaxFileSize {
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    long maxSize() default 1048576; // 1MB default size
 }

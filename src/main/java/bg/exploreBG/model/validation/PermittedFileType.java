@@ -10,11 +10,16 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PermittedImageFileSizeValidator.class)
-public @interface PermittedImageFileSize {
-    String message() default "File size should be bigger then 0 and less than 4 MB";
+@Constraint(validatedBy = PermittedFileTypeValidator.class)
+public @interface PermittedFileType {
+    String[] allowedTypes() default {};
+
+    String message() default "Invalid file type";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 }
+
+
+

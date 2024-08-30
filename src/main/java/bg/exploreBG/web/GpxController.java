@@ -2,17 +2,21 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.GpxUrlDto;
+import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.GpxService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Validated
 @RestController
 @RequestMapping("/api/gpx")
 public class GpxController {
-
+    private static final String GPX = "Gpx";
     private final GpxService gpxService;
 
     public GpxController(GpxService gpxService) {
@@ -22,12 +26,12 @@ public class GpxController {
     @PatchMapping("/trail/{id}")
     public ResponseEntity<ApiResponse<GpxUrlDto>> saveGpxFile(
             @PathVariable Long id,
-            @RequestParam("file") MultipartFile file,
+            @RequestParam("file")
+            @NotNull(message = "A file must be provided. Please choose a file to upload.")
+            @PermittedFileType(message = "Please upload a file with the GPX format.") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-
-//        GPX gpx = fileService.parseGpx("https://res.cloudinary.com/dcljilaws/image/files/v1723981216/Gpx/1abc25b7-6442-4ebb-80ad-f23e83ac5be3.gpx");
-        GpxUrlDto gpxUrlDto = this.gpxService.saveGpxFileIfOwner(id, "Gpx", file, userDetails);
+        GpxUrlDto gpxUrlDto = this.gpxService.saveGpxFileIfOwner(id, GPX, file, userDetails);
 
         ApiResponse<GpxUrlDto> response = new ApiResponse<>(gpxUrlDto);
         return ResponseEntity.ok(response);
