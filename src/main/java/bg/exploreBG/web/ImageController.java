@@ -2,9 +2,10 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
+import bg.exploreBG.model.dto.image.single.ImageUrlDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
-import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.model.validation.MaxFileSize;
+import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.ImageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -12,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -48,7 +46,7 @@ public class ImageController {
     ) {
         ImageIdPlusUrlDto imageIdPlusUrlDto =
                 this.imageService
-                        .saveProfileImage(
+                        .saveProfilePicture(
 //                                id,
                                 imageCreateImageDto,
                                 file,
@@ -61,11 +59,37 @@ public class ImageController {
                 .created(URI.create("/api/images/" + imageIdPlusUrlDto.id()))
                 .body(response);
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<ImageUrlDto> getUserImageUrl(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userUrl = this.imageService.getUserImageUrlByEmail(userDetails);
+
+        return ResponseEntity.ok(new ImageUrlDto(userUrl));
+    }
+
+/*    @PatchMapping("/entity/{id}")
+    public ResponseEntity<?> saveImages(
+            @PathVariable Long id,
+            @RequestPart("data") ImageCreateImageDto imageCreateImageDto,
+            @RequestPart("file") MultipartFile[] files,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        switch (imageCreateImageDto.folder().toLowerCase()) {
+            case "trail" -> imageService.saveTrailPictures(id, imageCreateImageDto, files, userDetails);
+         *//*   case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateImageDto, files, userDetails);
+            case "destination" -> imageService.saveDestinationPictures(id, imageCreateImageDto, files, userDetails);*//*
+            default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok().build();
+    }*/
 /*
 POST /api/images/user - Creates or updates a single image entity for a user.
 DELETE /api/images/user - Deletes a single image entity for a user.
 
-POST /api/images/trail/{id} - Creates a collection of images for the specific trail {id}. ([]multipart file)
+PATCH /api/images/trail/{id} - Creates a collection of images for the specific trail {id}. ([]multipart file)
 DELETE /api/images/trail/{id} - Deletes multiple images for the specific trail {id}. (JSON body: { "ids": [] })
 
 POST /api/images/accommodation/{id} - Creates a collection of images for the specific accommodation {id}. ([]multipart file)
