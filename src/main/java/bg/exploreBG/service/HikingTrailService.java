@@ -119,6 +119,7 @@ public class HikingTrailService {
 //        logger.debug("{}", newHikingTrail);
 
         newHikingTrail.setTrailStatus(StatusEnum.PENDING);
+        newHikingTrail.setMaxNumberOfImages(10);
         newHikingTrail.setCreatedBy(validUser);
         newHikingTrail.setCreationDate(LocalDateTime.now());
 

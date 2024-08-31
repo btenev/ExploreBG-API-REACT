@@ -21,6 +21,9 @@ public class ImageEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @OneToOne(mappedBy = "userImage")
+    private UserEntity owner;
+
     public ImageEntity(){
     }
 
@@ -64,6 +67,14 @@ public class ImageEntity {
         this.imageUrl = imageUrl;
     }
 
+    public UserEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserEntity owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
         return "ImageEntity{" +
@@ -72,6 +83,7 @@ public class ImageEntity {
                 ", cloudId='" + cloudId + '\'' +
                 ", folder='" + folder + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
+                ", owner=" + owner +
                 '}';
     }
 }
