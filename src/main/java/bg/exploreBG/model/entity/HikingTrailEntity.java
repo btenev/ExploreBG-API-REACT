@@ -96,6 +96,12 @@ public class HikingTrailEntity {
     @OneToOne
     private GpxEntity gpxFile;
 
+    @OneToMany
+    private List<ImageEntity> images;
+
+    @Column(name = "max_number_of_images")
+    private int maxNumberOfImages;
+
     public HikingTrailEntity() {
     }
 
@@ -263,6 +269,22 @@ public class HikingTrailEntity {
         this.gpxFile = gpxFile;
     }
 
+    public List<ImageEntity> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageEntity> images) {
+        this.images = images;
+    }
+
+    public int getMaxNumberOfImages() {
+        return maxNumberOfImages;
+    }
+
+    public void setMaxNumberOfImages(int maxNumberOfImages) {
+        this.maxNumberOfImages = maxNumberOfImages;
+    }
+
     @Override
     public String toString() {
         return "HikingTrailEntity{" +
@@ -286,6 +308,8 @@ public class HikingTrailEntity {
                 ", createdBy=" + createdBy +
                 ", reviewedBy=" + reviewedBy +
                 ", gpxFile=" + gpxFile +
+                ", images=" + images +
+                ", maxNumberOfImages=" + maxNumberOfImages +
                 '}';
     }
 }
