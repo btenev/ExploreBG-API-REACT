@@ -1,6 +1,8 @@
 package bg.exploreBG.service;
 
 import com.cloudinary.Cloudinary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +14,7 @@ import java.util.Map;
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
+    private final Logger logger = LoggerFactory.getLogger(CloudinaryService.class);
 
     public CloudinaryService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
@@ -46,7 +49,21 @@ public class CloudinaryService {
             result.put("version", version);
             return result;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error("Error uploading resource to Cloudinary", ex);
+            return null;
+        }
+    }
+
+    public String deleteFile(String cloudinaryId) {
+        try {
+            Map<String, Object> options = new HashMap<>();
+            options.put("invalidate", true);
+
+            Map destroy = this.cloudinary.uploader().destroy(cloudinaryId, options);
+
+            return destroy.get("result").toString();
+        } catch (IOException ex) {
+            logger.error("Error deleting resource from Cloudinary", ex);
             return null;
         }
     }
