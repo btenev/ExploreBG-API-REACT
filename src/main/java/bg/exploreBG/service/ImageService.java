@@ -1,22 +1,22 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.repository.ImageRepository;
+import org.hibernate.Hibernate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
@@ -41,36 +41,33 @@ public class ImageService {
         this.cloudinaryService = cloudinaryService;
     }
 
-    public ImageIdPlusUrlDto saveProfilePicture(
+    public ImageIdPlusUrlDto saveProfileImage(
             ImageCreateImageDto imageCreateImageDto,
             MultipartFile file,
             UserDetails userDetails
     ) {
         UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
-
         ImageEntity userImage = loggedUser.getUserImage();
-        ImageEntity newImage;
 
         if (userImage == null) {
-//            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
             String cloudinaryId = generateCloudinaryId();
 
-            newImage = createImageEntity(
-                    imageCreateImageDto,
-                    file,
-                    cloudinaryId,
-                    loggedUser
-            );
+            Map<String, String> cloudinaryResponse =
+                    validateUploadResult(file, imageCreateImageDto.folder(), cloudinaryId);
 
+            userImage = createImageEntity(cloudinaryResponse, loggedUser);
         } else {
-            newImage = updateImageEntity(
-                    imageCreateImageDto,
-                    file,
-                    userImage
-            );
+            String cloudinaryId = userImage.getCloudId();
+
+            Map<String, String> cloudinaryResponse =
+                    validateUploadResult(file, imageCreateImageDto.folder(), cloudinaryId);
+
+            String url = cloudinaryResponse.get("url");
+
+            userImage.setImageUrl(url);
         }
 
-        ImageEntity saved = this.imageRepository.save(newImage);
+        ImageEntity saved = this.imageRepository.save(userImage);
 
         loggedUser.setUserImage(saved);
 
@@ -79,7 +76,14 @@ public class ImageService {
         return new ImageIdPlusUrlDto(saved.getId(), saved.getImageUrl());
     }
 
-/*    public void saveTrailPictures(
+    public String getUserImageUrlByEmail(UserDetails userDetails) {
+        Optional<String> userUrl =
+                this.imageRepository.findImageUrlByOwnerEmail(userDetails.getUsername());
+
+        return userUrl.orElse(null);
+    }
+
+    public List<ImageIdPlusUrlDto> saveTrailPictures(
             Long trailId,
             ImageCreateImageDto imageCreateImageDto,
             MultipartFile[] files,
@@ -87,61 +91,67 @@ public class ImageService {
     ) {
         HikingTrailEntity currentTrail =
                 this.hikingTrailService.getTrailByIdWithStatusAndOwner(trailId, userDetails.getUsername());
+        UserEntity loggedUser = currentTrail.getCreatedBy();
 
-        List<ImageEntity> images = currentTrail.getImages();
-        int trailImageNumber = images.size();
-        int availableImageSlots = currentTrail.getMaxNumberOfPictures();
-        int totalImages = trailImageNumber + files.length;
+        List<ImageEntity> currentTrailImages = currentTrail.getImages();
+        int usedSlots = currentTrailImages.size();
+        int neededImageSlots = files.length;
+        int totalImages = usedSlots + neededImageSlots;
+        int maxNumberOfImages = currentTrail.getMaxNumberOfImages();
 
-        if (totalImages > availableImageSlots) {
-            int excessImages = totalImages - availableImageSlots;
-            throw new AppException("You are trying to upload " + excessImages + " more images than allowed.",
-                    HttpStatus.BAD_REQUEST);
-        }
+        validateImageSlots(totalImages, maxNumberOfImages);
 
+        String folder = imageCreateImageDto.folder();
+        List<Map<String, String>> results = validateUploadResult(files, folder);
 
-    }*/
+        List<ImageEntity> newImageEntities = createMultipleImageEntities(results, loggedUser);
+
+        List<ImageEntity> savedAll = this.imageRepository.saveAll(newImageEntities);
+
+        currentTrailImages.addAll(newImageEntities);
+        currentTrail.setImages(currentTrailImages);
+
+        this.hikingTrailService.saveHikingTrailEntity(currentTrail);
+
+        return savedAll.stream()
+                .map(e -> new ImageIdPlusUrlDto(e.getId(), e.getImageUrl()))
+                .toList();
+
+    }
 
     private ImageEntity createImageEntity(
-            ImageCreateImageDto imageDto,
-            MultipartFile file,
-            String cloudinaryId,
-            UserEntity loggedUser
+            Map<String, String> cloudinaryResponse,
+            UserEntity owner
     ) {
-        Map<String, String> response = validateUploadResult(
-                file,
-                imageDto.folder(),
-                cloudinaryId
-        );
+        String folder = cloudinaryResponse.get("folder");
+        String url = cloudinaryResponse.get("url");
+        String cloudinaryId = cloudinaryResponse.get("public_id");
 
         ImageEntity image = new ImageEntity();
-        image.setImageName(imageDto.name());
-        image.setImageUrl(response.get("url"));
-        image.setFolder(response.get("folder"));
-        image.setCloudId(response.get("public_id"));
-        image.setOwner(loggedUser);
+        image.setImageUrl(url);
+        image.setFolder(folder);
+        image.setCloudId(cloudinaryId);
+        image.setOwner(owner);
         return image;
     }
 
-    private ImageEntity updateImageEntity(
-            ImageCreateImageDto imageCreateImageDto,
-            MultipartFile file,
-            ImageEntity current
+    private List<ImageEntity> createMultipleImageEntities(
+            List<Map<String, String>> results,
+            UserEntity owner
     ) {
-        Map<String, String> response = validateUploadResult(
-                file,
-                imageCreateImageDto.folder(),
-                current.getCloudId()
-        );
-
-        current.setImageName(imageCreateImageDto.name());
-        current.setImageUrl(response.get("url"));
-
-        return current;
+        return results.stream().map(r -> createImageEntity(r, owner)).collect(Collectors.toList());
     }
 
     private String generateCloudinaryId() {
         return String.valueOf(UUID.randomUUID());
+    }
+
+    private void validateImageSlots(int neededSlots, int availableSlots) {
+        if (neededSlots > availableSlots) {
+            int excessImages = neededSlots - availableSlots;
+            throw new AppException("You are trying to upload " + excessImages + " more images than the allowed limit.",
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
     private Map<String, String> validateUploadResult(
@@ -149,17 +159,35 @@ public class ImageService {
             String folder,
             String cloudinaryId
     ) {
-        Map<String, String> cloudinaryResult = cloudinaryService.uploadFile(multipartFile, folder, cloudinaryId);
-        if (cloudinaryResult.isEmpty()) {
-            throw new AppException("Invalid image url!", HttpStatus.BAD_REQUEST);
+        Map<String, String> uploadResult =
+                this.cloudinaryService.uploadFile(multipartFile, folder, cloudinaryId);
+
+        if (uploadResult == null) {
+            throw new AppException("Failed to upload an image. Process aborted.", HttpStatus.BAD_REQUEST);
         }
-        return cloudinaryResult;
+
+        return uploadResult;
     }
 
-    public String getUserImageUrlByEmail(UserDetails userDetails) {
-        Optional<String> userUrl =
-                this.imageRepository.findImageUrlByOwnerEmail(userDetails.getUsername());
+    private List<Map<String, String>> validateUploadResult(
+            MultipartFile[] files,
+            String folder
+    ) {
+        List<Map<String, String>> uploadResults = new ArrayList<>();
 
-        return userUrl.orElse(null);
+        for (MultipartFile file : files) {
+            String cloudinaryId = generateCloudinaryId();
+
+            Map<String, String> uploadResult = this.cloudinaryService.uploadFile(file, folder, cloudinaryId);
+
+            if (uploadResult.isEmpty()) {
+                throw new AppException("Failed to upload all images. Process aborted.", HttpStatus.BAD_REQUEST);
+
+            }
+
+            uploadResults.add(uploadResult);
+        }
+
+        return uploadResults;
     }
 }
