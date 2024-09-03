@@ -91,10 +91,9 @@ public class UserService {
                 getRoles(currentUser.get()));
     }
 
-    public UserDetailsOwnerDto findMyProfile(Long id, UserDetails userDetails) {
-        UserEntity byId = verifiedUser(id, userDetails);
-
-        return this.userMapper.userEntityToUserDetailsOwnerDto(byId);
+    public UserDetailsOwnerDto findMyProfile(UserDetails userDetails) {
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        return this.userMapper.userEntityToUserDetailsOwnerDto(loggedUser);
     }
 
     public UserDetailsDto findProfileById(Long id) {
@@ -211,8 +210,8 @@ public class UserService {
         return byId.get();
     }
 
-    protected UserEntity getUserEntityByEmail(String username) {
-        Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
+    protected UserEntity getUserEntityByEmail(String email) {
+        Optional<UserEntity> byEmail = this.userRepository.findByEmail(email);
 
         if (byEmail.isEmpty()) {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);

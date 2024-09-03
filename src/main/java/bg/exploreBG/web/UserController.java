@@ -69,21 +69,22 @@ public class UserController {
                 .body(userIdNameDto);
     }
 
-    @GetMapping("/{id}/my-profile")
+    /*TODO: previous /api/users/{id}/my-profile*/
+    @GetMapping("/my-profile")
     public ResponseEntity<ApiResponse<UserDetailsOwnerDto>> myProfile(
-            @PathVariable Long id,
+//            @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
 
         UserDetailsOwnerDto byId =
-                this.userService.findMyProfile(id, userDetails);
+                this.userService.findMyProfile(userDetails);
 
         ApiResponse<UserDetailsOwnerDto> response = new ApiResponse<>(byId);
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("{id}/profile")
+    /*TODO: previous /api/users/{id}/profile*/
+    @GetMapping("{id}")
     public ResponseEntity<ApiResponse<UserDetailsDto>> profile(
             @PathVariable Long id
     ) {

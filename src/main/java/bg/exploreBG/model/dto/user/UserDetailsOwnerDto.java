@@ -1,6 +1,5 @@
 package bg.exploreBG.model.dto.user;
 
-import bg.exploreBG.model.dto.hike.HikeBasicDto;
 import bg.exploreBG.model.dto.hike.HikeBasicOwnerDto;
 import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.serializer.GenderEnumSerializer;

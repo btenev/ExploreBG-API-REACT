@@ -1,9 +1,9 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
-import bg.exploreBG.model.dto.GpxUrlDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.serializer.*;
@@ -17,7 +17,7 @@ public record HikingTrailDetailsDto(
         String endPoint,
         Double totalDistance,
         String trailInfo,
-        String imageUrl,
+        List<ImageIdPlusUrlDto> images,
         @JsonSerialize(using = SeasonEnumSerializer.class)
         SeasonEnum seasonVisited,
         @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)

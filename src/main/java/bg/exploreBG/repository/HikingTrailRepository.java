@@ -26,13 +26,14 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
-            h.id,
-            CONCAT(h.startPoint, ' - ', h.endPoint),
-            h.trailInfo,
-            h.imageUrl
+            t.id,
+            CONCAT(t.startPoint, ' - ', t.endPoint),
+            t.trailInfo,
+            mi.imageUrl
             )
-            FROM HikingTrailEntity h
-            WHERE h.trailStatus = :statusEnum
+            FROM HikingTrailEntity t
+            LEFT JOIN t.mainImage mi
+            WHERE t.trailStatus = :statusEnum
             """)
     Page<HikingTrailBasicDto> findAllByTrailStatus(@Param("statusEnum")StatusEnum statusEnum, Pageable pageable);
 
@@ -94,9 +95,10 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             t.id,
             CONCAT(t.startPoint, ' - ', t.endPoint),
             t.trailInfo,
-            t.imageUrl
+            mi.imageUrl
             )
             FROM HikingTrailEntity t
+            LEFT JOIN t.mainImage mi
             WHERE t.id IN ?1 AND t.trailStatus = "APPROVED"
             """)
     List<HikingTrailBasicDto> findByIdIn(Set<Long> ids);

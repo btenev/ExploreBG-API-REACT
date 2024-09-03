@@ -2,6 +2,7 @@ package bg.exploreBG.model.mapper;
 
 import bg.exploreBG.model.dto.hike.HikeBasicDto;
 import bg.exploreBG.model.dto.hike.HikeBasicOwnerDto;
+import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.UserDetailsDto;
 import bg.exploreBG.model.dto.user.UserDetailsOwnerDto;
@@ -16,6 +17,9 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+    @Mapping(target = "imageUrl", source = "userImage.imageUrl")
+    UserBasicInfo userEntityToUserBasicInfo(UserEntity userEntity);
+
     @Mapping(source = "userImage.imageUrl", target = "imageUrl")
     @Mapping(source = "user.createdHikes", target = "createdHikes", qualifiedByName = "mapToHikeBasicDto")
     UserDetailsDto userEntityToUserDetailsDto(UserEntity user);

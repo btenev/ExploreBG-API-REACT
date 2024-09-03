@@ -94,26 +94,27 @@ public class ImageService {
         UserEntity loggedUser = currentTrail.getCreatedBy();
 
         List<ImageEntity> currentTrailImages = currentTrail.getImages();
+
         int usedSlots = currentTrailImages.size();
         int neededImageSlots = files.length;
         int totalImages = usedSlots + neededImageSlots;
-        int maxNumberOfImages = currentTrail.getMaxNumberOfImages();
 
-        validateImageSlots(totalImages, maxNumberOfImages);
+        validateImageSlots(totalImages, currentTrail.getMaxNumberOfImages());
 
         String folder = imageCreateImageDto.folder();
-        List<Map<String, String>> results = validateUploadResult(files, folder);
+        List<Map<String, String>> uploadResults = validateUploadResult(files, folder);
+        List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, loggedUser);
 
-        List<ImageEntity> newImageEntities = createMultipleImageEntities(results, loggedUser);
+        List<ImageEntity> savedImages = this.imageRepository.saveAll(newImageEntities);
 
-        List<ImageEntity> savedAll = this.imageRepository.saveAll(newImageEntities);
+        if (currentTrailImages.isEmpty()) {
+            currentTrail.setMainImage(savedImages.get(0));
+        }
 
         currentTrailImages.addAll(newImageEntities);
-        currentTrail.setImages(currentTrailImages);
-
         this.hikingTrailService.saveHikingTrailEntity(currentTrail);
 
-        return savedAll.stream()
+        return savedImages.stream()
                 .map(e -> new ImageIdPlusUrlDto(e.getId(), e.getImageUrl()))
                 .toList();
 

@@ -52,7 +52,6 @@ public class ImageController {
         ImageIdPlusUrlDto imageIdPlusUrlDto =
                 this.imageService
                         .saveProfileImage(
-//                                id,
                                 imageCreateImageDto,
                                 file,
                                 userDetails
@@ -83,8 +82,8 @@ public class ImageController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         List<ImageIdPlusUrlDto> urlDto = switch (imageCreateImageDto.folder().toLowerCase()) {
-            case "trails" -> imageService.saveTrailPictures(id, imageCreateImageDto, files, userDetails);
-     /*       case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateImageDto, files, userDetails);
+            case "trails-demo", "trails" -> imageService.saveTrailPictures(id, imageCreateImageDto, files, userDetails);
+            /*       case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateImageDto, files, userDetails);
             case "destination" -> imageService.saveDestinationPictures(id, imageCreateImageDto, files, userDetails);*/
             default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
         };
@@ -93,6 +92,17 @@ public class ImageController {
 
         return ResponseEntity.ok(response);
     }
+
+//    @DeleteMapping("/entity/{id}")
+//    public ResponseEntity<?> deleteImages(
+//            @PathVariable Long id,
+////            @RequestBody Entities
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) {
+//
+//
+//        return ResponseEntity.ok().build();
+//    }
 /*
 POST /api/images/user - Creates or updates a single image entity for a user.
 DELETE /api/images/user - Deletes a single image entity for a user.
