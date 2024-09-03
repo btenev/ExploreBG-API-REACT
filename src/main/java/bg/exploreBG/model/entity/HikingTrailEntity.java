@@ -27,9 +27,6 @@ public class HikingTrailEntity {
     @Column(name = "trail_info", columnDefinition = "TEXT")
     private String trailInfo;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column(name = "season_visited")
     @Enumerated(EnumType.STRING)
     private SeasonEnum seasonVisited;
@@ -96,6 +93,9 @@ public class HikingTrailEntity {
     @OneToOne
     private GpxEntity gpxFile;
 
+    @OneToOne
+    private ImageEntity mainImage;
+
     @OneToMany
     private List<ImageEntity> images;
 
@@ -143,14 +143,6 @@ public class HikingTrailEntity {
 
     public void setTrailInfo(String trailInfo) {
         this.trailInfo = trailInfo;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public SeasonEnum getSeasonVisited() {
@@ -285,6 +277,14 @@ public class HikingTrailEntity {
         this.maxNumberOfImages = maxNumberOfImages;
     }
 
+    public ImageEntity getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(ImageEntity mainImage) {
+        this.mainImage = mainImage;
+    }
+
     @Override
     public String toString() {
         return "HikingTrailEntity{" +
@@ -293,7 +293,6 @@ public class HikingTrailEntity {
                 ", endPoint='" + endPoint + '\'' +
                 ", totalDistance=" + totalDistance +
                 ", trailInfo='" + trailInfo + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
                 ", seasonVisited=" + seasonVisited +
                 ", waterAvailable=" + waterAvailable +
                 ", availableHuts=" + availableHuts +
@@ -308,6 +307,7 @@ public class HikingTrailEntity {
                 ", createdBy=" + createdBy +
                 ", reviewedBy=" + reviewedBy +
                 ", gpxFile=" + gpxFile +
+                ", mainImage=" + mainImage +
                 ", images=" + images +
                 ", maxNumberOfImages=" + maxNumberOfImages +
                 '}';
