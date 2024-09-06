@@ -3,19 +3,42 @@ package bg.exploreBG.model.mapper;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
+import bg.exploreBG.model.entity.ImageEntity;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface HikingTrailMapper {
 
     @Mapping(target = "gpxUrl", source = "gpxFile.gpxUrl")
-    HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity hikingTrailEntity);
+    @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(trail.getImages(), trail))")
+    HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity trail);
 
     HikingTrailReviewDto hikingTrailEntityToHikingTrailReviewDto(HikingTrailEntity hikingTrailEntity);
 
     @Mapping(target = "destinations", ignore = true)
     @Mapping(target = "availableHuts", ignore = true)
     HikingTrailEntity hikingTrailCreateDtoToHikingTrailEntity(HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto);
+
+    default List<ImageIdUrlIsMainDto> mapImageEntityToImageIdUrlIsMainDto(
+            List<ImageEntity> images,
+            HikingTrailEntity trail
+    ) {
+        ImageEntity mainImage =  trail.getMainImage();
+
+        return images.stream()
+                .map(i -> {
+                    boolean isMain = Objects.equals(i.getId(), mainImage.getId());
+                    return new ImageIdUrlIsMainDto(i.getId(), i.getImageUrl(), isMain);
+                })
+                .collect(Collectors.toList());
+    }
 }

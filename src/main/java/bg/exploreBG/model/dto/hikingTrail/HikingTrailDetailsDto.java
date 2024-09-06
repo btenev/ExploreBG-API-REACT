@@ -4,6 +4,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.serializer.*;
@@ -17,7 +18,7 @@ public record HikingTrailDetailsDto(
         String endPoint,
         Double totalDistance,
         String trailInfo,
-        List<ImageIdPlusUrlDto> images,
+        List<ImageIdUrlIsMainDto> images,
         @JsonSerialize(using = SeasonEnumSerializer.class)
         SeasonEnum seasonVisited,
         @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)
