@@ -69,7 +69,6 @@ public class UserController {
                 .body(userIdNameDto);
     }
 
-    /*TODO: previous /api/users/{id}/my-profile*/
     @GetMapping("/my-profile")
     public ResponseEntity<ApiResponse<UserDetailsOwnerDto>> myProfile(
 //            @PathVariable Long id,
@@ -83,7 +82,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: previous /api/users/{id}/profile*/
+
     @GetMapping("{id}")
     public ResponseEntity<ApiResponse<UserDetailsDto>> profile(
             @PathVariable Long id

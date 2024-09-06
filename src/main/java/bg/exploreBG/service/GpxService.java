@@ -66,7 +66,7 @@ public class GpxService {
             Long id,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailIfOwner(id, userDetails);
+        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailByIdIfOwner(id, userDetails);
         GpxEntity gpxFile = currentTrail.getGpxFile();
 
         if (gpxFile == null) {

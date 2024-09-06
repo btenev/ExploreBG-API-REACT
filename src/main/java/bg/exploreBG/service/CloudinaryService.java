@@ -54,12 +54,13 @@ public class CloudinaryService {
         }
     }
 
-    public String deleteFile(String cloudinaryId) {
+    public String deleteFile(String cloudinaryId, String folder) {
         try {
+            String publicId = folder + "/" +  cloudinaryId;
             Map<String, Object> options = new HashMap<>();
             options.put("invalidate", true);
 
-            Map destroy = this.cloudinary.uploader().destroy(cloudinaryId, options);
+            Map destroy = this.cloudinary.uploader().destroy(publicId, options);
 
             return destroy.get("result").toString();
         } catch (IOException ex) {
