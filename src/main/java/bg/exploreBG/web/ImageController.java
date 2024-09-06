@@ -3,13 +3,14 @@ package bg.exploreBG.web;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.ApiResponseCollection;
+import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.single.ImageUrlDto;
-import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
+import bg.exploreBG.model.dto.image.validate.ImageCreateDto;
 import bg.exploreBG.model.validation.MaxFileSize;
 import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.ImageService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -33,13 +34,10 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-    /*
-    TODO: Changed /create/{id} to /user - id is not necessary, @PatchMapping instead of POST - tell Ivo
-     */
     @PatchMapping("/user")
     public ResponseEntity<ApiResponse<ImageIdPlusUrlDto>> saveImage(
 //            @PathVariable Long id,
-            @Valid @RequestPart("data") ImageCreateImageDto imageCreateImageDto,
+            @Valid @RequestPart("data") ImageCreateDto imageCreateDto,
             @NotNull(message = "A file must be provided. Please choose a file to upload.")
             @MaxFileSize(maxSize = 3)
             @PermittedFileType(
@@ -52,7 +50,7 @@ public class ImageController {
         ImageIdPlusUrlDto imageIdPlusUrlDto =
                 this.imageService
                         .saveProfileImage(
-                                imageCreateImageDto,
+                                imageCreateDto,
                                 file,
                                 userDetails
                         );
@@ -73,36 +71,41 @@ public class ImageController {
         return ResponseEntity.ok(new ImageUrlDto(userUrl));
     }
 
-    @Transactional
     @PatchMapping("/entity/{id}")
-    public ResponseEntity<ApiResponseCollection<ImageIdPlusUrlDto>> saveImages(
+    public ResponseEntity<ApiResponseCollection<ImageIdUrlIsMainDto>> saveImages(
             @PathVariable Long id,
-            @RequestPart("data") ImageCreateImageDto imageCreateImageDto,
+            @RequestPart("data") ImageCreateDto imageCreateDto,
             @RequestPart("file") MultipartFile[] files,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        List<ImageIdPlusUrlDto> urlDto = switch (imageCreateImageDto.folder().toLowerCase()) {
-            case "trails-demo", "trails" -> imageService.saveTrailPictures(id, imageCreateImageDto, files, userDetails);
-            /*       case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateImageDto, files, userDetails);
-            case "destination" -> imageService.saveDestinationPictures(id, imageCreateImageDto, files, userDetails);*/
+        List<ImageIdUrlIsMainDto> urlDto = switch (imageCreateDto.folder().toLowerCase()) {
+            case "trails-demo", "trails" -> this.imageService.saveTrailPictures(
+                    id, imageCreateDto, files, userDetails);
+            /*       case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateDto, files, userDetails);
+            case "destination" -> imageService.saveDestinationPictures(id, imageCreateDto, files, userDetails);*/
             default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
         };
 
-        ApiResponseCollection<ImageIdPlusUrlDto> response = new ApiResponseCollection<>(urlDto);
+        ApiResponseCollection<ImageIdUrlIsMainDto> response = new ApiResponseCollection<>(urlDto);
 
         return ResponseEntity.ok(response);
     }
 
-//    @DeleteMapping("/entity/{id}")
-//    public ResponseEntity<?> deleteImages(
-//            @PathVariable Long id,
-////            @RequestBody Entities
-//            @AuthenticationPrincipal UserDetails userDetails
-//    ) {
-//
-//
-//        return ResponseEntity.ok().build();
-//    }
+    @DeleteMapping("/entity/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteImages(
+            @PathVariable Long id,
+            @RequestBody EntityIdsToDeleteDto toDeleteDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = switch (toDeleteDto.folder().toLowerCase()) {
+            case "trails" -> this.imageService.deleteTrailPictures(id, toDeleteDto, userDetails);
+            default -> throw new IllegalStateException("Unexpected value: " + toDeleteDto.folder().toLowerCase());
+        };
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
 /*
 POST /api/images/user - Creates or updates a single image entity for a user.
 DELETE /api/images/user - Deletes a single image entity for a user.

@@ -54,6 +54,7 @@ public class HikingTrailController {
 
     /*
     APPROVED
+    @Transactional for the time being, more information in the data query
     */
     @Transactional
     @GetMapping("/{id}")
@@ -67,6 +68,9 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
+    /*
+    @Transactional for the time being, more information in the data query
+    */
     @Transactional
     @GetMapping("/{id}/auth")
     public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrailAuth(
@@ -123,7 +127,7 @@ public class HikingTrailController {
                 .body(response);
     }
 
-    @GetMapping ("/{id}/reviewer")
+    @GetMapping("/{id}/reviewer")
     public ResponseEntity<UserIdDto> getHikingTrailReviewer(@PathVariable Long id) {
         UserIdDto reviewerId = this.hikingTrailService.getReviewerId(id);
 

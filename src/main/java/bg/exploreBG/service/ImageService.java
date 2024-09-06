@@ -1,26 +1,28 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
-import bg.exploreBG.model.dto.image.validate.ImageCreateImageDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
+import bg.exploreBG.model.dto.image.validate.ImageCreateDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.repository.ImageRepository;
-import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
 
+    private final Logger logger = LoggerFactory.getLogger(ImageService.class);
     private final ImageRepository imageRepository;
     private final UserService userService;
     private final HikingTrailService hikingTrailService;
@@ -42,7 +44,7 @@ public class ImageService {
     }
 
     public ImageIdPlusUrlDto saveProfileImage(
-            ImageCreateImageDto imageCreateImageDto,
+            ImageCreateDto imageCreateDto,
             MultipartFile file,
             UserDetails userDetails
     ) {
@@ -53,14 +55,14 @@ public class ImageService {
             String cloudinaryId = generateCloudinaryId();
 
             Map<String, String> cloudinaryResponse =
-                    validateUploadResult(file, imageCreateImageDto.folder(), cloudinaryId);
+                    validateUploadResult(file, imageCreateDto.folder(), cloudinaryId);
 
             userImage = createImageEntity(cloudinaryResponse, loggedUser);
         } else {
             String cloudinaryId = userImage.getCloudId();
 
             Map<String, String> cloudinaryResponse =
-                    validateUploadResult(file, imageCreateImageDto.folder(), cloudinaryId);
+                    validateUploadResult(file, imageCreateDto.folder(), cloudinaryId);
 
             String url = cloudinaryResponse.get("url");
 
@@ -83,14 +85,14 @@ public class ImageService {
         return userUrl.orElse(null);
     }
 
-    public List<ImageIdPlusUrlDto> saveTrailPictures(
+    public List<ImageIdUrlIsMainDto> saveTrailPictures(
             Long trailId,
-            ImageCreateImageDto imageCreateImageDto,
+            ImageCreateDto imageCreateDto,
             MultipartFile[] files,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailByIdWithStatusAndOwner(trailId, userDetails.getUsername());
+                this.hikingTrailService.getTrailByIdWithStatusOwnerAndImages(trailId, userDetails.getUsername());
         UserEntity loggedUser = currentTrail.getCreatedBy();
 
         List<ImageEntity> currentTrailImages = currentTrail.getImages();
@@ -101,7 +103,7 @@ public class ImageService {
 
         validateImageSlots(totalImages, currentTrail.getMaxNumberOfImages());
 
-        String folder = imageCreateImageDto.folder();
+        String folder = imageCreateDto.folder();
         List<Map<String, String>> uploadResults = validateUploadResult(files, folder);
         List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, loggedUser);
 
@@ -115,10 +117,101 @@ public class ImageService {
         this.hikingTrailService.saveHikingTrailEntity(currentTrail);
 
         return savedImages.stream()
-                .map(e -> new ImageIdPlusUrlDto(e.getId(), e.getImageUrl()))
+                .map(e -> {
+                    boolean isMain = e.getId().equals(currentTrail.getMainImage().getId());
+                    return new ImageIdUrlIsMainDto(e.getId(), e.getImageUrl(), isMain);
+                })
                 .toList();
-
     }
+
+    public boolean deleteTrailPictures(
+            Long id,
+            EntityIdsToDeleteDto toDeleteDto,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail =
+                this.hikingTrailService.getTrailByIdIfOwnerAndImages(id, userDetails);
+
+        Set<ImageEntity> imagesToDelete = getImagesToDelete(toDeleteDto, currentTrail);
+        logger.info("Images to delete: {}", imagesToDelete);
+        validateDeleteResult(imagesToDelete);
+
+        if (!currentTrail.getImages().removeAll(imagesToDelete)) {
+            logger.warn("No images were removed from the current trail.");
+            return false;
+        }
+
+        logger.info("Images successfully removed from currentTrail.");
+
+        if (imagesToDelete.contains(currentTrail.getMainImage())) {
+            if (!currentTrail.getImages().isEmpty()) {
+                currentTrail.setMainImage(currentTrail.getImages().get(0));
+                logger.info("Main image was deleted. New main image: {}", currentTrail.getMainImage());
+            } else {
+                currentTrail.setMainImage(null);
+                logger.info("Main image was deleted and no other images exist. Main image set to null.");
+            }
+        }
+
+        this.hikingTrailService.saveHikingTrailEntity(currentTrail);
+        this.imageRepository.deleteAll(imagesToDelete);
+
+        return true;
+    }
+
+    private void validateDeleteResult(Set<ImageEntity> imagesToDelete) {
+        for (ImageEntity imageEntity : imagesToDelete) {
+            String cloudId = imageEntity.getCloudId();
+            String folder = imageEntity.getFolder();
+            String deleteResult = this.cloudinaryService.deleteFile(cloudId, folder);
+
+            if (!"ok".equals(deleteResult)) {
+                throw new AppException("Failed to delete all images. Process aborted.",
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
+    }
+
+    /*Todo: Handle exception for all types of entities*/
+    private Set<ImageEntity> getImagesToDelete(
+            EntityIdsToDeleteDto toDeleteDto,
+            HikingTrailEntity currentTrail
+    ) {
+        List<ImageEntity> currentTrailImages = currentTrail.getImages();
+        Set<Long> currentImageIds =
+                currentTrailImages.stream()
+                        .map(ImageEntity::getId)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        Set<Long> validIds = new LinkedHashSet<>();
+        List<Long> invalidIds = new ArrayList<>();
+
+        for (Long imageId : toDeleteDto.ids()) {
+            if (currentImageIds.contains(imageId)) {
+                validIds.add(imageId);
+            } else {
+                invalidIds.add(imageId);
+            }
+        }
+
+        if (!invalidIds.isEmpty()) {
+            String kind = switch (toDeleteDto.folder()) {
+                case "Trails" -> "trail";
+                case "Accommodations" -> "accommodation";
+                case "Destinations" -> "destination";
+                default -> "";
+            };
+
+            throw new AppException("Images with IDs " + invalidIds + " not found in the " + kind + " entity!",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        return currentTrailImages
+                .stream()
+                .filter(i -> validIds.contains(i.getId()))
+                .collect(Collectors.toSet());
+    }
+
 
     private ImageEntity createImageEntity(
             Map<String, String> cloudinaryResponse,
@@ -183,7 +276,6 @@ public class ImageService {
 
             if (uploadResult.isEmpty()) {
                 throw new AppException("Failed to upload all images. Process aborted.", HttpStatus.BAD_REQUEST);
-
             }
 
             uploadResults.add(uploadResult);
