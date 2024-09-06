@@ -448,9 +448,17 @@ public class HikingTrailService {
         return new UserIdDto(reviewerId);
     }
 
-    public HikingTrailEntity getTrailIfOwner(Long id, UserDetails userDetails) {
+    public HikingTrailEntity getTrailByIdIfOwner(Long id, UserDetails userDetails) {
         return this.hikingTrailRepository
                 .findByIdAndCreatedBy_Email(id, userDetails.getUsername())
+                .orElseThrow(() ->
+                        new AppException("Trail not found or not owned by the user!",
+                                HttpStatus.BAD_REQUEST));
+    }
+
+    public HikingTrailEntity getTrailByIdIfOwnerAndImages(Long id, UserDetails userDetails) {
+        return this.hikingTrailRepository
+                .findWithImagesByIdAndCreatedBy_Email(id, userDetails.getUsername())
                 .orElseThrow(() ->
                         new AppException("Trail not found or not owned by the user!",
                                 HttpStatus.BAD_REQUEST));
@@ -469,6 +477,20 @@ public class HikingTrailService {
                     HttpStatus.BAD_REQUEST);
         }
 
+        return exist.get();
+    }
+
+    public HikingTrailEntity getTrailByIdWithStatusOwnerAndImages(Long id, String email) {
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithImagesByIdAndTrailStatusInAndCreatedByEmail(
+                id,
+                List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                email);
+        logger.info("user id " + id + "username " + email);
+        if (exist.isEmpty()) {
+            throw new AppException(
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    HttpStatus.BAD_REQUEST);
+        }
         return exist.get();
     }
 

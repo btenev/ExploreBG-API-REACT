@@ -7,6 +7,7 @@ import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +23,16 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     Optional<HikingTrailEntity> findByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
+    /*used in deleteImages*/
+    @EntityGraph(attributePaths = {"images"})
+    Optional<HikingTrailEntity> findWithImagesByIdAndCreatedBy_Email(Long id, String createdBy_email);
+
+
     Optional<HikingTrailEntity> findByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
+
+    /*used in saveImages*/
+    @EntityGraph(attributePaths = {"images"})
+    Optional<HikingTrailEntity> findWithImagesByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
@@ -70,6 +80,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
               """)
     Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(@Param("id") Long id, @Param("email") String email);
 
+    /*MultipleBagFetchException is use @EntityGraph with more than one list collection, use @Transactional for the time being*/
     Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
