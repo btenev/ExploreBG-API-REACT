@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,16 +24,23 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     Optional<HikingTrailEntity> findByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
-    /*used in deleteImages*/
+    /*used in deleteImages, we don't care about the status*/
     @EntityGraph(attributePaths = {"images"})
     Optional<HikingTrailEntity> findWithImagesByIdAndCreatedBy_Email(Long id, String createdBy_email);
-
 
     Optional<HikingTrailEntity> findByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
 
     /*used in saveImages*/
     @EntityGraph(attributePaths = {"images"})
     Optional<HikingTrailEntity> findWithImagesByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
+
+    /*used in updateDestinations*/
+    @EntityGraph(attributePaths = {"destinations"})
+    Optional<HikingTrailEntity> findWithDestinationsByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
+
+    /*used in updateAvailableHuts*/
+    @EntityGraph(attributePaths = {"availableHuts"})
+    Optional<HikingTrailEntity> findWithHutsByIdAndTrailStatusInAndCreatedByEmail(Long id, List<StatusEnum> trailStatus, String createdBy_email);
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
@@ -82,6 +90,10 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     /*MultipleBagFetchException is use @EntityGraph with more than one list collection, use @Transactional for the time being*/
     Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);
+
+    /*used in addNewTrailComment*/
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<HikingTrailEntity> findWithCommentsByIdAndTrailStatus(Long id, StatusEnum trailStatus);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
 //    @Query("""

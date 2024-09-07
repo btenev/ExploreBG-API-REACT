@@ -11,6 +11,9 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
+import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
+import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.transaction.Transactional;
@@ -255,7 +258,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    @Transactional
     @PatchMapping("/{id}/update-available-huts")
     public ResponseEntity<ApiResponse<List<AccommodationBasicDto>>> updateAvailableHuts(
             @PathVariable Long id,
@@ -271,7 +273,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    @Transactional
     @PatchMapping("/{id}/update-destinations")
     public ResponseEntity<ApiResponse<List<DestinationBasicDto>>> updateDestinations(
             @PathVariable Long id,
@@ -286,6 +287,20 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
+    /*TODO: Discuss validation message with Ivo*/
+    @PatchMapping("/{id}/update-main-image")
+    public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
+            @PathVariable Long id,
+            @Valid @RequestBody ImageMainUpdateDto imageMainUpdateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean updatedMainImage =
+                this.hikingTrailService.updateHikingTrailMainImage(id, imageMainUpdateDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(updatedMainImage);
+
+        return ResponseEntity.ok(response);
+    }
 
     /*
     APPROVED
@@ -297,7 +312,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(selected);
     }
 
-    @Transactional
     @PostMapping("/create/{id}/comment/{trailId}")
     public ResponseEntity<ApiResponse<CommentDto>> createTrailComment(
             @PathVariable Long id,

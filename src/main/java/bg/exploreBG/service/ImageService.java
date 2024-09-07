@@ -172,7 +172,6 @@ public class ImageService {
         }
     }
 
-    /*Todo: Handle exception for all types of entities*/
     private Set<ImageEntity> getImagesToDelete(
             EntityIdsToDeleteDto toDeleteDto,
             HikingTrailEntity currentTrail
