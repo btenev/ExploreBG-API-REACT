@@ -323,7 +323,7 @@ public class HikingTrailService {
             ImageMainUpdateDto imageMainUpdateDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
+        HikingTrailEntity currentTrail = getTrailByIdWithStatusOwnerAndImages(id, userDetails.getUsername());
 
         ImageEntity found =
                 currentTrail
