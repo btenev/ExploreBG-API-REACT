@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +84,7 @@ public class AccommodationServiceTest {
         accommodation.setType(AccommodationTypeEnum.SHELTER);
         accommodation.setComments(List.of(comment));
 
-        CommentDto comments = new CommentDto(21L, "Some comment", new UserBasicInfo(4L, "John", null));
+        CommentDto comments = new CommentDto(21L, "Some comment", LocalDateTime.now() ,new UserBasicInfo(4L, "John", null));
 
         AccommodationDetailsDto accommodationDetailsDto =
                 new AccommodationDetailsDto(6L,
