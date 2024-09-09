@@ -346,13 +346,13 @@ public class HikingTrailService {
     }
 
     public CommentDto addNewTrailComment(
-            Long id,
             Long trailId,
             CommentCreateDto commentDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = getApprovedTrailByIdAndComments(trailId);
-        UserEntity userCommenting = this.userService.verifiedUser(id, userDetails);
+
+        UserEntity userCommenting = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         CommentEntity savedComment = this.commentService.saveComment(commentDto, userCommenting);
 
@@ -371,18 +371,26 @@ public class HikingTrailService {
     The removed ChildEntity will be deleted from the database due to the cascading delete operation.
     */
     public boolean deleteTrailComment(
-            Long commentId,
             Long trailId,
+            Long commentId,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getHikingTrailById(trailId); // trail exist
-        CommentEntity commentToDelete = this.commentService.verifiedComment(commentId, userDetails);
+        HikingTrailEntity currentTrail = getHikingTrailByIdAndComments(trailId);
 
-        boolean removedFromTrail = currentTrail.getComments().remove(commentToDelete);
+        this.commentService.validateCommentOwnership(commentId, userDetails.getUsername());
 
-        boolean removedFromDatabase = this.commentService.deleteComment(commentToDelete);
+        boolean commentRemoved = currentTrail.getComments().removeIf(c -> c.getId().equals(commentId));
 
-        return removedFromTrail && removedFromDatabase;
+        if (!commentRemoved) {
+            throw new AppException("Comment with id " + commentId + " was not found in the trail!",
+                    HttpStatus.NOT_FOUND);
+        }
+
+        this.hikingTrailRepository.save(currentTrail);
+        /*TODO: think how to handle exceptions*/
+        this.commentService.deleteCommentById(commentId);
+
+        return true;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -565,6 +573,16 @@ public class HikingTrailService {
         return trailById.get();
     }
 
+    protected HikingTrailEntity getHikingTrailByIdAndComments(Long id) {
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithCommentsById(id);
+
+        if (exist.isEmpty()) {
+            throw new AppException("Hiking trail not found!", HttpStatus.NOT_FOUND);
+        }
+
+        return exist.get();
+    }
+
     //TODO: use this method for members
     private HikingTrailEntity getApprovedHikingTrailById(Long id) {
         Optional<HikingTrailEntity> byIdAndTrailStatus =
@@ -581,8 +599,8 @@ public class HikingTrailService {
         Optional<HikingTrailEntity> exist =
                 this.hikingTrailRepository.findWithCommentsByIdAndTrailStatus(id, StatusEnum.APPROVED);
 
-        if(exist.isEmpty()) {
-            throw new AppException("Hiking trail not found or has an invalid status!",HttpStatus.BAD_REQUEST);
+        if (exist.isEmpty()) {
+            throw new AppException("Hiking trail not found or has an invalid status!", HttpStatus.BAD_REQUEST);
         }
 
         return exist.get();

@@ -95,6 +95,9 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     @EntityGraph(attributePaths = {"comments"})
     Optional<HikingTrailEntity> findWithCommentsByIdAndTrailStatus(Long id, StatusEnum trailStatus);
 
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<HikingTrailEntity> findWithCommentsById(Long id);
+
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
 //    @Query("""
 //            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalDto(

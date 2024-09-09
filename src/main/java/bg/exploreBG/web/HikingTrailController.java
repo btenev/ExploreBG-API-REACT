@@ -11,8 +11,6 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
-import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
-import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.service.HikingTrailService;
@@ -110,6 +108,7 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
+    /*TODO: Remove /create*/
     @PostMapping("/create/{id}")
     public ResponseEntity<ApiResponse<HikingTrailIdDto>> createHikingTrail(
             @PathVariable Long id,
@@ -287,6 +286,7 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
+
     /*TODO: Discuss validation message with Ivo*/
     @PatchMapping("/{id}/update-main-image")
     public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
@@ -312,29 +312,29 @@ public class HikingTrailController {
         return ResponseEntity.ok(selected);
     }
 
-    @PostMapping("/create/{id}/comment/{trailId}")
+    /*TODO: old: "/create/{id}/comment/{trailId}" new: "/{trailId}/comments" */
+    @PostMapping("/{trailId}/comments")
     public ResponseEntity<ApiResponse<CommentDto>> createTrailComment(
-            @PathVariable Long id,
             @PathVariable Long trailId,
             @Valid @RequestBody CommentCreateDto commentCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         CommentDto commentDto = this.hikingTrailService
-                .addNewTrailComment(id, trailId, commentCreateDto, userDetails);
+                .addNewTrailComment(trailId, commentCreateDto, userDetails);
 
         ApiResponse<CommentDto> response = new ApiResponse<>(commentDto);
 
         return ResponseEntity.ok(response);
     }
 
-    @Transactional
-    @DeleteMapping("/delete/{commentId}/comment/{trailId}")
+    /*TODO: old: "/delete/{commentId}/comment/{trailId}" new: "/{trailId}/comments/{commentId}" */
+    @DeleteMapping("/{trailId}/comments/{commentId}")
     public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteTrailComment(
-            @PathVariable Long commentId,
             @PathVariable Long trailId,
+            @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean removed = this.hikingTrailService.deleteTrailComment(commentId, trailId, userDetails);
+        boolean removed = this.hikingTrailService.deleteTrailComment(trailId, commentId, userDetails);
 
         CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
 

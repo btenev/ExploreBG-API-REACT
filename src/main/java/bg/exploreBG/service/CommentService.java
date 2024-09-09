@@ -70,6 +70,14 @@ public class CommentService {
         return existingComment;
     }
 
+    public void validateCommentOwnership(Long commentId, String email) {
+        boolean isOwner = this.commentRepository.isUserOwnerOfComment(commentId, email);
+
+        if (!isOwner) {
+            throw new AppException("Comment not found or user is not the owner!", HttpStatus.FORBIDDEN);
+        }
+    }
+
     private CommentEntity commentExist(Long id) {
         Optional<CommentEntity> byId = this.commentRepository.findById(id);
 
@@ -92,8 +100,7 @@ public class CommentService {
         return newComment;
     }
 
-    public boolean deleteComment(CommentEntity commentToDelete) {
-        this.commentRepository.delete(commentToDelete);
-        return true;
+    public void deleteCommentById(Long commentId) {
+        this.commentRepository.deleteById(commentId);;
     }
 }
