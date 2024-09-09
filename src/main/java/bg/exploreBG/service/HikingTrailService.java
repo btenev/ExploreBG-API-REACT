@@ -478,10 +478,7 @@ public class HikingTrailService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public UserIdDto getReviewerId(Long id) {
-        HikingTrailEntity currentTrail = getHikingTrailById(id);
-        Long reviewerId =
-                currentTrail.getReviewedBy() != null
-                        ? currentTrail.getReviewedBy().getId() : null;
+        Long reviewerId = this.hikingTrailRepository.findReviewerId(id);
         return new UserIdDto(reviewerId);
     }
 

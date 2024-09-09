@@ -139,4 +139,13 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             WHERE t.trailStatus = 'APPROVED'
             """)
     List<HikingTrailIdTrailNameDto> findAllBy();
+
+    @Query("""
+            SELECT r.id
+            FROM HikingTrailEntity h
+            JOIN h.reviewedBy r
+            WHERE h.id = :trailId
+            """)
+    Long findReviewerId(@Param("trailId")Long trailId);
+
 }

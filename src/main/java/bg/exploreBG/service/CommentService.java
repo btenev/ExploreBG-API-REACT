@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -48,7 +47,8 @@ public class CommentService {
     }
 
     public void deleteCommentById(Long commentId) {
-        this.commentRepository.deleteById(commentId);;
+        this.commentRepository.deleteById(commentId);
+        ;
     }
 
     private CommentEntity updateCommentValues(
