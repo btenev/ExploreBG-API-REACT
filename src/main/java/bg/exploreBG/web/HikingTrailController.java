@@ -136,8 +136,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(reviewerId);
     }
-
-    @PatchMapping("/{id}/update-start-point")
+    /*TODO: old: "/{id}/update-start-point" new: "/{id}/start-point" */
+    @PatchMapping("/{id}/start-point")
     public ResponseEntity<ApiResponse<HikingTrailStartPointDto>> updateStartPoint(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
@@ -151,8 +151,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-end-point")
+    /*TODO: old: "/{id}/update-end-point" new: "/{id}/end-point" */
+    @PatchMapping("/{id}/end-point")
     public ResponseEntity<ApiResponse<HikingTrailEndPointDto>> updateEndPoint(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateEndPointDto hikingTrailUpdateEndPointDto,
@@ -166,8 +166,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-total-distance")
+    /*TODO: old: "{id}/update-total-distance" new: "{id}/total-distance" */
+    @PatchMapping("/{id}/total-distance")
     public ResponseEntity<ApiResponse<HikingTrailTotalDistanceDto>> updateTotalDistance(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
@@ -183,8 +183,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-water-available")
+    /*TODO: old: "/{id}/update-water-available" new: "/{id}/water-available" */
+    @PatchMapping("/{id}/water-available")
     public ResponseEntity<ApiResponse<HikingTrailWaterAvailableDto>> updateWaterAvailable(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateWaterAvailableDto hikingTrailUpdateWaterAvailableDto,
@@ -198,8 +198,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-activity")
+    /*TODO: old: "/{id}/update-activity" new: "/{id}/activity" */
+    @PatchMapping("/{id}/activity")
     public ResponseEntity<ApiResponse<HikingTrailActivityDto>> updateHikingTrailActivity(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateActivityDto hikingTrailUpdateActivityDto,
@@ -212,8 +212,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-trail-info")
+    /*TODO: old: "/{id}/update-trail-info" new: "/{id}/trail-info" */
+    @PatchMapping("/{id}/trail-info")
     public ResponseEntity<ApiResponse<HikingTrailTrailInfoDto>> updateTrailInfo(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
@@ -227,8 +227,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-elevation-gained")
+    /*TODO: old: "/{id}/update-elevation-gained" new: "/{id}/elevation-gained" */
+    @PatchMapping("/{id}/elevation-gained")
     public ResponseEntity<ApiResponse<HikingTrailElevationGainedDto>> updateElevationGained(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailUpdateElevationGainedDto hikingTrailUpdateElevationGainedDto,
@@ -242,8 +242,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-trail-difficulty")
+    /*TODO: old: "/{id}/update-trail-difficulty" new: "/{id}/trail-difficulty" */
+    @PatchMapping("/{id}/trail-difficulty")
     public ResponseEntity<ApiResponse<HikingTrailDifficultyDto>> updateTrailDifficulty(
             @PathVariable Long id,
             @RequestBody HikingTrailUpdateTrailDifficultyDto hikingTrailUpdateTrailDifficultyDto,
@@ -257,8 +257,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-available-huts")
+    /*TODO: old: "/{id}/update-available-huts" new: "/{id}/available-huts" */
+    @PatchMapping("/{id}/available-huts")
     public ResponseEntity<ApiResponse<List<AccommodationBasicDto>>> updateAvailableHuts(
             @PathVariable Long id,
             @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
@@ -272,8 +272,8 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-destinations")
+    /*TODO: old: "/{id}/update-destinations" new: "/{id}/destinations" */
+    @PatchMapping("/{id}/destinations")
     public ResponseEntity<ApiResponse<List<DestinationBasicDto>>> updateDestinations(
             @PathVariable Long id,
             @RequestBody HikingTrailUpdateDestinationsDto hikingTrailUpdateDestinationsDto,
@@ -287,9 +287,9 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-
+    /*TODO: old: "/{id}/update-main-image" new: "/{id}/main-image" */
     /*TODO: Discuss validation message with Ivo*/
-    @PatchMapping("/{id}/update-main-image")
+    @PatchMapping("/{id}/main-image")
     public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
             @PathVariable Long id,
             @Valid @RequestBody ImageMainUpdateDto imageMainUpdateDto,
