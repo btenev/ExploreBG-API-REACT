@@ -53,7 +53,9 @@ public class SecurityConfig {
                             "/api/destinations/{id:[1-9]+}",
                             "/api/destinations/all",
                             "/api/hikes/*",
-                            "/api/trails/*",
+                            "/api/trails/random",
+                            "/api/trails/{id:[1-9]+}",
+                            "/api/trails",
                             "/api/utility/**",
                             "/api/users/{id:[1-9]+}"
                     ).permitAll();

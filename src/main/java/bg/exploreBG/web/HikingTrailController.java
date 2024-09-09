@@ -14,7 +14,7 @@ import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.service.HikingTrailService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,8 @@ public class HikingTrailController {
     APPROVED
     @Transactional for the time being, more information in the data query
     */
-    @Transactional
+
+    @Transactional(readOnly = true)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(
             @PathVariable Long id
@@ -72,7 +73,7 @@ public class HikingTrailController {
     /*
     @Transactional for the time being, more information in the data query
     */
-    @Transactional
+    @Transactional(readOnly = true)
     @GetMapping("/{id}/auth")
     public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrailAuth(
             @PathVariable Long id,
@@ -89,7 +90,8 @@ public class HikingTrailController {
     /*
     APPROVED
     */
-    @GetMapping("/all")
+    /*TODO: old: "/all" new: only base */
+    @GetMapping
     public ResponseEntity<ApiResponse<Page<HikingTrailBasicDto>>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
@@ -108,17 +110,16 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: Remove /create*/
-    @PostMapping("/create/{id}")
+    /*TODO: old: "/create/{id}" new: only base */
+    @PostMapping
     public ResponseEntity<ApiResponse<HikingTrailIdDto>> createHikingTrail(
-            @PathVariable Long id,
             @Valid @RequestBody HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
 //        logger.debug("Display create hiking trail request {}", hikingTrailCreateOrReviewDto);
 
         Long newHikingTrailId =
-                this.hikingTrailService.createHikingTrail(id, hikingTrailCreateOrReviewDto, userDetails);
+                this.hikingTrailService.createHikingTrail(hikingTrailCreateOrReviewDto, userDetails);
 
         HikingTrailIdDto hikingTrailIdDto = new HikingTrailIdDto(newHikingTrailId);
 

@@ -11,7 +11,6 @@ import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.*;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
-import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.entity.*;
@@ -108,19 +107,24 @@ public class HikingTrailService {
     }
 
     public Long createHikingTrail(
-            Long id,
             HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.verifiedUser(id, userDetails);
+        UserEntity validUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         HikingTrailEntity newHikingTrail =
                 this.hikingTrailMapper
                         .hikingTrailCreateDtoToHikingTrailEntity(hikingTrailCreateOrReviewDto);
 
 //        logger.debug("{}", newHikingTrail);
+        boolean superUser = isSuperUser(userDetails);
+        StatusEnum status = superUser ? StatusEnum.APPROVED : StatusEnum.PENDING;
 
-        newHikingTrail.setTrailStatus(StatusEnum.PENDING);
+        if(superUser) {
+            newHikingTrail.setReviewedBy(validUser);
+        }
+
+        newHikingTrail.setTrailStatus(status);
         newHikingTrail.setMaxNumberOfImages(10);
         newHikingTrail.setCreatedBy(validUser);
         newHikingTrail.setCreationDate(LocalDateTime.now());
@@ -739,5 +743,14 @@ public class HikingTrailService {
         if (trailStatus.equals(StatusEnum.APPROVED)) {
             throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public boolean isSuperUser(UserDetails userDetails) {
+        return userDetails
+                .getAuthorities()
+                .stream()
+                .anyMatch(grantedAuthority ->
+                        grantedAuthority.getAuthority().equals("ROLE_ADMIN")
+                                || grantedAuthority.getAuthority().equals("ROLE_MODERATOR"));
     }
 }
