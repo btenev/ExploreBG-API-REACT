@@ -190,11 +190,6 @@ public class UserService {
         return byId;
     }
 
-    protected void verifiedUser(UserEntity user, UserDetails userDetails) {
-        UserEntity token = getUserEntityByEmail(userDetails.getUsername());
-        matchUsers(user, token);
-    }
-
     private void matchUsers(UserEntity one, UserEntity two) {
         if (!one.equals(two)) {
             throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);

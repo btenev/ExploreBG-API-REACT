@@ -18,27 +18,25 @@ import java.util.Optional;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final UserService userService;
     private final CommentMapper commentMapper;
 
 
     public CommentService(
             CommentRepository commentRepository,
-            UserService userService,
             CommentMapper commentMapper
     ) {
         this.commentRepository = commentRepository;
-        this.userService = userService;
         this.commentMapper = commentMapper;
     }
 
     public CommentDto updateComment(
-            Long id,
+            Long commentId,
             CommentUpdateDto commentDto,
             UserDetails userDetails
     ) {
-        CommentEntity verifiedComment = verifiedComment(id, userDetails);
+        CommentEntity verifiedComment = getCommentEntityByIdIfOwner(commentId, userDetails.getUsername());
         CommentEntity updated = updateCommentValues(verifiedComment, commentDto);
+
         CommentEntity saved = this.commentRepository.save(updated);
 
         return this.commentMapper.commentEntityToCommentDto(saved);
@@ -47,6 +45,10 @@ public class CommentService {
     public CommentEntity saveComment(CommentCreateDto commentDto, UserEntity commentUser) {
         CommentEntity newComment = createNewComment(commentDto, commentUser);
         return this.commentRepository.save(newComment);
+    }
+
+    public void deleteCommentById(Long commentId) {
+        this.commentRepository.deleteById(commentId);;
     }
 
     private CommentEntity updateCommentValues(
@@ -58,37 +60,7 @@ public class CommentService {
         return verifiedComment;
     }
 
-    public CommentEntity verifiedComment(
-            Long commentId,
-            UserDetails userDetails
-    ) {
-        CommentEntity existingComment = commentExist(commentId);
-        UserEntity commentOwner = existingComment.getOwner();
-
-        this.userService.verifiedUser(commentOwner, userDetails);
-
-        return existingComment;
-    }
-
-    public void validateCommentOwnership(Long commentId, String email) {
-        boolean isOwner = this.commentRepository.isUserOwnerOfComment(commentId, email);
-
-        if (!isOwner) {
-            throw new AppException("Comment not found or user is not the owner!", HttpStatus.FORBIDDEN);
-        }
-    }
-
-    private CommentEntity commentExist(Long id) {
-        Optional<CommentEntity> byId = this.commentRepository.findById(id);
-
-        if (byId.isEmpty()) {
-            throw new AppException("Commend not found!", HttpStatus.NOT_FOUND);
-        }
-
-        return byId.get();
-    }
-
-    public CommentEntity createNewComment(
+    private CommentEntity createNewComment(
             CommentCreateDto commentDto,
             UserEntity verifiedUser
     ) {
@@ -100,7 +72,18 @@ public class CommentService {
         return newComment;
     }
 
-    public void deleteCommentById(Long commentId) {
-        this.commentRepository.deleteById(commentId);;
+    public void validateCommentOwnership(Long commentId, String email) {
+        boolean isOwner = this.commentRepository.isUserOwnerOfComment(commentId, email);
+
+        if (!isOwner) {
+            throw new AppException("Comment not found or user is not the owner!", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private CommentEntity getCommentEntityByIdIfOwner(Long commentId, String email) {
+        return this.commentRepository
+                .findByIdAndOwnerEmail(commentId, email)
+                .orElseThrow(() -> new AppException("Comment not found or is not owned by the specified user!",
+                        HttpStatus.BAD_REQUEST));
     }
 }

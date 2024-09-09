@@ -489,7 +489,7 @@ public class HikingTrailService {
         return this.hikingTrailRepository
                 .findByIdAndCreatedBy_Email(id, userDetails.getUsername())
                 .orElseThrow(() ->
-                        new AppException("Trail not found or not owned by the user!",
+                        new AppException("Hiking trail not found or is not owned by the specified user!",
                                 HttpStatus.BAD_REQUEST));
     }
 
@@ -497,7 +497,7 @@ public class HikingTrailService {
         return this.hikingTrailRepository
                 .findWithImagesByIdAndCreatedBy_Email(id, userDetails.getUsername())
                 .orElseThrow(() ->
-                        new AppException("Trail not found or not owned by the user!",
+                        new AppException("Hiking trail not found or is not owned by the specified user!",
                                 HttpStatus.BAD_REQUEST));
     }
 
@@ -510,7 +510,7 @@ public class HikingTrailService {
         logger.info("user id " + id + "username " + email);
         if (exist.isEmpty()) {
             throw new AppException(
-                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user!",
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -525,7 +525,7 @@ public class HikingTrailService {
         logger.info("user id " + id + "username " + email);
         if (exist.isEmpty()) {
             throw new AppException(
-                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user!",
                     HttpStatus.BAD_REQUEST);
         }
         return exist.get();
@@ -539,7 +539,7 @@ public class HikingTrailService {
         logger.info("user id " + id + "username " + email);
         if (exist.isEmpty()) {
             throw new AppException(
-                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user!",
                     HttpStatus.BAD_REQUEST);
         }
         return exist.get();
@@ -553,7 +553,7 @@ public class HikingTrailService {
         logger.info("user id " + id + "username " + email);
         if (exist.isEmpty()) {
             throw new AppException(
-                    "Hiking trail not found, has an invalid status, or is not owned by the specified user.",
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user!",
                     HttpStatus.BAD_REQUEST);
         }
         return exist.get();

@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
@@ -16,4 +18,6 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             WHERE c.id = :commentId AND o.email = :email
             """)
     boolean isUserOwnerOfComment(@Param("commentId") Long commentId, @Param("email") String email);
+
+    Optional<CommentEntity> findByIdAndOwnerEmail(Long id, String owner_email);
 }

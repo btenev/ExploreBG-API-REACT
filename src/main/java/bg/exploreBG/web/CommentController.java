@@ -18,8 +18,8 @@ public class CommentController {
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
-
-    @PutMapping("/update/{id}")
+    /*TODO: old: "/update/{id}" new: "/{commentId}" */
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CommentDto>> updateComment(
             @PathVariable Long id,
             @Valid @RequestBody CommentUpdateDto commentUpdateDto,
