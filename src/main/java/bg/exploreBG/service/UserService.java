@@ -64,7 +64,7 @@ public class UserService {
         newUser.setCreationDate(LocalDateTime.now());
         newUser.setAccountNonLocked(true);
 
-        UserEntity persistedUser = this.userRepository.save(newUser);
+        UserEntity persistedUser = saveUserWithReturn(newUser);
 
         return new UserIdNameEmailRolesDto(
                 persistedUser.getId(),
@@ -103,82 +103,76 @@ public class UserService {
     }
 
     public UserEmailRolesDto updateEmail(
-            Long id,
             UserUpdateEmailDto userUpdateEmailDto,
             UserDetails userDetails
     ) {
-        UserEntity byId = verifiedUser(id, userDetails);
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
 
-        byId.setEmail(userUpdateEmailDto.email());
-        UserEntity updatedEmail = this.userRepository.save(byId);
+        loggedUser.setEmail(userUpdateEmailDto.email());
+        UserEntity updatedEmail = saveUserWithReturn(loggedUser);
 
         return new UserEmailRolesDto(updatedEmail.getEmail(), getRoles(updatedEmail));
     }
 
     public UserUsernameDto updateUsername(
-            Long id,
             UserUpdateUsernameDto userUpdateUsernameDto,
             UserDetails userDetails
     ) {
-        UserEntity byId = verifiedUser(id, userDetails);
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
 
-        byId.setUsername(userUpdateUsernameDto.username());
-        UserEntity updatedUsername = this.userRepository.save(byId);
+        loggedUser.setUsername(userUpdateUsernameDto.username());
+        UserEntity updatedUsername = saveUserWithReturn(loggedUser);
 
         return new UserUsernameDto(updatedUsername.getUsername());
     }
 
     public SuccessStringDto updatePassword(
-            Long id,
             UserUpdatePasswordDto updatePassword,
             UserDetails userDetails
     ) {
-        UserEntity byId = verifiedUser(id, userDetails);
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
         boolean matches = this.passwordEncoder.matches(updatePassword.currentPassword(), userDetails.getPassword());
 
         if (!matches) {
             throw new AppException("Password do not match!", HttpStatus.FORBIDDEN);
         }
 
-        byId.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
-        this.userRepository.save(byId);
+        loggedUser.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
+        saveUserWithoutReturn(loggedUser);
         return new SuccessStringDto("Password updated successfully!");
     }
 
     public UserGenderDto updateGender(
-            Long id,
             UserUpdateGenderDto userUpdateGenderDto,
             UserDetails userDetails
     ) {
-        UserEntity byId = verifiedUser(id, userDetails);
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
         GenderEnum setGender = userUpdateGenderDto.gender();
-        byId.setGender(setGender);
+        loggedUser.setGender(setGender);
 
-        UserEntity updatedGenderEnum = this.userRepository.save(byId);
+        UserEntity updatedGenderEnum = saveUserWithReturn(loggedUser);
         return new UserGenderDto(updatedGenderEnum.getGender().getValue());
     }
 
     public UserBirthdateDto updateBirthdate(
-            Long id,
             UserUpdateBirthdate userBirthdate,
             UserDetails userDetails
     ) {
-        UserEntity byId = verifiedUser(id, userDetails);
-        byId.setBirthdate(userBirthdate.birthdate());
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        loggedUser.setBirthdate(userBirthdate.birthdate());
 
-        UserEntity updatedBirthDate = this.userRepository.save(byId);
+        UserEntity updatedBirthDate = saveUserWithReturn(loggedUser);
         return new UserBirthdateDto(updatedBirthDate.getBirthdate());
     }
 
     public UserInfoDto updateUserInfo(
-            Long id,
             UserUpdateInfo userUpdateInfo,
             UserDetails userDetails
     ) {
-        UserEntity byId = verifiedUser(id, userDetails);
-        byId.setUserInfo(userUpdateInfo.userInfo());
+        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        loggedUser.setUserInfo(userUpdateInfo.userInfo());
 
-        UserEntity updatedUserInfo = this.userRepository.save(byId);
+        UserEntity updatedUserInfo = saveUserWithReturn(loggedUser);
         return new UserInfoDto(updatedUserInfo.getUserInfo());
     }
 
@@ -286,7 +280,7 @@ public class UserService {
             userExist.setRoles(userRoles);
         }
 
-        UserEntity saved = this.userRepository.save(userExist);
+        UserEntity saved = saveUserWithReturn(userExist);
         return this.userMapper.userEntityToUserDataDto(saved);
     }
 
@@ -313,11 +307,15 @@ public class UserService {
             userExist.setAccountNonLocked(true);
         }
 
-        this.userRepository.save(userExist);
+        saveUserWithoutReturn(userExist);
         return true;
     }
 
-    public UserEntity saveUserEntity(UserEntity user) {
+    public UserEntity saveUserWithReturn(UserEntity user) {
         return this.userRepository.save(user);
+    }
+
+    public void saveUserWithoutReturn(UserEntity user) {
+        this.userRepository.save(user);
     }
 }

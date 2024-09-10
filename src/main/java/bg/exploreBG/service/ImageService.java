@@ -73,7 +73,7 @@ public class ImageService {
 
         loggedUser.setUserImage(saved);
 
-        this.userService.saveUserEntity(loggedUser);
+        this.userService.saveUserWithoutReturn(loggedUser);
 
         return new ImageIdPlusUrlDto(saved.getId(), saved.getImageUrl());
     }

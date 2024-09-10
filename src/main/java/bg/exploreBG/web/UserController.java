@@ -83,7 +83,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDetailsDto>> profile(
             @PathVariable Long id
     ) {
@@ -94,15 +94,14 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-email")
+    /*TODO: old: "/{id}/update-email" new: "/email"*/
+    @PatchMapping("/email")
     public ResponseEntity<ApiResponse<UserEmailDto>> updateEmail(
-            @PathVariable Long id,
             @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserEmailRolesDto newEmail =
-                this.userService.updateEmail(id, userUpdateEmailDto, userDetails);
+                this.userService.updateEmail(userUpdateEmailDto, userDetails);
 
         String token =
                 this.userAuthProvider.createToken(newEmail.email(), newEmail.roles());
@@ -116,71 +115,66 @@ public class UserController {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .body(response);
     }
-
-    @PatchMapping("/{id}/update-username")
+    /*TODO: old: "/{id}/update-username" new: "/username"*/
+    @PatchMapping("/username")
     public ResponseEntity<ApiResponse<UserUsernameDto>> updateUsername(
-            @PathVariable Long id,
             @Valid @RequestBody UserUpdateUsernameDto userUpdateUsernameDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserUsernameDto userUsernameDto =
-                this.userService.updateUsername(id, userUpdateUsernameDto, userDetails);
+                this.userService.updateUsername(userUpdateUsernameDto, userDetails);
 
         ApiResponse<UserUsernameDto> response = new ApiResponse<>(userUsernameDto);
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-password")
+    /*TODO: old: "/{id}/update-password" new: "/password"*/
+    @PatchMapping("/password")
     public ResponseEntity<ApiResponse<SuccessStringDto>> updatePassword(
-            @PathVariable Long id,
             @Valid @RequestBody UserUpdatePasswordDto updatePassword,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         SuccessStringDto successes =
-                this.userService.updatePassword(id, updatePassword, userDetails);
+                this.userService.updatePassword(updatePassword, userDetails);
 
         ApiResponse<SuccessStringDto> response = new ApiResponse<>(successes);
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-gender")
+    /*TODO: old: "/{id}/update-gender" new: "/gender"*/
+    @PatchMapping("/gender")
     public ResponseEntity<ApiResponse<UserGenderDto>> updateGender(
-            @PathVariable Long id,
             @RequestBody UserUpdateGenderDto userUpdateGenderDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserGenderDto userGenderDto =
-                this.userService.updateGender(id, userUpdateGenderDto, userDetails);
+                this.userService.updateGender(userUpdateGenderDto, userDetails);
 
         ApiResponse<UserGenderDto> response = new ApiResponse<>(userGenderDto);
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-birthdate")
+    /*TODO: old: "/{id}/update-birthdate" new: "/birthdate"*/
+    @PatchMapping("/birthdate")
     public ResponseEntity<ApiResponse<UserBirthdateDto>> updateBirthdate(
-            @PathVariable Long id,
             @Valid @RequestBody UserUpdateBirthdate userUpdateBirthdate,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserBirthdateDto userBirthdateDto =
-                this.userService.updateBirthdate(id, userUpdateBirthdate, userDetails);
+                this.userService.updateBirthdate(userUpdateBirthdate, userDetails);
 
         ApiResponse<UserBirthdateDto> response = new ApiResponse<>(userBirthdateDto);
 
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/update-user-info")
+    /*TODO: old: "/{id}/update-user-info" new: "/user-info"*/
+    @PatchMapping("/user-info")
     public ResponseEntity<ApiResponse<UserInfoDto>> updateUserInfo(
-            @PathVariable Long id,
             @Valid @RequestBody UserUpdateInfo userUpdateInfo,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserInfoDto userInfoDto =
-                this.userService.updateUserInfo(id, userUpdateInfo, userDetails);
+                this.userService.updateUserInfo(userUpdateInfo, userDetails);
 
         ApiResponse<UserInfoDto> response = new ApiResponse<>(userInfoDto);
 
