@@ -3,13 +3,14 @@ package bg.exploreBG.model.dto.hikingTrail;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.serializer.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record HikingTrailDetailsDto(
@@ -33,6 +34,8 @@ public record HikingTrailDetailsDto(
         String nextTo,
         UserBasicInfo createdBy,
         String gpxUrl,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        LocalDateTime modificationDate,
         @JsonSerialize(using = StatusEnumSerializer.class)
         StatusEnum trailStatus,
         List<DestinationBasicDto> destinations

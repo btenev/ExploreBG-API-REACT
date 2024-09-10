@@ -120,7 +120,7 @@ public class HikingTrailService {
         boolean superUser = isSuperUser(userDetails);
         StatusEnum status = superUser ? StatusEnum.APPROVED : StatusEnum.PENDING;
 
-        if(superUser) {
+        if (superUser) {
             newHikingTrail.setReviewedBy(validUser);
         }
 
@@ -141,7 +141,7 @@ public class HikingTrailService {
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
 
-        return this.hikingTrailRepository.save(newHikingTrail).getId();
+        return saveTrailWithReturn(newHikingTrail).getId();
     }
 
     public HikingTrailStartPointDto updateHikingTrailStartPoint(
@@ -155,7 +155,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailStartPointDto(currentTrail.getStartPoint());
@@ -172,7 +173,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailEndPointDto(currentTrail.getEndPoint());
@@ -189,7 +191,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailTotalDistanceDto(currentTrail.getTotalDistance());
@@ -206,7 +209,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailElevationGainedDto(currentTrail.getElevationGained());
@@ -223,7 +227,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailWaterAvailableDto(currentTrail.getWaterAvailable().getValue());
@@ -240,7 +245,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailActivityDto(currentTrail.getActivity().stream().map(SuitableForEnum::getValue).collect(Collectors.toList()));
@@ -257,7 +263,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailTrailInfoDto(currentTrail.getTrailInfo());
@@ -274,7 +281,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return currentTrail
@@ -295,7 +303,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return currentTrail
@@ -316,7 +325,8 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setTrailStatus(StatusEnum.PENDING);
-            currentTrail = this.hikingTrailRepository.save(currentTrail);
+            currentTrail.setModificationDate(LocalDateTime.now());
+            currentTrail = saveTrailWithReturn(currentTrail);
         }
 
         return new HikingTrailDifficultyDto(currentTrail.getTrailDifficulty().getLevel());
@@ -343,7 +353,7 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setMainImage(found);
-            this.hikingTrailRepository.save(currentTrail);
+            saveTrailWithoutReturn(currentTrail);
         }
 
         return true;
@@ -361,7 +371,7 @@ public class HikingTrailService {
         CommentEntity savedComment = this.commentService.saveComment(commentDto, userCommenting);
 
         currentTrail.setSingleComment(savedComment);
-        this.hikingTrailRepository.save(currentTrail);
+        saveTrailWithoutReturn(currentTrail);
 
         return this.commentMapper.commentEntityToCommentDto(savedComment);
     }
@@ -458,7 +468,7 @@ public class HikingTrailService {
             handleCancelClaim(currentTrail, trailStatus, reviewedByUserName, loggedUser);
         }
 
-        this.hikingTrailRepository.save(currentTrail);
+        saveTrailWithoutReturn(currentTrail);
         return true;
     }
 
@@ -475,7 +485,7 @@ public class HikingTrailService {
 
         currentTrail.setTrailStatus(StatusEnum.APPROVED);
 
-        this.hikingTrailRepository.save(currentTrail);
+        saveTrailWithoutReturn(currentTrail);
 
         return true;
     }
@@ -560,8 +570,12 @@ public class HikingTrailService {
         return exist.get();
     }
 
-    public HikingTrailEntity saveHikingTrailEntity(HikingTrailEntity hikingTrail) {
-        return this.hikingTrailRepository.save(hikingTrail);
+    public HikingTrailEntity saveTrailWithReturn(HikingTrailEntity trail) {
+        return this.hikingTrailRepository.save(trail);
+    }
+
+    public void saveTrailWithoutReturn(HikingTrailEntity trail) {
+        this.hikingTrailRepository.save(trail);
     }
 
     protected HikingTrailEntity getHikingTrailById(Long id) {
@@ -614,7 +628,6 @@ public class HikingTrailService {
         StatusEnum trailStatus = currentTrail.getTrailStatus();
         String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
 
-
         if (reviewedByUserProfile == null) {
             throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
         }
@@ -632,19 +645,24 @@ public class HikingTrailService {
             HikingTrailEntity currentTrail,
             HikingTrailCreateOrReviewDto trailCreateOrReview
     ) {
-        updateFieldIfDifferent(currentTrail::getStartPoint, currentTrail::setStartPoint, trailCreateOrReview.startPoint());
-        updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, trailCreateOrReview.endPoint());
-        updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, trailCreateOrReview.totalDistance());
-        updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, trailCreateOrReview.trailInfo());
-        updateFieldIfDifferent(currentTrail::getSeasonVisited, currentTrail::setSeasonVisited, trailCreateOrReview.seasonVisited());
-        updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, trailCreateOrReview.waterAvailable());
-        updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, trailCreateOrReview.trailDifficulty());
-        updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, trailCreateOrReview.activity());
-        updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, trailCreateOrReview.elevationGained());
-        updateFieldIfDifferent(currentTrail::getNextTo, currentTrail::setNextTo, trailCreateOrReview.nextTo());
+        boolean isUpdated =
+                updateFieldIfDifferent(currentTrail::getStartPoint, currentTrail::setStartPoint, trailCreateOrReview.startPoint()) ||
+                updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, trailCreateOrReview.endPoint()) ||
+                updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, trailCreateOrReview.totalDistance()) ||
+                updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, trailCreateOrReview.trailInfo()) ||
+                updateFieldIfDifferent(currentTrail::getSeasonVisited, currentTrail::setSeasonVisited, trailCreateOrReview.seasonVisited()) ||
+                updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, trailCreateOrReview.waterAvailable()) ||
+                updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, trailCreateOrReview.trailDifficulty()) ||
+                updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, trailCreateOrReview.activity()) ||
+                updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, trailCreateOrReview.elevationGained()) ||
+                updateFieldIfDifferent(currentTrail::getNextTo, currentTrail::setNextTo, trailCreateOrReview.nextTo()) ||
 
-        updateAccommodationList(currentTrail, trailCreateOrReview.availableHuts());
-        updateDestinationList(currentTrail, trailCreateOrReview.destinations());
+                updateAccommodationList(currentTrail, trailCreateOrReview.availableHuts()) ||
+                updateDestinationList(currentTrail, trailCreateOrReview.destinations());
+
+        if(isUpdated) {
+            currentTrail.setModificationDate(LocalDateTime.now());
+        }
     }
 
     private <T> boolean updateFieldIfDifferent(Supplier<T> getter, Consumer<T> setter, T newValue) {
