@@ -56,7 +56,7 @@ public class GpxService {
 
         currentTrail.setGpxFile(saved);
 
-        this.hikingTrailService.saveHikingTrailEntity(currentTrail);
+        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
 
         return new GpxUrlDto(saved.getGpxUrl());
     }
@@ -80,7 +80,7 @@ public class GpxService {
         boolean deleted = deleteS3GpxFileWithValidation(folder, aswId);
         logger.info("Deleted s3 - {}", deleted);
         currentTrail.setGpxFile(null);
-        this.hikingTrailService.saveHikingTrailEntity(currentTrail);
+        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
 
         this.gpxRepository.delete(gpxFile);
 

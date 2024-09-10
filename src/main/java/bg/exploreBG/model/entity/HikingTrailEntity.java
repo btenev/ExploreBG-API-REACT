@@ -84,6 +84,9 @@ public class HikingTrailEntity {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
+    @Column(name = "modification_date")
+    private LocalDateTime modificationDate;
+
     @ManyToOne
     private UserEntity createdBy;
 
@@ -285,6 +288,14 @@ public class HikingTrailEntity {
         this.mainImage = mainImage;
     }
 
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
     @Override
     public String toString() {
         return "HikingTrailEntity{" +
@@ -304,6 +315,7 @@ public class HikingTrailEntity {
                 ", trailStatus=" + trailStatus +
                 ", destinations=" + destinations +
                 ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
                 ", createdBy=" + createdBy +
                 ", reviewedBy=" + reviewedBy +
                 ", gpxFile=" + gpxFile +

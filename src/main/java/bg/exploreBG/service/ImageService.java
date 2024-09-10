@@ -114,7 +114,7 @@ public class ImageService {
         }
 
         currentTrailImages.addAll(newImageEntities);
-        this.hikingTrailService.saveHikingTrailEntity(currentTrail);
+        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
 
         return savedImages.stream()
                 .map(e -> {
@@ -153,7 +153,7 @@ public class ImageService {
             }
         }
 
-        this.hikingTrailService.saveHikingTrailEntity(currentTrail);
+        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
         this.imageRepository.deleteAll(imagesToDelete);
 
         return true;
