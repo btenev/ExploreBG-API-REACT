@@ -1,15 +1,15 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.hike.single.HikeIdDto;
-import bg.exploreBG.model.dto.hike.validate.HikeCreateDto;
-import bg.exploreBG.model.entity.HikingTrailEntity;
-import bg.exploreBG.model.entity.UserEntity;
-import bg.exploreBG.utils.RandomUtil;
 import bg.exploreBG.model.dto.hike.HikeBasicDto;
 import bg.exploreBG.model.dto.hike.HikeDetailsDto;
+import bg.exploreBG.model.dto.hike.single.HikeIdDto;
+import bg.exploreBG.model.dto.hike.validate.HikeCreateDto;
 import bg.exploreBG.model.entity.HikeEntity;
+import bg.exploreBG.model.entity.HikingTrailEntity;
+import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.mapper.HikeMapper;
 import bg.exploreBG.repository.HikeRepository;
+import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -73,11 +73,10 @@ public class HikeService {
     }
 
     public HikeIdDto createHike(
-            Long id,
             HikeCreateDto hikeCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity verifiedUser = this.userService.verifiedUser(id, userDetails);
+        UserEntity verifiedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         HikeEntity newHike = this.hikeMapper.hikeCreateDtoToHikeEntity(hikeCreateDto);
         newHike.setOwner(verifiedUser);

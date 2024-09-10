@@ -47,8 +47,8 @@ public class DestinationController {
 
         return ResponseEntity.ok(destination);
     }
-
-    @GetMapping("/all")
+    /*TODO: old: '/all' new: only base */
+    @GetMapping
     public ResponseEntity<Page<DestinationBasicPlusDto>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
@@ -72,17 +72,16 @@ public class DestinationController {
 
         return ResponseEntity.ok(select);
     }
-
-    @PostMapping("/create/{id}")
+    /*TODO: old: '/create/{id}' new: only base */
+    @PostMapping
     public ResponseEntity<DestinationIdDto> create(
-            @PathVariable Long id,
             @Valid @RequestBody DestinationCreateDto destinationCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         logger.debug("{}", destinationCreateDto);
 
         DestinationIdDto destinationId =
-                this.destinationService.createDestination(id, destinationCreateDto, userDetails);
+                this.destinationService.createDestination(destinationCreateDto, userDetails);
 
         return ResponseEntity
                 .created(URI.create("/api/destinations/" + destinationId.id()))

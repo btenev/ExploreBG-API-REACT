@@ -176,20 +176,6 @@ public class UserService {
         return new UserInfoDto(updatedUserInfo.getUserInfo());
     }
 
-    //TODO: valid user to verified user
-    public UserEntity verifiedUser(Long id, UserDetails userDetails) {
-        UserEntity byId = getUserEntityById(id);
-        UserEntity token = getUserEntityByEmail(userDetails.getUsername());
-        matchUsers(token, byId);
-        return byId;
-    }
-
-    private void matchUsers(UserEntity one, UserEntity two) {
-        if (!one.equals(two)) {
-            throw new AppException("No access to this resource!", HttpStatus.FORBIDDEN);
-        }
-    }
-
     private UserEntity getUserEntityById(Long id) {
         Optional<UserEntity> byId = this.userRepository.findById(id);
 

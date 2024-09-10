@@ -45,8 +45,8 @@ public class AccommodationController {
 
         return ResponseEntity.ok(accommodation);
     }
-
-    @GetMapping("/all")
+    /*TODO: old: '/all' new: only base */
+    @GetMapping
     public ResponseEntity<Page<AccommodationBasicPlusImageDto>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
@@ -71,15 +71,14 @@ public class AccommodationController {
 
         return ResponseEntity.ok(select);
     }
-
-    @PostMapping("/create/{id}")
+    /*TODO: old: '/create/{id}' new: only base */
+    @PostMapping
     public ResponseEntity<AccommodationIdDto> create(
-            @PathVariable Long id,
             @Valid @RequestBody AccommodationCreateDto accommodationCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         AccommodationIdDto accommodationIdDto =
-                this.accommodationService.createAccommodation(id, accommodationCreateDto, userDetails);
+                this.accommodationService.createAccommodation(accommodationCreateDto, userDetails);
 
         return ResponseEntity
                 .created(URI.create("/api/accommodations/create/" + accommodationIdDto.id()))

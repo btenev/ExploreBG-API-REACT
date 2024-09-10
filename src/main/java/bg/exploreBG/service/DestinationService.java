@@ -74,11 +74,11 @@ public class DestinationService {
     }
 
     public DestinationIdDto createDestination(
-            Long id,
             DestinationCreateDto destinationCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.verifiedUser(id, userDetails);
+        UserEntity validUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+
         DestinationEntity newDestination =
                 this.destinationMapper.destinationCreateDtoToDestinationEntity(destinationCreateDto);
         newDestination.setDestinationStatus(StatusEnum.PENDING);

@@ -44,8 +44,8 @@ public class HikeController {
     }
 
     //    @Transactional
-
-    @GetMapping("/all")
+    /*TODO: old: '/all' new: only base */
+    @GetMapping
     public ResponseEntity<Page<HikeBasicDto>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
@@ -61,15 +61,14 @@ public class HikeController {
 
         return ResponseEntity.ok(allHikes);
     }
-
+    /*TODO: old: '/create/{id}' new: only base */
     @Transactional
-    @PostMapping("/create/{id}")
+    @PostMapping
     public ResponseEntity<HikeIdDto> create(
-            @PathVariable Long id,
             @Valid @RequestBody HikeCreateDto hikeCreateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikeIdDto hikeId = this.hikeService.createHike(id, hikeCreateDto, userDetails);
+        HikeIdDto hikeId = this.hikeService.createHike(hikeCreateDto, userDetails);
 
         return ResponseEntity
                 .created(URI.create("/api/hikes/create/" + hikeId.id()))

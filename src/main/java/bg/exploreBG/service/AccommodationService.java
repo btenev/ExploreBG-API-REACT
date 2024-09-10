@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -77,11 +76,10 @@ public class AccommodationService {
     }
 
     public AccommodationIdDto createAccommodation(
-            Long id,
             AccommodationCreateDto accommodationCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity verifiedUser = this.userService.verifiedUser(id, userDetails);
+        UserEntity verifiedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         AccommodationEntity newAccommodation =
                 this.mapper.accommodationCreateDtoToAccommodationEntity(accommodationCreateDto);
