@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.LikeBooleanDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
@@ -143,6 +144,11 @@ public class HikingTrailService {
 
         return saveTrailWithReturn(newHikingTrail).getId();
     }
+
+//    public boolean deleteHikingTrail(Long id) {
+//        this.hikingTrailRepository.deleteById(id);
+//        return false;
+//    }
 
     public HikingTrailStartPointDto updateHikingTrailStartPoint(
             Long id,
@@ -598,6 +604,17 @@ public class HikingTrailService {
         return exist.get();
     }
 
+    public HikingTrailEntity getApprovedHikingTrailByIdAndLikes(Long id) {
+        Optional<HikingTrailEntity> exist =
+                this.hikingTrailRepository.findWithLikesByIdAndTrailStatus(id, StatusEnum.APPROVED);
+
+        if (exist.isEmpty()) {
+            throw new AppException("Hiking trail not found or not approved!", HttpStatus.NOT_FOUND);
+        }
+
+        return exist.get();
+    }
+
     //TODO: use this method for members
     private HikingTrailEntity getApprovedHikingTrailById(Long id) {
         Optional<HikingTrailEntity> byIdAndTrailStatus =
@@ -647,20 +664,20 @@ public class HikingTrailService {
     ) {
         boolean isUpdated =
                 updateFieldIfDifferent(currentTrail::getStartPoint, currentTrail::setStartPoint, trailCreateOrReview.startPoint()) ||
-                updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, trailCreateOrReview.endPoint()) ||
-                updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, trailCreateOrReview.totalDistance()) ||
-                updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, trailCreateOrReview.trailInfo()) ||
-                updateFieldIfDifferent(currentTrail::getSeasonVisited, currentTrail::setSeasonVisited, trailCreateOrReview.seasonVisited()) ||
-                updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, trailCreateOrReview.waterAvailable()) ||
-                updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, trailCreateOrReview.trailDifficulty()) ||
-                updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, trailCreateOrReview.activity()) ||
-                updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, trailCreateOrReview.elevationGained()) ||
-                updateFieldIfDifferent(currentTrail::getNextTo, currentTrail::setNextTo, trailCreateOrReview.nextTo()) ||
+                        updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, trailCreateOrReview.endPoint()) ||
+                        updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, trailCreateOrReview.totalDistance()) ||
+                        updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, trailCreateOrReview.trailInfo()) ||
+                        updateFieldIfDifferent(currentTrail::getSeasonVisited, currentTrail::setSeasonVisited, trailCreateOrReview.seasonVisited()) ||
+                        updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, trailCreateOrReview.waterAvailable()) ||
+                        updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, trailCreateOrReview.trailDifficulty()) ||
+                        updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, trailCreateOrReview.activity()) ||
+                        updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, trailCreateOrReview.elevationGained()) ||
+                        updateFieldIfDifferent(currentTrail::getNextTo, currentTrail::setNextTo, trailCreateOrReview.nextTo()) ||
 
-                updateAccommodationList(currentTrail, trailCreateOrReview.availableHuts()) ||
-                updateDestinationList(currentTrail, trailCreateOrReview.destinations());
+                        updateAccommodationList(currentTrail, trailCreateOrReview.availableHuts()) ||
+                        updateDestinationList(currentTrail, trailCreateOrReview.destinations());
 
-        if(isUpdated) {
+        if (isUpdated) {
             currentTrail.setModificationDate(LocalDateTime.now());
         }
     }
@@ -770,5 +787,39 @@ public class HikingTrailService {
                 .anyMatch(grantedAuthority ->
                         grantedAuthority.getAuthority().equals("ROLE_ADMIN")
                                 || grantedAuthority.getAuthority().equals("ROLE_MODERATOR"));
+    }
+
+    public boolean likeOrUnlikeTrail(
+            Long trailId,
+            LikeBooleanDto likeBoolean,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = getApprovedHikingTrailByIdAndLikes(trailId);
+        UserEntity loggedUser = userService.getUserEntityByEmail(userDetails.getUsername());
+        Set<UserEntity> likedByUsers = currentTrail.getLikedByUsers();
+        boolean userHasLiked = likedByUsers.contains(loggedUser);
+
+        if (likeBoolean.like()) {
+            handleLike(likedByUsers, loggedUser, userHasLiked);
+        } else {
+            handleUnlike(likedByUsers, loggedUser, userHasLiked);
+        }
+
+        saveTrailWithoutReturn(currentTrail);
+        return true;
+    }
+
+    private void handleLike(Set<UserEntity> likedByUsers, UserEntity user, boolean userHasLiked) {
+        if (userHasLiked) {
+            throw new AppException("You have already liked the item!", HttpStatus.BAD_REQUEST);
+        }
+        likedByUsers.add(user);
+    }
+
+    private void handleUnlike(Set<UserEntity> likedByUsers, UserEntity user, boolean userHasLiked) {
+        if (!userHasLiked) {
+            throw new AppException("You cannot unlike an item that you haven't liked!", HttpStatus.BAD_REQUEST);
+        }
+        likedByUsers.remove(user);
     }
 }

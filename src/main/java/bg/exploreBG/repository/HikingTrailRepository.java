@@ -22,6 +22,9 @@ import java.util.Set;
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
 
+    @EntityGraph(attributePaths = {"likedByUsers"})
+    Optional<HikingTrailEntity> findWithLikesByIdAndTrailStatus(Long id, StatusEnum trailStatus);
+
     Optional<HikingTrailEntity> findByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
     /*used in deleteImages, we don't care about the status*/
@@ -47,10 +50,12 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             t.id,
             CONCAT(t.startPoint, ' - ', t.endPoint),
             t.trailInfo,
-            mi.imageUrl
+            mi.imageUrl,
+            CASE WHEN (lbu.id IS NOT NULL) THEN true ELSE false END
             )
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
+            LEFT JOIN t.likedByUsers lbu
             WHERE t.trailStatus = :statusEnum
             """)
     Page<HikingTrailBasicDto> findAllByTrailStatus(@Param("statusEnum")StatusEnum statusEnum, Pageable pageable);
@@ -121,10 +126,12 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             t.id,
             CONCAT(t.startPoint, ' - ', t.endPoint),
             t.trailInfo,
-            mi.imageUrl
+            mi.imageUrl,
+            CASE WHEN (lbu.id IS NOT NULL) THEN true ELSE false END
             )
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
+            LEFT JOIN t.likedByUsers lbu
             WHERE t.id IN ?1 AND t.trailStatus = "APPROVED"
             """)
     List<HikingTrailBasicDto> findByIdIn(Set<Long> ids);
