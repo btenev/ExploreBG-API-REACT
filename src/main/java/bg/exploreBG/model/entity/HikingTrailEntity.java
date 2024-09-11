@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "hiking_trail")
@@ -101,6 +102,9 @@ public class HikingTrailEntity {
 
     @OneToMany
     private List<ImageEntity> images;
+
+    @ManyToMany
+    private Set<UserEntity> likedByUsers;
 
     @Column(name = "max_number_of_images")
     private int maxNumberOfImages;
@@ -296,6 +300,14 @@ public class HikingTrailEntity {
         this.modificationDate = modificationDate;
     }
 
+    public Set<UserEntity> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(Set<UserEntity> likedByUsers) {
+        this.likedByUsers = likedByUsers;
+    }
+
     @Override
     public String toString() {
         return "HikingTrailEntity{" +
@@ -321,6 +333,7 @@ public class HikingTrailEntity {
                 ", gpxFile=" + gpxFile +
                 ", mainImage=" + mainImage +
                 ", images=" + images +
+                ", likedByUsers=" + likedByUsers +
                 ", maxNumberOfImages=" + maxNumberOfImages +
                 '}';
     }
