@@ -94,7 +94,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: old: "/{id}/update-email" new: "/email"*/
+
     @PatchMapping("/email")
     public ResponseEntity<ApiResponse<UserEmailDto>> updateEmail(
             @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto,
@@ -115,7 +115,7 @@ public class UserController {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .body(response);
     }
-    /*TODO: old: "/{id}/update-username" new: "/username"*/
+
     @PatchMapping("/username")
     public ResponseEntity<ApiResponse<UserUsernameDto>> updateUsername(
             @Valid @RequestBody UserUpdateUsernameDto userUpdateUsernameDto,
@@ -128,7 +128,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: old: "/{id}/update-password" new: "/password"*/
+
     @PatchMapping("/password")
     public ResponseEntity<ApiResponse<SuccessStringDto>> updatePassword(
             @Valid @RequestBody UserUpdatePasswordDto updatePassword,
@@ -141,7 +141,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: old: "/{id}/update-gender" new: "/gender"*/
+
     @PatchMapping("/gender")
     public ResponseEntity<ApiResponse<UserGenderDto>> updateGender(
             @RequestBody UserUpdateGenderDto userUpdateGenderDto,
@@ -154,7 +154,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: old: "/{id}/update-birthdate" new: "/birthdate"*/
+
     @PatchMapping("/birthdate")
     public ResponseEntity<ApiResponse<UserBirthdateDto>> updateBirthdate(
             @Valid @RequestBody UserUpdateBirthdate userUpdateBirthdate,
@@ -167,7 +167,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: old: "/{id}/update-user-info" new: "/user-info"*/
+
     @PatchMapping("/user-info")
     public ResponseEntity<ApiResponse<UserInfoDto>> updateUserInfo(
             @Valid @RequestBody UserUpdateInfo userUpdateInfo,

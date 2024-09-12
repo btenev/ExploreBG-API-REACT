@@ -13,11 +13,8 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = PermittedFileTypeValidator.class)
 public @interface PermittedFileType {
     String[] allowedTypes() default {};
-
     String message() default "Invalid file type";
-
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 }
 

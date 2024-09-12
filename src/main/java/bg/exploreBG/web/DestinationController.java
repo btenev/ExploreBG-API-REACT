@@ -47,7 +47,7 @@ public class DestinationController {
 
         return ResponseEntity.ok(destination);
     }
-    /*TODO: old: '/all' new: only base */
+
     @GetMapping
     public ResponseEntity<Page<DestinationBasicPlusDto>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,

@@ -14,8 +14,6 @@ import java.lang.annotation.Target;
 public @interface MaxFileSize {
     String message() default "Max file size exceeded!";
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
-
     long maxSize() default 1048576; // 1MB default size
 }

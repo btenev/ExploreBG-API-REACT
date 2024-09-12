@@ -15,8 +15,6 @@ import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.service.HikingTrailService;
-import com.cloudinary.Api;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -59,7 +58,6 @@ public class HikingTrailController {
     APPROVED
     @Transactional for the time being, more information in the data query
     */
-
     @Transactional(readOnly = true)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(
@@ -92,7 +90,6 @@ public class HikingTrailController {
     /*
     APPROVED
     */
-    /*TODO: old: "/all" new: only base */
     @GetMapping
     public ResponseEntity<ApiResponse<Page<HikingTrailBasicDto>>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
@@ -112,7 +109,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/create/{id}" new: only base */
     @PostMapping
     public ResponseEntity<ApiResponse<HikingTrailIdDto>> createHikingTrail(
             @Valid @RequestBody HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
@@ -147,7 +143,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(reviewerId);
     }
 
-    /*TODO: old: "/{id}/update-start-point" new: "/{id}/start-point" */
     @PatchMapping("/{id}/start-point")
     public ResponseEntity<ApiResponse<HikingTrailStartPointDto>> updateStartPoint(
             @PathVariable("id") Long trailId,
@@ -163,7 +158,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-end-point" new: "/{id}/end-point" */
     @PatchMapping("/{id}/end-point")
     public ResponseEntity<ApiResponse<HikingTrailEndPointDto>> updateEndPoint(
             @PathVariable("id") Long trailId,
@@ -179,7 +173,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "{id}/update-total-distance" new: "{id}/total-distance" */
     @PatchMapping("/{id}/total-distance")
     public ResponseEntity<ApiResponse<HikingTrailTotalDistanceDto>> updateTotalDistance(
             @PathVariable("id") Long trailId,
@@ -197,7 +190,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-water-available" new: "/{id}/water-available" */
     @PatchMapping("/{id}/water-available")
     public ResponseEntity<ApiResponse<HikingTrailWaterAvailableDto>> updateWaterAvailable(
             @PathVariable("id") Long trailId,
@@ -213,7 +205,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-activity" new: "/{id}/activity" */
     @PatchMapping("/{id}/activity")
     public ResponseEntity<ApiResponse<HikingTrailActivityDto>> updateHikingTrailActivity(
             @PathVariable("id") Long trailId,
@@ -228,7 +219,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-trail-info" new: "/{id}/trail-info" */
     @PatchMapping("/{id}/trail-info")
     public ResponseEntity<ApiResponse<HikingTrailTrailInfoDto>> updateTrailInfo(
             @PathVariable("id") Long trailId,
@@ -244,7 +234,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-elevation-gained" new: "/{id}/elevation-gained" */
     @PatchMapping("/{id}/elevation-gained")
     public ResponseEntity<ApiResponse<HikingTrailElevationGainedDto>> updateElevationGained(
             @PathVariable("id") Long trailId,
@@ -260,7 +249,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-trail-difficulty" new: "/{id}/trail-difficulty" */
     @PatchMapping("/{id}/trail-difficulty")
     public ResponseEntity<ApiResponse<HikingTrailDifficultyDto>> updateTrailDifficulty(
             @PathVariable("id") Long trailId,
@@ -276,7 +264,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-available-huts" new: "/{id}/available-huts" */
     @PatchMapping("/{id}/available-huts")
     public ResponseEntity<ApiResponse<List<AccommodationBasicDto>>> updateAvailableHuts(
             @PathVariable("id") Long trailId,
@@ -292,7 +279,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-destinations" new: "/{id}/destinations" */
     @PatchMapping("/{id}/destinations")
     public ResponseEntity<ApiResponse<List<DestinationBasicDto>>> updateDestinations(
             @PathVariable("id") Long trailId,
@@ -308,7 +294,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/{id}/update-main-image" new: "/{id}/main-image" */
     /*TODO: Discuss validation message with Ivo*/
     @PatchMapping("/{id}/main-image")
     public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
@@ -323,11 +308,12 @@ public class HikingTrailController {
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: create custom validation for boolean type*/
+
+    /*TODO: returns only messages, no errors*/
     @PatchMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<Boolean>> likeOrUnlikeHikingTrail(
+    public ResponseEntity<ApiResponse<Boolean>> toggleHikingTrailLike (
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody LikeBooleanDto likeBooleanDto,
+            @RequestBody LikeBooleanDto likeBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean success = this.hikingTrailService.likeOrUnlikeTrail(trailId, likeBooleanDto, userDetails);
@@ -347,7 +333,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(selected);
     }
 
-    /*TODO: old: "/create/{id}/comment/{trailId}" new: "/{trailId}/comments" */
     @PostMapping("/{trailId}/comments")
     public ResponseEntity<ApiResponse<CommentDto>> createTrailComment(
             @PathVariable Long trailId,
@@ -362,7 +347,6 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: "/delete/{commentId}/comment/{trailId}" new: "/{trailId}/comments/{commentId}" */
     @DeleteMapping("/{trailId}/comments/{commentId}")
     public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteTrailComment(
             @PathVariable Long trailId,

@@ -80,10 +80,11 @@ public class SuperUserController {
         return ResponseEntity.ok(users);
     }
 
+    /*TODO: IVO: only messages, no errors*/
     @PatchMapping("/{id}/update-role")
-    public ResponseEntity<ApiResponse<UserDataDto>> addRemoveModeratorRole(
+    public ResponseEntity<ApiResponse<UserDataDto>> toggleModeratorRole(
             @PathVariable Long id,
-            @Valid @RequestBody UserModRoleDto userModRoleDto
+            @RequestBody UserModRoleDto userModRoleDto
     ) {
 
         UserDataDto updatedUserRole = this.userService.addRemoveModeratorRoleToUserRoles(id, userModRoleDto);
@@ -93,8 +94,9 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
+    /*TODO: IVO: only messages, no errors*/
     @PatchMapping("/{id}/lock-account")
-    public ResponseEntity<ApiResponse<Boolean>> lockUnlockUserAccount(
+    public ResponseEntity<ApiResponse<Boolean>> toggleUserAccountLock(
             @PathVariable Long id,
             @RequestBody UserAccountLockUnlockDto userAccountLockUnlockDto
     ) {
@@ -165,8 +167,9 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
+    /*TODO: IVO: only messages, no errors*/
     @PatchMapping("/review/trail/{id}/claim")
-    public ResponseEntity<ApiResponse<Boolean>> claimNewTrailReview(
+    public ResponseEntity<ApiResponse<Boolean>> toggleTrailReviewClaim(
             @PathVariable Long id,
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails

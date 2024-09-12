@@ -45,7 +45,7 @@ public class AccommodationController {
 
         return ResponseEntity.ok(accommodation);
     }
-    /*TODO: old: '/all' new: only base */
+
     @GetMapping
     public ResponseEntity<Page<AccommodationBasicPlusImageDto>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
@@ -71,7 +71,7 @@ public class AccommodationController {
 
         return ResponseEntity.ok(select);
     }
-    /*TODO: old: '/create/{id}' new: only base */
+
     @PostMapping
     public ResponseEntity<AccommodationIdDto> create(
             @Valid @RequestBody AccommodationCreateDto accommodationCreateDto,

@@ -15,10 +15,7 @@ import java.lang.annotation.Target;
 public @interface FieldMatch {
     String first();
     String second();
-
     String message() default "Invalid field";
-
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 }

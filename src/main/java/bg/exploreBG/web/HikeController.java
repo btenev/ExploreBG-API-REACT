@@ -44,7 +44,7 @@ public class HikeController {
     }
 
     //    @Transactional
-    /*TODO: old: '/all' new: only base */
+
     @GetMapping
     public ResponseEntity<Page<HikeBasicDto>> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
