@@ -1,9 +1,10 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
-public record HikingTrailBasicDto(
+public record HikingTrailBasicLikesDto(
         Long id,
         String trailName,
         String trailInfo,
-        String imageUrl
+        String imageUrl,
+        boolean likedByUser
 ) {
 }
