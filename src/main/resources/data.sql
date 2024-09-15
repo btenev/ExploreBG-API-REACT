@@ -183,6 +183,11 @@ VALUES (1, 1),
        (1, 9),
        (1, 10);
 
+INSERT INTO hiking_trail_liked_by_users(hiking_trail_entity_id, liked_by_users_id)
+VALUES (1, 4),
+       (4, 4),
+       (5, 4);
+
 INSERT INTO hikes (id, start_point, end_point, start_point_coordinates, hike_date, image_url, next_to, hike_info,
                    user_id, hiking_trail_id)
 VALUES (1, 'hotel Drujba', 'Pametnik tsar Asen II', null, '2024-05-21', 'https://picsum.photos/200', 'Haskovo',

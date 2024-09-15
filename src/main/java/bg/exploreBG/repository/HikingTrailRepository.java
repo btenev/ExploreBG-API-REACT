@@ -1,10 +1,12 @@
 package bg.exploreBG.repository;
 
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicLikesDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.repository.custom.HikingTrailRepositoryCustom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -16,10 +18,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
-public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long> {
+public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long>, HikingTrailRepositoryCustom {
 
     @EntityGraph(attributePaths = {"likedByUsers"})
     Optional<HikingTrailEntity> findWithLikesByIdAndTrailStatus(Long id, StatusEnum trailStatus);
@@ -49,16 +50,44 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             t.id,
             CONCAT(t.startPoint, ' - ', t.endPoint),
             t.trailInfo,
-            mi.imageUrl,
-            CASE WHEN (lbu.id IS NOT NULL) THEN true ELSE false END
-            )
+            mi.imageUrl)
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
-            LEFT JOIN t.likedByUsers lbu
             WHERE t.trailStatus = :statusEnum
             """)
     Page<HikingTrailBasicDto> findAllByTrailStatus(@Param("statusEnum") StatusEnum statusEnum, Pageable pageable);
 
+  /*  @Query("""
+            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicLikesDto(
+            t.id,
+            CONCAT(t.startPoint, ' - ', t.endPoint),
+            t.trailInfo,
+            mi.imageUrl,
+               CASE
+                   WHEN EXISTS (
+                       SELECT 1
+                       FROM t.likedByUsers lbu
+                       WHERE lbu.email = :email)
+                   THEN true
+                   ELSE false
+               END)
+            FROM HikingTrailEntity t
+            LEFT JOIN t.mainImage mi
+            LEFT JOIN t.likedByUsers lbu
+            WHERE t.trailStatus = :trailStatus
+            ORDER BY
+                CASE
+                    WHEN :sortByLikedUser = true AND :sortDir = 'ASC' THEN CASE WHEN lbu.email = :email THEN 1 ELSE 0 END
+                    WHEN :sortByLikedUser = true AND :sortDir = 'DESC' THEN CASE WHEN lbu.email = :email THEN 0 ELSE 1 END
+                    ELSE t.id
+                END
+            """)
+    Page<HikingTrailBasicLikesDto> findAllByTrailStatusWithUserLikes(
+            @Param("trailStatus") StatusEnum statusEnum,
+            @Param("email") String email,
+            @Param("sortByLikedUser") Boolean sortByLikedUser,
+            @Param("sortDir") String sortDir,
+            Pageable pageable);*/
     /*
    Investigate
 
@@ -125,16 +154,33 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             t.id,
             CONCAT(t.startPoint, ' - ', t.endPoint),
             t.trailInfo,
-            mi.imageUrl,
-            CASE WHEN (lbu.id IS NOT NULL) THEN true ELSE false END
-            )
+            mi.imageUrl)
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
-            LEFT JOIN t.likedByUsers lbu
-            WHERE t.id IN ?1 AND t.trailStatus = "APPROVED"
+            WHERE t.trailStatus = "APPROVED"
+            ORDER BY function('RAND')
             """)
-    List<HikingTrailBasicDto> findByIdIn(Set<Long> ids);
+    List<HikingTrailBasicDto> findRandomApprovedTrails(Pageable pageable);
 
+    @Query("""
+            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicLikesDto(
+            t.id,
+            CONCAT(t.startPoint, ' - ', t.endPoint),
+            t.trailInfo,
+            mi.imageUrl,
+            CASE
+               WHEN lbu.email = :email THEN true
+               ELSE false
+            END)
+            FROM HikingTrailEntity t
+            LEFT JOIN t.mainImage mi
+            LEFT JOIN t.likedByUsers lbu ON lbu.email = :email
+            WHERE t.trailStatus = "APPROVED"
+            ORDER BY function('RAND')
+            """)
+    List<HikingTrailBasicLikesDto> findRandomApprovedTrailsWithLikes(
+            @Param("email") String email,
+            Pageable pageable);
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto(
@@ -154,11 +200,6 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             """)
     Long findReviewerId(@Param("trailId") Long trailId);
 
-    @Query("""
-            SELECT h
-            FROM HikingTrailEntity h
-            JOIN h.likedByUsers lu
-            WHERE lu.username = :email
-            """)
-    List<HikingTrailEntity> findAllByLikedByUsersIs(String email);
+    @Override
+    Page<HikingTrailBasicLikesDto> getTrailsWithLikes(StatusEnum statusEnum, String email, Pageable pageable, Boolean sortByLikedUser);
 }

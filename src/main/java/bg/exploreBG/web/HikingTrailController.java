@@ -7,7 +7,6 @@ import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
@@ -23,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,11 +45,22 @@ public class HikingTrailController {
     APPROVED
     */
     @GetMapping("/random")
-    public ResponseEntity<ApiResponse<List<HikingTrailBasicDto>>> getFourRandomHikingTrails() {
-        List<HikingTrailBasicDto> randomTrails =
-                this.hikingTrailService.getRandomNumOfHikingTrails(4);
+    public ResponseEntity<?> getFourRandomHikingTrails(
+            Authentication authentication
+    ) {
+        List<?> randomTrails;
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails userDetails) {
+                randomTrails = this.hikingTrailService.getRandomNumOfHikingTrailsWithLikes(4, userDetails);
+            } else {
+                return ResponseEntity.badRequest().body("Invalid principal type");
+            }
+        } else {
+            randomTrails = this.hikingTrailService.getRandomNumOfHikingTrails(4);
+        }
 
-        ApiResponse<List<HikingTrailBasicDto>> response = new ApiResponse<>(randomTrails);
+        ApiResponse<?> response = new ApiResponse<>(randomTrails);
 
         return ResponseEntity.ok(response);
     }
@@ -91,20 +102,33 @@ public class HikingTrailController {
     APPROVED
     */
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<HikingTrailBasicDto>>> getAll(
+    public ResponseEntity<?> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
+            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir,
+            @RequestParam(value = "sortByLikedUser", required = false) Boolean sortByLikedUser,
+            Authentication authentication
     ) {
         Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
         int currentPage = Math.max(pageNumber - 1, 0);
 
         Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+        Page<?> allHikingTrails;
 
-        Page<HikingTrailBasicDto> allHikingTrails = this.hikingTrailService.getAllHikingTrails(pageable);
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails userDetails) {
+                allHikingTrails = this.hikingTrailService
+                        .getAllHikingTrailsWithLikes(userDetails, pageable, sortByLikedUser);
+            } else {
+                return ResponseEntity.badRequest().body("Invalid principal type");
+            }
+        } else {
+            allHikingTrails = this.hikingTrailService.getAllHikingTrails(pageable);
+        }
 
-        ApiResponse<Page<HikingTrailBasicDto>> response = new ApiResponse<>(allHikingTrails);
+        ApiResponse<Page<?>> response = new ApiResponse<>(allHikingTrails);
 
         return ResponseEntity.ok(response);
     }
@@ -311,7 +335,7 @@ public class HikingTrailController {
 
     /*TODO: returns only messages, no errors*/
     @PatchMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<Boolean>> toggleHikingTrailLike (
+    public ResponseEntity<ApiResponse<Boolean>> toggleHikingTrailLike(
             @PathVariable("id") Long trailId,
             @RequestBody LikeBooleanDto likeBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails

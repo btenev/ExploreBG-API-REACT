@@ -21,15 +21,16 @@ import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.repository.HikingTrailRepository;
-import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,13 +72,17 @@ public class HikingTrailService {
     }
 
     public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
-        long countOfAvailableHikingTrails = this.hikingTrailRepository.count();
-        // TODO: implement error logic if no hikingTrails are available
+        Pageable pageable = PageRequest.of(0, limit);
+        return this.hikingTrailRepository.findRandomApprovedTrails(pageable);
+    }
 
-        Set<Long> randomIds = RandomUtil.generateUniqueRandomIds(limit, countOfAvailableHikingTrails);
-
-        return this.hikingTrailRepository
-                .findByIdIn(randomIds);
+    public List<HikingTrailBasicLikesDto> getRandomNumOfHikingTrailsWithLikes(
+            int limit,
+            UserDetails userDetails
+    ) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return this.hikingTrailRepository.
+                findRandomApprovedTrailsWithLikes(userDetails.getUsername(), pageable);
     }
 
     public HikingTrailDetailsDto getHikingTrail(Long id) {
@@ -101,6 +106,16 @@ public class HikingTrailService {
     public Page<HikingTrailBasicDto> getAllHikingTrails(Pageable pageable) {
         return this.hikingTrailRepository
                 .findAllByTrailStatus(StatusEnum.APPROVED, pageable);
+    }
+
+    @Transactional
+    public Page<HikingTrailBasicLikesDto> getAllHikingTrailsWithLikes(
+            UserDetails userDetails,
+            Pageable pageable,
+            Boolean sortByLikedUser
+    ) {
+        return this.hikingTrailRepository
+                .getTrailsWithLikes(StatusEnum.APPROVED, userDetails.getUsername(), pageable, sortByLikedUser);
     }
 
     public List<HikingTrailIdTrailNameDto> selectAll() {
@@ -822,4 +837,6 @@ public class HikingTrailService {
         }
         likedByUsers.remove(user);
     }
+
+
 }
