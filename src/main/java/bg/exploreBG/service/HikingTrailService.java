@@ -87,20 +87,29 @@ public class HikingTrailService {
 
     public HikingTrailDetailsDto getHikingTrail(Long id) {
         HikingTrailEntity trailById = getApprovedHikingTrailById(id);
-
         return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trailById);
     }
 
-    public HikingTrailDetailsDto getHikingTrailAuthenticated(Long id, UserDetails userDetails) {
+    @SuppressWarnings("unchecked")
+    public <T> T getHikingTrailAuthenticated(Long id, UserDetails userDetails) {
         String username = userDetails.getUsername();
         Optional<HikingTrailEntity> possibleOwner = this.hikingTrailRepository
-                .findByIdAndStatusApprovedOrStatusPendingAndOwner(id, username);
+                .findByIdAndStatusApprovedOrStatusPendingAndOwner(
+                        id, username, StatusEnum.APPROVED, StatusEnum.PENDING, StatusEnum.REVIEW
+                );
 
-        if (possibleOwner.isEmpty()) {
-            throw new AppException("HikingTrail not found or invalid status!", HttpStatus.BAD_REQUEST);
-        }
+        HikingTrailEntity trail = possibleOwner
+                .orElseThrow(() -> new AppException("HikingTrail not found or invalid status!",
+                        HttpStatus.BAD_REQUEST));
 
-        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(possibleOwner.get());
+        boolean isNotOwner =
+                trail.getTrailStatus().equals(StatusEnum.APPROVED)
+                        && trail.getCreatedBy() != null
+                        && !trail.getCreatedBy().getEmail().equals(username);
+        UserEntity loggedUser = this.userService.getUserEntityByEmail(username);
+        return isNotOwner
+                ? (T) this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsLikeDto(trail, loggedUser)
+                : (T) this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trail);
     }
 
     public Page<HikingTrailBasicDto> getAllHikingTrails(Pageable pageable) {

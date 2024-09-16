@@ -7,7 +7,6 @@ import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
@@ -71,29 +70,21 @@ public class HikingTrailController {
     */
     @Transactional(readOnly = true)
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrail(
-            @PathVariable("id") Long trailId
-    ) {
-        HikingTrailDetailsDto hikingTrail = this.hikingTrailService.getHikingTrail(trailId);
-
-        ApiResponse<HikingTrailDetailsDto> response = new ApiResponse<>(hikingTrail);
-
-        return ResponseEntity.ok(response);
-    }
-
-    /*
-    @Transactional for the time being, more information in the data query
-    */
-    @Transactional(readOnly = true)
-    @GetMapping("/{id}/auth")
-    public ResponseEntity<ApiResponse<HikingTrailDetailsDto>> getHikingTrailAuth(
+    public ResponseEntity<?> getHikingTrail(
             @PathVariable("id") Long trailId,
-            @AuthenticationPrincipal UserDetails userDetails
+            Authentication authentication
     ) {
-        HikingTrailDetailsDto hikingTrail =
-                this.hikingTrailService.getHikingTrailAuthenticated(trailId, userDetails);
-
-        ApiResponse<HikingTrailDetailsDto> response = new ApiResponse<>(hikingTrail);
+        ApiResponse<?> response;
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails userDetails) {
+                response = new ApiResponse<>(this.hikingTrailService.getHikingTrailAuthenticated(trailId, userDetails));
+            } else {
+                return ResponseEntity.badRequest().body("Invalid principal type");
+            }
+        } else {
+            response = new ApiResponse<>(this.hikingTrailService.getHikingTrail(trailId));
+        }
 
         return ResponseEntity.ok(response);
     }

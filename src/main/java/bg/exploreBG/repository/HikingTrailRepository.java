@@ -108,7 +108,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             SELECT t
             FROM HikingTrailEntity t
             WHERE t.id = :id
-            AND t.trailStatus = 'APPROVED'
+            AND t.trailStatus = :approvedStatus
 
             UNION
 
@@ -116,10 +116,16 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             FROM HikingTrailEntity t
             JOIN t.createdBy cb
             WHERE t.id = :id
-            AND t.trailStatus IN (bg.exploreBG.model.enums.StatusEnum.PENDING, bg.exploreBG.model.enums.StatusEnum.REVIEW)
+            AND t.trailStatus IN (:pendingStatus, :reviewStatus)
             AND cb.email = :email
               """)
-    Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(@Param("id") Long id, @Param("email") String email);
+    Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(
+            @Param("id") Long id,
+            @Param("email") String email,
+            @Param("approvedStatus") StatusEnum approvedStatus,
+            @Param("pendingStatus") StatusEnum pendingStatus,
+            @Param("reviewStatus") StatusEnum reviewStatus
+    );
 
     /*MultipleBagFetchException is use @EntityGraph with more than one list collection, use @Transactional for the time being*/
     Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, StatusEnum trailStatus);

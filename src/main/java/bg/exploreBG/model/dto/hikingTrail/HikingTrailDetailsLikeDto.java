@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record HikingTrailDetailsDto(
+public record HikingTrailDetailsLikeDto(
         Long id,
         String startPoint,
         String endPoint,
@@ -36,6 +36,7 @@ public record HikingTrailDetailsDto(
         String gpxUrl,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime lastUpdateDate,
+        boolean likedByUser,
         @JsonSerialize(using = StatusEnumSerializer.class)
         StatusEnum trailStatus,
         List<DestinationBasicDto> destinations
