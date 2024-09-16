@@ -2,11 +2,12 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.LikeBooleanDto;
-import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+import bg.exploreBG.model.dto.destination.DestinationWrapperDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
@@ -280,31 +281,31 @@ public class HikingTrailController {
     }
 
     @PatchMapping("/{id}/available-huts")
-    public ResponseEntity<ApiResponse<List<AccommodationBasicDto>>> updateAvailableHuts(
+    public ResponseEntity<ApiResponse<AccommodationWrapperDto>> updateAvailableHuts(
             @PathVariable("id") Long trailId,
             @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        List<AccommodationBasicDto> accommodationBasicDto =
+        AccommodationWrapperDto accommodationBasicDto =
                 this.hikingTrailService
                         .updateHikingTrailAvailableHuts(trailId, hikingTrailUpdateAvailableHutsDto, userDetails);
 
-        ApiResponse<List<AccommodationBasicDto>> response = new ApiResponse<>(accommodationBasicDto);
+        ApiResponse<AccommodationWrapperDto> response = new ApiResponse<>(accommodationBasicDto);
 
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/destinations")
-    public ResponseEntity<ApiResponse<List<DestinationBasicDto>>> updateDestinations(
+    public ResponseEntity<ApiResponse<DestinationWrapperDto>> updateDestinations(
             @PathVariable("id") Long trailId,
             @RequestBody HikingTrailUpdateDestinationsDto hikingTrailUpdateDestinationsDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        List<DestinationBasicDto> destinationBasicDto =
+        DestinationWrapperDto destinations =
                 this.hikingTrailService
                         .updateHikingTrailDestinations(trailId, hikingTrailUpdateDestinationsDto, userDetails);
 
-        ApiResponse<List<DestinationBasicDto>> response = new ApiResponse<>(destinationBasicDto);
+        ApiResponse<DestinationWrapperDto> response = new ApiResponse<>(destinations);
 
         return ResponseEntity.ok(response);
     }

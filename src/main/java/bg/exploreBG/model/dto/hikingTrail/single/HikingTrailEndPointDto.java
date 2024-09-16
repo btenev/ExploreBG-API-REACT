@@ -1,10 +1,12 @@
 package bg.exploreBG.model.dto.hikingTrail.single;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 
 public record HikingTrailEndPointDto(
-        String endPoint
+        String endPoint,
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+        LocalDateTime lastUpdateDate
 ) {
 }
