@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, CommentMapper.class})
 public interface HikingTrailMapper {
 
     @Mapping(target = "gpxUrl", source = "gpxFile.gpxUrl")

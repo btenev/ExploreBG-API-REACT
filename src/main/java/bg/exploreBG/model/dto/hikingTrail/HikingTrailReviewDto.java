@@ -21,7 +21,6 @@ public record HikingTrailReviewDto(
         String endPoint,
         Double totalDistance,
         String trailInfo,
-        String imageUrl,
         @JsonSerialize(using = SeasonEnumSerializer.class)
         SeasonEnum seasonVisited,
         @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)
