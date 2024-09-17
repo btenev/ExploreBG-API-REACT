@@ -20,13 +20,11 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = {UserMapper.class, CommentMapper.class})
 public interface HikingTrailMapper {
 
-    @Mapping(target = "gpxUrl", source = "gpxFile.gpxUrl")
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(trail.getModificationDate(), trail.getCreationDate()))")
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(trail.getImages(), trail))")
     HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity trail);
 
     @Mapping(target = "id", source = "trail.id")
-    @Mapping(target = "gpxUrl", source = "trail.gpxFile.gpxUrl")
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(trail.getModificationDate(), trail.getCreationDate()))")
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(trail.getImages(), trail))")
     @Mapping(target = "likedByUser", expression = "java(trailIsLikedByUser(trail.getLikedByUsers(), user))")

@@ -1,7 +1,7 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.GpxUrlDto;
+import bg.exploreBG.model.dto.GpxUrlDateDto;
 import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.GpxService;
 import jakarta.validation.constraints.NotNull;
@@ -24,16 +24,16 @@ public class GpxController {
     }
 
     @PatchMapping("/trail/{id}")
-    public ResponseEntity<ApiResponse<GpxUrlDto>> saveGpxFile(
+    public ResponseEntity<ApiResponse<GpxUrlDateDto>> saveGpxFile(
             @PathVariable Long id,
             @RequestParam("file")
             @NotNull(message = "A file must be provided. Please choose a file to upload.")
             @PermittedFileType(message = "Please upload a file with the GPX format.") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        GpxUrlDto gpxUrlDto = this.gpxService.saveGpxFileIfOwner(id, GPX, file, userDetails);
+        GpxUrlDateDto gpxUrlDto = this.gpxService.saveGpxFileIfOwner(id, GPX, file, userDetails);
 
-        ApiResponse<GpxUrlDto> response = new ApiResponse<>(gpxUrlDto);
+        ApiResponse<GpxUrlDateDto> response = new ApiResponse<>(gpxUrlDto);
         return ResponseEntity.ok(response);
     }
 

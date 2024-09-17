@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.GpxUrlDateDto;
 import bg.exploreBG.model.dto.GpxUrlDto;
 import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -33,7 +35,7 @@ public class GpxService {
         this.s3Service = s3Service;
     }
 
-    public GpxUrlDto saveGpxFileIfOwner(
+    public GpxUrlDateDto saveGpxFileIfOwner(
             Long id,
             String folder,
             MultipartFile file,
@@ -58,7 +60,7 @@ public class GpxService {
 
         this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
 
-        return new GpxUrlDto(saved.getGpxUrl());
+        return new GpxUrlDateDto(saved.getGpxUrl(), saved.getCreationDate());
     }
 
     @Transactional
@@ -98,6 +100,7 @@ public class GpxService {
         gpx.setCloudId(awsId);
         gpx.setGpxUrl(url);
         gpx.setFolder(folder);
+        gpx.setCreationDate(LocalDateTime.now());
 
         return gpx;
     }

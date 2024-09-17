@@ -1,5 +1,6 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
+import bg.exploreBG.model.dto.GpxUrlDateDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
@@ -33,7 +34,7 @@ public record HikingTrailDetailsDto(
         Integer elevationGained,
         String nextTo,
         UserBasicInfo createdBy,
-        String gpxUrl,
+        GpxUrlDateDto gpxFile,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime lastUpdateDate,
         @JsonSerialize(using = StatusEnumSerializer.class)
