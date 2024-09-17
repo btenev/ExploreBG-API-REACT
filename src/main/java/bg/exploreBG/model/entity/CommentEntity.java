@@ -1,15 +1,12 @@
 package bg.exploreBG.model.entity;
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-//@EntityListeners(AuditingEntityListener.class)
+
 public class CommentEntity {
 
     @Id
@@ -18,7 +15,6 @@ public class CommentEntity {
     @Column(nullable = false)
     private String message;
 
-//    @CreatedDate
     @Column(
             name = "creation_date",
             nullable = false,
@@ -26,7 +22,6 @@ public class CommentEntity {
     )
     private LocalDateTime creationDate;
 
-    //  TODO: Review when spring security is implemented - @CreatedBy
     @ManyToOne(optional = false)
     @JoinColumn(
             name = "user_id",
@@ -34,16 +29,9 @@ public class CommentEntity {
     )
     private UserEntity owner;
 
-    // TODO: Review when spring security is implemented - @CreatedBy
-//    @LastModifiedBy
-//    private UserEntity userEntity;
-
-//    @LastModifiedDate
-    @Column(
-            name="modification_date",
-            insertable = false
-    )
+    @Column(name = "modification_date")
     private LocalDateTime modificationDate;
+
     public CommentEntity() {
     }
 

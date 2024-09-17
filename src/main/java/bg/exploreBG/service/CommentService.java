@@ -8,14 +8,18 @@ import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.repository.CommentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 public class CommentService {
+    private final Logger logger = LoggerFactory.getLogger(CloudinaryService.class);
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
@@ -57,6 +61,7 @@ public class CommentService {
     ) {
         verifiedComment.setMessage(commentDto.message());
         verifiedComment.setModificationDate(LocalDateTime.now());
+        logger.warn("Set comment modification date {}", verifiedComment.getModificationDate());
         return verifiedComment;
     }
 
@@ -67,6 +72,7 @@ public class CommentService {
         CommentEntity newComment = new CommentEntity();
         newComment.setMessage(commentDto.message());
         newComment.setCreationDate(LocalDateTime.now());
+        logger.warn("Set comment creation date {}", newComment.getCreationDate());
         newComment.setOwner(verifiedUser);
 
         return newComment;
