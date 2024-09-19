@@ -82,7 +82,7 @@ public class UserService {
             throw new AppException("Invalid password!", HttpStatus.UNAUTHORIZED);
         }
 
-        Optional<UserEntity> currentUser = this.userRepository.findByEmail(foundUser.getUsername());
+        Optional<UserEntity> currentUser = this.userRepository.findWithRolesByEmail(foundUser.getUsername());
 
         return new UserIdNameEmailRolesDto(
                 currentUser.get().getId(),
@@ -106,7 +106,7 @@ public class UserService {
             UserUpdateEmailDto userUpdateEmailDto,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = getUserEntityByEmailWithRoles(userDetails.getUsername());
 
         loggedUser.setEmail(userUpdateEmailDto.email());
         UserEntity updatedEmail = saveUserWithReturn(loggedUser);
@@ -187,6 +187,15 @@ public class UserService {
 
     protected UserEntity getUserEntityByEmail(String email) {
         Optional<UserEntity> byEmail = this.userRepository.findByEmail(email);
+
+        if (byEmail.isEmpty()) {
+            throw new AppException("User not found!", HttpStatus.NOT_FOUND);
+        }
+        return byEmail.get();
+    }
+
+    protected UserEntity getUserEntityByEmailWithRoles(String email) {
+        Optional<UserEntity> byEmail = this.userRepository.findWithRolesByEmail(email);
 
         if (byEmail.isEmpty()) {
             throw new AppException("User not found!", HttpStatus.NOT_FOUND);

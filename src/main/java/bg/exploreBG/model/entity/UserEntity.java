@@ -43,7 +43,7 @@ public class UserEntity {
     @Column(name = "account_non_locked")
     private boolean accountNonLocked;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),

@@ -24,7 +24,7 @@ public class ExploreBgUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> byEmail = this.userRepository.findByEmail(username);
+        Optional<UserEntity> byEmail = this.userRepository.findWithRolesByEmail(username);
 
         if (byEmail.isEmpty()) {
             throw new AppException("Unknown user!", HttpStatus.NOT_FOUND);

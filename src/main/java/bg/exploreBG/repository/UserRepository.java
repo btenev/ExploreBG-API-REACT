@@ -6,6 +6,7 @@ import bg.exploreBG.repository.custom.UserRepositoryCustom;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,11 @@ import java.util.stream.Stream;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRepositoryCustom {
+
     Optional<UserEntity> findByEmail(String email);
+
+    @EntityGraph(attributePaths = {"roles"})
+    Optional<UserEntity> findWithRolesByEmail(String email);
 
     @PreAuthorize("hasRole('ADMIN')")
     @Query("""
