@@ -1,3 +1,4 @@
+/*
 package bg.exploreBG.init;
 
 import bg.exploreBG.model.entity.RoleEntity;
@@ -30,3 +31,4 @@ public class DataInit implements CommandLineRunner {
         }
     }
 }
+*/
