@@ -1,7 +1,14 @@
 INSERT INTO roles (id, role)
-VALUES (1, 'MEMBER'),
-       (2, 'MODERATOR'),
-       (3, 'ADMIN');
+SELECT 1, 'MEMBER' FROM DUAL
+WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 1);
+
+INSERT INTO roles (id, role)
+SELECT 2, 'MODERATOR' FROM DUAL
+WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 2);
+
+INSERT INTO roles (id, role)
+SELECT 3, 'ADMIN' FROM DUAL
+WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 3);
 
 INSERT INTO images (id, cloud_id, folder, image_url)
 VALUES (1, '707325df-b536-47e2-b511-d106296ad5ec', 'Users-demo',
