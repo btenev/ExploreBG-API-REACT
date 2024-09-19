@@ -13,3 +13,14 @@ spring:
        ddl-auto: update
      open-in-view: false
      defer-datasource-initialization: true
+
+cloudinary:
+ cloud_name: ${PROD_CLOUDINARY_CLOUD_NAME}
+ api_key: ${PROD_CLOUDINARY_API_KEY}
+ api_secret: ${PROD_CLOUDINARY_API_SECRET}
+
+aws:
+ accessKey: ${PROD_AWS_ACCESS_KEY}
+ secretKey: ${PROD_AWS_SECRET_KEY}
+ region: ${PROD_AWS_REGION}
+
