@@ -13,7 +13,7 @@ public interface HikingTrailForApprovalProjection {
     @Value("#{target.startPoint + ' - ' + target.endPoint}")
     String getName();
     @JsonSerialize(using = StatusEnumSerializer.class)
-    StatusEnum getTrailStatus();
+    StatusEnum getDetailsStatus();
     LocalDateTime getCreationDate();
     UserIdNameProjection getReviewedBy();
 }

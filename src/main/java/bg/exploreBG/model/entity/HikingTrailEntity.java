@@ -71,9 +71,13 @@ public class HikingTrailEntity {
     @Column(name = "next_to")
     private String nextTo;
 
+    @Column(name = "details_status")
+    @Enumerated(EnumType.STRING)
+    private StatusEnum detailsStatus;
+
     @Column(name = "trail_status")
     @Enumerated(EnumType.STRING)
-    private StatusEnum trailStatus;
+    private SuperUserReviewStatusEnum trailStatus;
 
     //TODO: discuss with Ivo if one destination entity can belong to more than one hiking trail
     @ManyToMany
@@ -82,6 +86,7 @@ public class HikingTrailEntity {
                inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
     )
     private List<DestinationEntity> destinations;
+
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -200,10 +205,6 @@ public class HikingTrailEntity {
         this.comments = comments;
     }
 
-    public void setSingleComment(CommentEntity comment) {
-        this.comments.add(comment);
-    }
-
     public Integer getElevationGained() {
         return elevationGained;
     }
@@ -220,11 +221,19 @@ public class HikingTrailEntity {
         this.nextTo = nextTo;
     }
 
-    public StatusEnum getTrailStatus() {
+    public StatusEnum getDetailsStatus() {
+        return detailsStatus;
+    }
+
+    public void setDetailsStatus(StatusEnum detailsStatus) {
+        this.detailsStatus = detailsStatus;
+    }
+
+    public SuperUserReviewStatusEnum getTrailStatus() {
         return trailStatus;
     }
 
-    public void setTrailStatus(StatusEnum trailStatus) {
+    public void setTrailStatus(SuperUserReviewStatusEnum trailStatus) {
         this.trailStatus = trailStatus;
     }
 
@@ -236,20 +245,28 @@ public class HikingTrailEntity {
         this.destinations = destinations;
     }
 
-    public UserEntity getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(UserEntity createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
+    public UserEntity getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
     }
 
     public UserEntity getReviewedBy() {
@@ -268,12 +285,28 @@ public class HikingTrailEntity {
         this.gpxFile = gpxFile;
     }
 
+    public ImageEntity getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(ImageEntity mainImage) {
+        this.mainImage = mainImage;
+    }
+
     public List<ImageEntity> getImages() {
         return images;
     }
 
     public void setImages(List<ImageEntity> images) {
         this.images = images;
+    }
+
+    public Set<UserEntity> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(Set<UserEntity> likedByUsers) {
+        this.likedByUsers = likedByUsers;
     }
 
     public int getMaxNumberOfImages() {
@@ -284,28 +317,8 @@ public class HikingTrailEntity {
         this.maxNumberOfImages = maxNumberOfImages;
     }
 
-    public ImageEntity getMainImage() {
-        return mainImage;
-    }
-
-    public void setMainImage(ImageEntity mainImage) {
-        this.mainImage = mainImage;
-    }
-
-    public LocalDateTime getModificationDate() {
-        return modificationDate;
-    }
-
-    public void setModificationDate(LocalDateTime modificationDate) {
-        this.modificationDate = modificationDate;
-    }
-
-    public Set<UserEntity> getLikedByUsers() {
-        return likedByUsers;
-    }
-
-    public void setLikedByUsers(Set<UserEntity> likedByUsers) {
-        this.likedByUsers = likedByUsers;
+    public void setSingleComment(CommentEntity savedComment) {
+        this.comments.add(savedComment);
     }
 
     @Override
@@ -324,6 +337,7 @@ public class HikingTrailEntity {
                 ", comments=" + comments +
                 ", elevationGained=" + elevationGained +
                 ", nextTo='" + nextTo + '\'' +
+                ", detailsStatus=" + detailsStatus +
                 ", trailStatus=" + trailStatus +
                 ", destinations=" + destinations +
                 ", creationDate=" + creationDate +

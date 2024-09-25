@@ -1,13 +1,12 @@
 package bg.exploreBG.model.enums;
 
-public enum StatusEnum {
+public enum SuperUserReviewStatusEnum {
     APPROVED("approved"),
-    PENDING("pending"),
-    REVIEW("review");
+    PENDING("pending");
 
     private final String value;
 
-    StatusEnum(String value) {
+    SuperUserReviewStatusEnum(String value) {
         this.value = value;
     }
 

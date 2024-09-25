@@ -39,7 +39,7 @@ public class HikingTrailRepositoryCustomImpl implements HikingTrailRepositoryCus
                 FROM HikingTrailEntity t
                 LEFT JOIN t.mainImage mi
                 LEFT JOIN t.likedByUsers lbu ON lbu.email = :email
-                WHERE t.trailStatus = :trailStatus
+                WHERE t.detailsStatus = :detailsStatus
                 """);
         Sort sort = pageable.getSort();
         // Apply sorting based on sortByLikedUser or other fields
@@ -81,7 +81,7 @@ public class HikingTrailRepositoryCustomImpl implements HikingTrailRepositoryCus
 
         // Create the query and set parameters
         Query query = entityManager.createQuery(jpql.toString());
-        query.setParameter("trailStatus", statusEnum);
+        query.setParameter("detailsStatus", statusEnum);
         query.setParameter("email", email);
 
         // Apply pagination

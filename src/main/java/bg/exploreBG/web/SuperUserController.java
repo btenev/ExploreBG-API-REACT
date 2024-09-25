@@ -14,6 +14,7 @@ import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.AccommodationService;
 import bg.exploreBG.service.DestinationService;
@@ -148,7 +149,7 @@ public class SuperUserController {
 
         Page<HikingTrailForApprovalProjection> forApproval =
                 this.hikingTrailService
-                        .getAllHikingTrailsForApproval(List.of(StatusEnum.PENDING, StatusEnum.REVIEW), pageable);
+                        .getAllHikingTrailsForApproval(SuperUserReviewStatusEnum.PENDING, pageable);
 
         return ResponseEntity.ok(forApproval);
     }

@@ -19,6 +19,7 @@ import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
@@ -105,7 +106,7 @@ public class HikingTrailService {
                         HttpStatus.BAD_REQUEST));
 
         boolean isNotOwner =
-                trail.getTrailStatus().equals(StatusEnum.APPROVED)
+                trail.getDetailsStatus().equals(StatusEnum.APPROVED)
                         && trail.getCreatedBy() != null
                         && !trail.getCreatedBy().getEmail().equals(username);
         UserEntity loggedUser = this.userService.getUserEntityByEmail(username);
@@ -145,13 +146,18 @@ public class HikingTrailService {
 
 //        logger.debug("{}", newHikingTrail);
         boolean superUser = isSuperUser(userDetails);
-        StatusEnum status = superUser ? StatusEnum.APPROVED : StatusEnum.PENDING;
+
+        StatusEnum detailsStatus = superUser ? StatusEnum.APPROVED : StatusEnum.PENDING;
+
+        SuperUserReviewStatusEnum trailStatus =
+                superUser ? SuperUserReviewStatusEnum.APPROVED : SuperUserReviewStatusEnum.PENDING;
 
         if (superUser) {
             newHikingTrail.setReviewedBy(validUser);
         }
 
-        newHikingTrail.setTrailStatus(status);
+        newHikingTrail.setDetailsStatus(detailsStatus);
+        newHikingTrail.setTrailStatus(trailStatus);
         newHikingTrail.setMaxNumberOfImages(10);
         newHikingTrail.setCreatedBy(validUser);
         newHikingTrail.setCreationDate(LocalDateTime.now());
@@ -189,7 +195,8 @@ public class HikingTrailService {
                 newStartPoint.startPoint());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -212,7 +219,8 @@ public class HikingTrailService {
                 newEndPoint.endPoint());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -235,7 +243,8 @@ public class HikingTrailService {
                 newTotalDistance.totalDistance());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -258,7 +267,8 @@ public class HikingTrailService {
                 newElevationGained.elevationGained());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -281,7 +291,8 @@ public class HikingTrailService {
                 newWaterAvailable.waterAvailable());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -304,7 +315,8 @@ public class HikingTrailService {
                 newActivity.activity());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -327,7 +339,8 @@ public class HikingTrailService {
                 newTrailInfo.trailInfo());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -347,7 +360,8 @@ public class HikingTrailService {
         boolean isUpdated = updateAccommodationList(currentTrail, newHuts.availableHuts());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -373,7 +387,8 @@ public class HikingTrailService {
         boolean isUpdated = updateDestinationList(currentTrail, newDestinations.destinations());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -403,7 +418,8 @@ public class HikingTrailService {
                 newDifficulty.trailDifficulty());
 
         if (isUpdated) {
-            currentTrail.setTrailStatus(StatusEnum.PENDING);
+            currentTrail.setDetailsStatus(StatusEnum.PENDING);
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             currentTrail.setModificationDate(LocalDateTime.now());
             currentTrail = saveTrailWithReturn(currentTrail);
         }
@@ -491,22 +507,22 @@ public class HikingTrailService {
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getPendingApprovalTrailCount() {
         return this.hikingTrailRepository
-                .countHikingTrailEntitiesByTrailStatus(StatusEnum.PENDING);
+                .countHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum.PENDING);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getUnderReviewTrailCount() {
         return this.hikingTrailRepository
-                .countHikingTrailEntitiesByTrailStatus(StatusEnum.REVIEW);
+                .countHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum.PENDING);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public Page<HikingTrailForApprovalProjection> getAllHikingTrailsForApproval(
-            List<StatusEnum> statuses,
+            SuperUserReviewStatusEnum status,
             Pageable pageable
     ) {
         return this.hikingTrailRepository
-                .getHikingTrailEntitiesByTrailStatusIn(statuses, pageable);
+                .getHikingTrailEntitiesByTrailStatus(status, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -514,14 +530,14 @@ public class HikingTrailService {
 
         HikingTrailEntity currentTrail = getHikingTrailById(id);
 
-        StatusEnum trailStatus = currentTrail.getTrailStatus();
+        StatusEnum detailsStatus = currentTrail.getDetailsStatus();
         String reviewedBy = currentTrail.getReviewedBy() != null
                 ? currentTrail.getReviewedBy().getUsername() : null;
 
 
-        if (trailStatus.equals(StatusEnum.PENDING)
+        if (detailsStatus.equals(StatusEnum.PENDING)
                 || reviewedBy != null
-                && trailStatus.equals(StatusEnum.REVIEW) && reviewedBy.equals(userDetails.getProfileName())
+                && detailsStatus.equals(StatusEnum.REVIEW) && reviewedBy.equals(userDetails.getProfileName())
         ) {
             return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
         }
@@ -536,7 +552,7 @@ public class HikingTrailService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = getHikingTrailById(id);
-        StatusEnum trailStatus = currentTrail.getTrailStatus();
+        StatusEnum detailsStatus = currentTrail.getDetailsStatus();
 
         UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
@@ -544,9 +560,9 @@ public class HikingTrailService {
         String reviewedByUserName = reviewedByUser != null ? reviewedByUser.getUsername() : null;
 
         if (reviewBoolean.review()) {
-            handleClaimReview(currentTrail, trailStatus, reviewedByUserName, loggedUser);
+            handleClaimReview(currentTrail, detailsStatus, reviewedByUserName, loggedUser);
         } else {
-            handleCancelClaim(currentTrail, trailStatus, reviewedByUserName, loggedUser);
+            handleCancelClaim(currentTrail, detailsStatus, reviewedByUserName, loggedUser);
         }
 
         saveTrailWithoutReturn(currentTrail);
@@ -563,8 +579,8 @@ public class HikingTrailService {
         validateTrailApproval(currentTrail, userDetails);
 
         updateTrailFields(currentTrail, trailCreateOrReview);
-
-        currentTrail.setTrailStatus(StatusEnum.APPROVED);
+        /*TODO: TrailStatus to be updated if no images and no gpx with status PENDING or REVIEWED to APPROVED*/
+        currentTrail.setDetailsStatus(StatusEnum.APPROVED);
 
         saveTrailWithoutReturn(currentTrail);
 
@@ -595,7 +611,7 @@ public class HikingTrailService {
 
     public HikingTrailEntity getTrailByIdWithStatusAndOwner(Long id, String email) {
         Optional<HikingTrailEntity> exist = this.hikingTrailRepository
-                .findByIdAndTrailStatusInAndCreatedByEmail(
+                .findByIdAndDetailsStatusInAndCreatedByEmail(
                         id,
                         List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
                         email);
@@ -610,7 +626,7 @@ public class HikingTrailService {
     }
 
     public HikingTrailEntity getTrailByIdWithStatusOwnerAndImages(Long id, String email) {
-        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithImagesByIdAndTrailStatusInAndCreatedByEmail(
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithImagesByIdAndDetailsStatusInAndCreatedByEmail(
                 id,
                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
                 email);
@@ -624,7 +640,7 @@ public class HikingTrailService {
     }
 
     public HikingTrailEntity getTrailByIdWithStatusOwnerAndDestinations(Long id, String email) {
-        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithDestinationsByIdAndTrailStatusInAndCreatedByEmail(
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithDestinationsByIdAndDetailsStatusInAndCreatedByEmail(
                 id,
                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
                 email);
@@ -638,7 +654,7 @@ public class HikingTrailService {
     }
 
     public HikingTrailEntity getTrailByIdWithStatusOwnerAndHuts(Long id, String email) {
-        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithHutsByIdAndTrailStatusInAndCreatedByEmail(
+        Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithHutsByIdAndDetailsStatusInAndCreatedByEmail(
                 id,
                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
                 email);
@@ -681,7 +697,7 @@ public class HikingTrailService {
 
     public HikingTrailEntity getApprovedHikingTrailByIdAndLikes(Long id) {
         Optional<HikingTrailEntity> exist =
-                this.hikingTrailRepository.findWithLikesByIdAndTrailStatus(id, StatusEnum.APPROVED);
+                this.hikingTrailRepository.findWithLikesByIdAndDetailsStatus(id, StatusEnum.APPROVED);
 
         if (exist.isEmpty()) {
             throw new AppException("Hiking trail not found or not approved!", HttpStatus.NOT_FOUND);
@@ -693,7 +709,7 @@ public class HikingTrailService {
     //TODO: use this method for members
     private HikingTrailEntity getApprovedHikingTrailById(Long id) {
         Optional<HikingTrailEntity> byIdAndTrailStatus =
-                this.hikingTrailRepository.findByIdAndTrailStatus(id, StatusEnum.APPROVED);
+                this.hikingTrailRepository.findByIdAndDetailsStatus(id, StatusEnum.APPROVED);
 
         if (byIdAndTrailStatus.isEmpty()) {
             throw new AppException("Hiking trail not found or not approved!", HttpStatus.NOT_FOUND);
@@ -704,7 +720,7 @@ public class HikingTrailService {
 
     public HikingTrailEntity getApprovedTrailByIdAndComments(Long id) {
         Optional<HikingTrailEntity> exist =
-                this.hikingTrailRepository.findWithCommentsByIdAndTrailStatus(id, StatusEnum.APPROVED);
+                this.hikingTrailRepository.findWithCommentsByIdAndDetailsStatus(id, StatusEnum.APPROVED);
 
         if (exist.isEmpty()) {
             throw new AppException("Hiking trail not found or has an invalid status!", HttpStatus.BAD_REQUEST);
@@ -717,7 +733,7 @@ public class HikingTrailService {
             HikingTrailEntity currentTrail,
             ExploreBgUserDetails userDetails
     ) {
-        StatusEnum trailStatus = currentTrail.getTrailStatus();
+        StatusEnum trailStatus = currentTrail.getDetailsStatus();
         String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
 
         if (reviewedByUserProfile == null) {
@@ -811,11 +827,11 @@ public class HikingTrailService {
 
     private void handleClaimReview(
             HikingTrailEntity trail,
-            StatusEnum trailStatus,
+            StatusEnum detailsStatus,
             String reviewedByUserName,
             UserEntity loggedUser
     ) {
-        if (trailStatus.equals(StatusEnum.REVIEW)) {
+        if (detailsStatus.equals(StatusEnum.REVIEW)) {
             if (Objects.equals(reviewedByUserName, loggedUser.getUsername())) {
                 throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
             } else {
@@ -823,34 +839,34 @@ public class HikingTrailService {
             }
         }
 
-        if (trailStatus.equals(StatusEnum.APPROVED)) {
+        if (detailsStatus.equals(StatusEnum.APPROVED)) {
             throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
         }
 
-        trail.setTrailStatus(StatusEnum.REVIEW);
+        trail.setDetailsStatus(StatusEnum.REVIEW);
         trail.setReviewedBy(loggedUser);
     }
 
     private void handleCancelClaim(
             HikingTrailEntity trail,
-            StatusEnum trailStatus,
+            StatusEnum detailsStatus,
             String reviewedByUserName,
             UserEntity loggedUser
     ) {
-        if (trailStatus.equals(StatusEnum.PENDING)) {
+        if (detailsStatus.equals(StatusEnum.PENDING)) {
             throw new AppException("You cannot cancel the review for an item that you haven't claimed!", HttpStatus.BAD_REQUEST);
         }
 
-        if (trailStatus.equals(StatusEnum.REVIEW)) {
+        if (detailsStatus.equals(StatusEnum.REVIEW)) {
             if (Objects.equals(reviewedByUserName, loggedUser.getUsername())) {
-                trail.setTrailStatus(StatusEnum.PENDING);
+                trail.setDetailsStatus(StatusEnum.PENDING);
                 trail.setReviewedBy(null);
             } else {
                 throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
             }
         }
 
-        if (trailStatus.equals(StatusEnum.APPROVED)) {
+        if (detailsStatus.equals(StatusEnum.APPROVED)) {
             throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
         }
     }

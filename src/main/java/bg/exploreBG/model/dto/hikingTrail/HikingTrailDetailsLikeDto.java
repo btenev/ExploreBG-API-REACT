@@ -39,7 +39,7 @@ public record HikingTrailDetailsLikeDto(
         LocalDateTime lastUpdateDate,
         boolean likedByUser,
         @JsonSerialize(using = StatusEnumSerializer.class)
-        StatusEnum trailStatus,
+        StatusEnum detailsStatus,
         List<DestinationBasicDto> destinations
 ) {
 }

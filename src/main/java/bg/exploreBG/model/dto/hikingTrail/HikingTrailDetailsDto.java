@@ -38,7 +38,7 @@ public record HikingTrailDetailsDto(
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime lastUpdateDate,
         @JsonSerialize(using = StatusEnumSerializer.class)
-        StatusEnum trailStatus,
+        StatusEnum detailsStatus,
         List<DestinationBasicDto> destinations
 ) {
 }
