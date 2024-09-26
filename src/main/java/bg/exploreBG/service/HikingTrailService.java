@@ -434,7 +434,8 @@ public class HikingTrailService {
             ImageMainUpdateDto imageMainUpdateDto,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdWithStatusOwnerAndImages(id, userDetails.getUsername());
+
+        HikingTrailEntity currentTrail = getTrailWithImagesByIdAndStatusIfOwner(id, userDetails.getUsername());
 
         ImageEntity found =
                 currentTrail
@@ -625,18 +626,45 @@ public class HikingTrailService {
         return exist.get();
     }
 
-    public HikingTrailEntity getTrailByIdWithStatusOwnerAndImages(Long id, String email) {
+    public HikingTrailEntity getTrailWithImagesByIdAndStatusIfOwner(Long id, String email) {
         Optional<HikingTrailEntity> exist = this.hikingTrailRepository.findWithImagesByIdAndDetailsStatusInAndCreatedByEmail(
                 id,
                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
                 email);
-        logger.info("user id " + id + "username " + email);
+
+        logger.info(String.format("Method: %s, Fetching hiking trail with ID: %d for user: %s with statuses: %s",
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                id,
+                email,
+                List.of(StatusEnum.PENDING, StatusEnum.APPROVED)));
+
         if (exist.isEmpty()) {
             throw new AppException(
                     "Hiking trail not found, has an invalid status, or is not owned by the specified user!",
                     HttpStatus.BAD_REQUEST);
         }
         return exist.get();
+    }
+
+    public HikingTrailEntity getTrailWithImagesAndImageReviewerByIdAndStatusIfOwner(Long id, String email) {
+        Optional<HikingTrailEntity> trail = this.hikingTrailRepository.findWithImagesAndImageReviewerByIdAndDetailsStatusInAndCreatedByEmail(
+                id,
+                List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                email);
+
+        logger.info(String.format("Method: %s, Fetching hiking trail with ID: %d for user: %s with statuses: %s",
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                id,
+                email,
+                List.of(StatusEnum.PENDING, StatusEnum.APPROVED)));
+
+        if (trail.isEmpty()) {
+            throw new AppException(
+                    "Hiking trail not found, has an invalid status, or is not owned by the specified user!",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        return trail.get();
     }
 
     public HikingTrailEntity getTrailByIdWithStatusOwnerAndDestinations(Long id, String email) {

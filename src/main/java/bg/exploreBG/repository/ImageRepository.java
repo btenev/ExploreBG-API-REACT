@@ -14,7 +14,8 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
     @Query("""
             SELECT i.imageUrl
             FROM ImageEntity i
-            WHERE i.owner.email = :email
+            JOIN i.profileOwner po
+            WHERE po.email = :email
             """)
     Optional<String> findImageUrlByOwnerEmail(@Param("email") String owner_email);
 }

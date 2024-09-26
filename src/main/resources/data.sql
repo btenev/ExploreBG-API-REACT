@@ -1,42 +1,64 @@
 INSERT INTO roles (id, role)
-SELECT 1, 'MEMBER' FROM DUAL
+SELECT 1, 'MEMBER'
+FROM DUAL
 WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 1);
 
 INSERT INTO roles (id, role)
-SELECT 2, 'MODERATOR' FROM DUAL
+SELECT 2, 'MODERATOR'
+FROM DUAL
 WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 2);
 
 INSERT INTO roles (id, role)
-SELECT 3, 'ADMIN' FROM DUAL
+SELECT 3, 'ADMIN'
+FROM DUAL
 WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 3);
 
-INSERT INTO images (id, cloud_id, folder, image_url)
+INSERT INTO images (id, cloud_id, folder, image_url, image_status, creation_date)
 VALUES (1, '707325df-b536-47e2-b511-d106296ad5ec', 'Users-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1725364534/Users-demo/707325df-b536-47e2-b511-d106296ad5ec'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1725364534/Users-demo/707325df-b536-47e2-b511-d106296ad5ec',
+        'APPROVED', UTC_TIMESTAMP()),
        (2, '98196dc3-825e-467f-b98f-3f433b731d0d', 'Users-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1725368531/Users-demo/98196dc3-825e-467f-b98f-3f433b731d0d'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1725368531/Users-demo/98196dc3-825e-467f-b98f-3f433b731d0d',
+        'APPROVED', UTC_TIMESTAMP()),
        (3, '2e121ec2-3708-4555-a709-c92f79f6aac0', 'Users-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1725369492/Users-demo/2e121ec2-3708-4555-a709-c92f79f6aac0'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1725369492/Users-demo/2e121ec2-3708-4555-a709-c92f79f6aac0',
+        'APPROVED', UTC_TIMESTAMP()),
        (4, 'dfe9b4a6-4124-46e5-b560-5b8a6068a538', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746408/Trails-demo/dfe9b4a6-4124-46e5-b560-5b8a6068a538'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746408/Trails-demo/dfe9b4a6-4124-46e5-b560-5b8a6068a538',
+        'APPROVED', UTC_TIMESTAMP()),
        (5, 'e8f6e009-dcd9-42dd-9219-d56cc0c7b2ca', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746409/Trails-demo/e8f6e009-dcd9-42dd-9219-d56cc0c7b2ca'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746409/Trails-demo/e8f6e009-dcd9-42dd-9219-d56cc0c7b2ca',
+        'APPROVED', UTC_TIMESTAMP()),
        (6, '78939ad4-50bf-4d3d-bf08-63e05440a3bb', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746411/Trails-demo/78939ad4-50bf-4d3d-bf08-63e05440a3bb'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746411/Trails-demo/78939ad4-50bf-4d3d-bf08-63e05440a3bb',
+        'APPROVED', UTC_TIMESTAMP()),
        (7, '2b073089-aaa4-4b62-bd83-478d62b3e0b3', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746413/Trails-demo/2b073089-aaa4-4b62-bd83-478d62b3e0b3'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746413/Trails-demo/2b073089-aaa4-4b62-bd83-478d62b3e0b3',
+        'APPROVED', UTC_TIMESTAMP()),
        (8, '61429b5d-3a33-459e-b936-a8cd3b91df82', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746415/Trails-demo/61429b5d-3a33-459e-b936-a8cd3b91df82'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746415/Trails-demo/61429b5d-3a33-459e-b936-a8cd3b91df82',
+        'APPROVED', UTC_TIMESTAMP()),
        (9, '88118c19-eb95-48ae-8ffc-0656f85f2961', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746417/Trails-demo/88118c19-eb95-48ae-8ffc-0656f85f2961'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746417/Trails-demo/88118c19-eb95-48ae-8ffc-0656f85f2961',
+        'APPROVED', UTC_TIMESTAMP()),
        (10, '4386094c-44e8-4de2-868e-bcb0a08c9a91', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746419/Trails-demo/4386094c-44e8-4de2-868e-bcb0a08c9a91'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746419/Trails-demo/4386094c-44e8-4de2-868e-bcb0a08c9a91',
+        'APPROVED', UTC_TIMESTAMP()),
        (11, '194322e9-dbaf-49bb-aaf2-f0d178125c81', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746421/Trails-demo/194322e9-dbaf-49bb-aaf2-f0d178125c81'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746421/Trails-demo/194322e9-dbaf-49bb-aaf2-f0d178125c81',
+        'APPROVED', UTC_TIMESTAMP()),
        (12, 'dc3a1eb7-23ed-4099-9ace-2ff3e00c72a4', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746423/Trails-demo/dc3a1eb7-23ed-4099-9ace-2ff3e00c72a4'),
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746423/Trails-demo/dc3a1eb7-23ed-4099-9ace-2ff3e00c72a4',
+        'APPROVED', UTC_TIMESTAMP()),
        (13, 'a406254e-4966-4c82-b18a-109dc8209539', 'Trails-demo',
-        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746425/Trails-demo/a406254e-4966-4c82-b18a-109dc8209539');
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1726746425/Trails-demo/a406254e-4966-4c82-b18a-109dc8209539',
+        'APPROVED', UTC_TIMESTAMP()),
+       (14, '7f2eb04f-96eb-48d9-b74a-32ac0a341552', 'Trails-demo',
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1727259806/Trails-demo/7f2eb04f-96eb-48d9-b74a-32ac0a341552',
+        'PENDING', UTC_TIMESTAMP()),
+       (15, 'fab873e4-d3d0-4dfa-bd43-5dbaeee68bc8', 'Trails-demo',
+        'https://res.cloudinary.com/dcljilaws/image/upload/v1727259809/Trails-demo/fab873e4-d3d0-4dfa-bd43-5dbaeee68bc8',
+        'PENDING', UTC_TIMESTAMP());
 
 INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date, account_non_locked,
                    user_image_id)
@@ -188,7 +210,9 @@ VALUES (1, 4),
        (1, 10),
        (1, 11),
        (1, 12),
-       (1, 13);
+       (1, 13),
+       (8, 14),
+       (8, 15);
 
 INSERT INTO hiking_trail_liked_by_users(hiking_trail_entity_id, liked_by_users_id)
 VALUES (3, 4),

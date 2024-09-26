@@ -119,7 +119,7 @@ public class SuperUserController {
         int destinationCountReview = this.destinationService.getUnderReviewDestinationCount();
         DestinationApprovalReviewCountDto destinations
                 = new DestinationApprovalReviewCountDto(destinationCountPending, destinationCountReview);
-
+        // TODO: Refactor show only items with with trailStatus PENDING
         int trailCountPending = this.hikingTrailService.getPendingApprovalTrailCount();
         int trailCountReview = this.hikingTrailService.getUnderReviewTrailCount();
         TrailApprovalReviewCountDto trails

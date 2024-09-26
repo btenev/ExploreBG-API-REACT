@@ -32,19 +32,28 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     @EntityGraph(attributePaths = {"images"})
     Optional<HikingTrailEntity> findWithImagesByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
-    Optional<HikingTrailEntity> findByIdAndDetailsStatusInAndCreatedByEmail(Long id, List<StatusEnum> detailsStatus, String createdBy_email);
+    Optional<HikingTrailEntity> findByIdAndDetailsStatusInAndCreatedByEmail(
+            Long id, List<StatusEnum> detailsStatus, String createdBy_email);
+
+    /*used updateMainImage*/
+    @EntityGraph(attributePaths = {"images"})
+    Optional<HikingTrailEntity> findWithImagesByIdAndDetailsStatusInAndCreatedByEmail(
+            Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in saveImages*/
-    @EntityGraph(attributePaths = {"images"})
-    Optional<HikingTrailEntity> findWithImagesByIdAndDetailsStatusInAndCreatedByEmail(Long id, List<StatusEnum> detailsStatus, String createdBy_email);
+    @EntityGraph(attributePaths = {"images", "createdBy"})
+    Optional<HikingTrailEntity> findWithImagesAndImageReviewerByIdAndDetailsStatusInAndCreatedByEmail(
+            Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in updateDestinations*/
     @EntityGraph(attributePaths = {"destinations"})
-    Optional<HikingTrailEntity> findWithDestinationsByIdAndDetailsStatusInAndCreatedByEmail(Long id, List<StatusEnum> detailsStatus, String createdBy_email);
+    Optional<HikingTrailEntity> findWithDestinationsByIdAndDetailsStatusInAndCreatedByEmail(
+            Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in updateAvailableHuts*/
     @EntityGraph(attributePaths = {"availableHuts"})
-    Optional<HikingTrailEntity> findWithHutsByIdAndDetailsStatusInAndCreatedByEmail(Long id, List<StatusEnum> detailsStatus, String createdBy_email);
+    Optional<HikingTrailEntity> findWithHutsByIdAndDetailsStatusInAndCreatedByEmail(
+            Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
@@ -151,6 +160,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 //            JOIN t.reviewedBy rb
 //            WHERE t.trailStatus in ?1
 //            """)
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
     Page<HikingTrailForApprovalProjection> getHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum status, Pageable pageable);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")

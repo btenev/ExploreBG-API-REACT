@@ -8,6 +8,7 @@ import bg.exploreBG.model.dto.image.validate.ImageCreateDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.repository.ImageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,7 +59,7 @@ public class ImageService {
             Map<String, String> cloudinaryResponse =
                     validateUploadResult(file, imageCreateDto.folder(), cloudinaryId);
 
-            userImage = createImageEntity(cloudinaryResponse, loggedUser);
+            userImage = createImageEntity(cloudinaryResponse, loggedUser, true);
         } else {
             String cloudinaryId = userImage.getCloudId();
 
@@ -92,9 +94,9 @@ public class ImageService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailByIdWithStatusOwnerAndImages(trailId, userDetails.getUsername());
+                this.hikingTrailService.getTrailWithImagesAndImageReviewerByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         UserEntity loggedUser = currentTrail.getCreatedBy();
-
+        logger.info("Save trail pictures - logged user {}", loggedUser.getUsername());
         List<ImageEntity> currentTrailImages = currentTrail.getImages();
 
         int usedSlots = currentTrailImages.size();
@@ -211,10 +213,10 @@ public class ImageService {
                 .collect(Collectors.toSet());
     }
 
-
     private ImageEntity createImageEntity(
             Map<String, String> cloudinaryResponse,
-            UserEntity owner
+            UserEntity owner,
+            boolean isProfileImage
     ) {
         String folder = cloudinaryResponse.get("folder");
         String url = cloudinaryResponse.get("url");
@@ -224,7 +226,14 @@ public class ImageService {
         image.setImageUrl(url);
         image.setFolder(folder);
         image.setCloudId(cloudinaryId);
-        image.setOwner(owner);
+        if(isProfileImage) {
+            image.setProfileOwner(owner);
+            image.setImageStatus(StatusEnum.APPROVED);
+        } else {
+            image.setImageStatus(StatusEnum.PENDING);
+        }
+        image.setCreationDate(LocalDateTime.now());
+
         return image;
     }
 
@@ -232,7 +241,7 @@ public class ImageService {
             List<Map<String, String>> results,
             UserEntity owner
     ) {
-        return results.stream().map(r -> createImageEntity(r, owner)).collect(Collectors.toList());
+        return results.stream().map(r -> createImageEntity(r, owner, false)).collect(Collectors.toList());
     }
 
     private String generateCloudinaryId() {
