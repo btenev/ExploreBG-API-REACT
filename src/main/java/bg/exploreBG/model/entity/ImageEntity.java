@@ -1,6 +1,9 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.model.enums.StatusEnum;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "images")
@@ -22,7 +25,17 @@ public class ImageEntity {
     private String imageUrl;
 
     @OneToOne(mappedBy = "userImage")
-    private UserEntity owner;
+    private UserEntity profileOwner;
+
+    @Column(name = "image_status")
+    @Enumerated(EnumType.STRING)
+    private StatusEnum imageStatus;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
+    @ManyToOne
+    private UserEntity reviewedBy;
 
     public ImageEntity(){
     }
@@ -67,12 +80,36 @@ public class ImageEntity {
         this.imageUrl = imageUrl;
     }
 
-    public UserEntity getOwner() {
-        return owner;
+    public UserEntity getProfileOwner() {
+        return profileOwner;
     }
 
-    public void setOwner(UserEntity owner) {
-        this.owner = owner;
+    public void setProfileOwner(UserEntity owner) {
+        this.profileOwner = owner;
+    }
+
+    public UserEntity getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(UserEntity reviewedBy) {
+        this.reviewedBy = reviewedBy;
+    }
+
+    public StatusEnum getImageStatus() {
+        return imageStatus;
+    }
+
+    public void setImageStatus(StatusEnum imageStatus) {
+        this.imageStatus = imageStatus;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
     @Override
@@ -83,7 +120,10 @@ public class ImageEntity {
                 ", cloudId='" + cloudId + '\'' +
                 ", folder='" + folder + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", owner=" + owner +
+                ", profileOwner=" + profileOwner +
+                ", imageStatus=" + imageStatus +
+                ", creationDate=" + creationDate +
+                ", reviewedBy=" + reviewedBy +
                 '}';
     }
 }
