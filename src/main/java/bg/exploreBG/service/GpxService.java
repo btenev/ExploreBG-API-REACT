@@ -2,7 +2,6 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.GpxUrlDateDto;
-import bg.exploreBG.model.dto.GpxUrlDto;
 import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.repository.GpxRepository;
@@ -42,7 +41,7 @@ public class GpxService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailByIdWithStatusAndOwner(id, userDetails.getUsername());
+                this.hikingTrailService.getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
         GpxEntity gpxCurrentTrail = currentTrail.getGpxFile();
 

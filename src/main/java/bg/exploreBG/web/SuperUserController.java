@@ -9,11 +9,11 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
+import bg.exploreBG.model.dto.image.single.ImageUrlDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
-import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.AccommodationService;
@@ -95,7 +95,9 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: IVO: only messages, no errors*/
+    /*TODO: IVO: only messages, no errors
+      url: /api/super-users/{id}/lock
+     */
     @PatchMapping("/{id}/lock-account")
     public ResponseEntity<ApiResponse<Boolean>> toggleUserAccountLock(
             @PathVariable Long id,
@@ -107,8 +109,8 @@ public class SuperUserController {
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/waiting-approval/count")
+    /*TODO:  old: /waiting-approval/count new: /entities/waiting-approval/count*/
+    @GetMapping("/entities/waiting-approval/count")
     public ResponseEntity<EntitiesForApprovalUnderReviewCountDto> waitingForApprovalUnderReviewCount() {
         int accommodationCountPending = this.accommodationService.getPendingApprovalAccommodationCount();
         int accommodationCountReview = this.accommodationService.getUnderReviewAccommodationCount();
@@ -134,8 +136,8 @@ public class SuperUserController {
 
         return ResponseEntity.ok(countDto);
     }
-
-    @GetMapping("/waiting-approval/trails")
+    /*TODO: old: /waiting-approval/trails new: /trails/waiting-approval*/
+    @GetMapping("/trails/waiting-approval")
     public ResponseEntity<Page<HikingTrailForApprovalProjection>> waitingForApprovalTrails(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
@@ -153,10 +155,10 @@ public class SuperUserController {
 
         return ResponseEntity.ok(forApproval);
     }
-
+    /*TODO: old: /review/trail/{id} new: /trails/{id}/review  rewrite reviewNewTrail so it returns image information as well */
     //Add data ???
     @Transactional
-    @GetMapping("/review/trail/{id}")
+    @GetMapping("/trails/{id}/review")
     public ResponseEntity<ApiResponse<HikingTrailReviewDto>> reviewNewTrail(
             @PathVariable Long id,
             @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
@@ -168,8 +170,10 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: IVO: only messages, no errors*/
-    @PatchMapping("/review/trail/{id}/claim")
+    /*TODO: old: /review/trail/{id}/claim new:  IVO: only messages, no errors
+    url: /trails/{id}/claim
+    */
+    @PatchMapping("/trails/{id}/claim")
     public ResponseEntity<ApiResponse<Boolean>> toggleTrailReviewClaim(
             @PathVariable Long id,
             @RequestBody ReviewBooleanDto reviewBooleanDto,
@@ -181,9 +185,9 @@ public class SuperUserController {
 
         return ResponseEntity.ok(response);
     }
-
+    /*TODO: tell Ivo old: /approve/trail/{id}   new: /trail/{id}/approve*/
     @Transactional
-    @PatchMapping("/approve/trail/{id}")
+    @PatchMapping("/trail/{id}/approve")
     public ResponseEntity<ApiResponse<Boolean>> approveNewTrail(
             @PathVariable Long id,
             @Valid @RequestBody HikingTrailCreateOrReviewDto trailCreateOrReviewDto,

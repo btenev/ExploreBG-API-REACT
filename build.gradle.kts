@@ -31,13 +31,11 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.apache.tika/tika-parsers-standard-package
 	implementation("org.apache.tika:tika-parsers-standard-package:2.9.2")
 
-
-
-	runtimeOnly("com.mysql:mysql-connector-j")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+	runtimeOnly("com.mysql:mysql-connector-j")
 }
 
 tasks.withType<Test> {

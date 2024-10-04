@@ -132,7 +132,7 @@ public class ImageService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailByIdIfOwnerAndImages(id, userDetails);
+                this.hikingTrailService.getTrailWithImagesByIdIfOwner(id, userDetails);
 
         Set<ImageEntity> imagesToDelete = getImagesToDelete(toDeleteDto, currentTrail);
         logger.info("Images to delete: {}", imagesToDelete);
