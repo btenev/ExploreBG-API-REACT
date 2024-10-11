@@ -9,7 +9,6 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
-import bg.exploreBG.model.dto.image.single.ImageUrlDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;

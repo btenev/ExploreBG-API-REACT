@@ -541,7 +541,7 @@ public class HikingTrailService {
         }
 
         for (ImageEntity image : currentTrail.getImages()) {
-            logger.info("Image reviewer:{}",image.getReviewedBy());
+            logger.info("Image reviewer:{}", image.getReviewedBy());
             if (isEligibleForReview(image.getImageStatus(), image.getReviewedBy(), userDetails)) {
                 return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
             }
@@ -602,8 +602,31 @@ public class HikingTrailService {
         /*TODO: TrailStatus to be updated if no images and no gpx with status PENDING or REVIEWED to APPROVED*/
         currentTrail.setDetailsStatus(StatusEnum.APPROVED);
 
+        if (areAllApproved(currentTrail.getGpxFile(), currentTrail.getImages())) {
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
+        }
+
         saveTrailWithoutReturn(currentTrail);
 
+        return true;
+    }
+
+    private boolean areAllApproved(GpxEntity gpx, List<ImageEntity> images) {
+        /* TODO: implement when we add logic for gpx status
+        if (gpx != null && gpx.getStatus() != StatusEnum.APPROVED) {
+            return false;
+        }
+        */
+
+        if(images == null || images.isEmpty()) {
+            return true;
+        }
+
+        for (ImageEntity image : images) {
+            if (image.getImageStatus() != StatusEnum.APPROVED) {
+                return false;
+            }
+        }
         return true;
     }
 
