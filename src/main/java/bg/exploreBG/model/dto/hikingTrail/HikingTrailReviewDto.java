@@ -6,6 +6,7 @@ import bg.exploreBG.model.dto.image.ImageBasicDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.serializer.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
@@ -28,7 +29,8 @@ public record HikingTrailReviewDto(
         Integer elevationGained,
         String nextTo,
         @JsonSerialize(using = StatusEnumSerializer.class)
-        StatusEnum detailsStatus,
+        @JsonProperty(value = "detailsStatus")
+        StatusEnum status,
         UserBasicInfo reviewedBy,
         List<DestinationBasicDto> destinations,
         List<ImageBasicDto> images

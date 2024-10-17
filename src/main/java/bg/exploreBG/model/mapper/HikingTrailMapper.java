@@ -4,7 +4,7 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsLikeDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
-import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -30,13 +30,27 @@ public interface HikingTrailMapper {
     @Mapping(target = "likedByUser", expression = "java(trailIsLikedByUser(trail.getLikedByUsers(), user))")
     HikingTrailDetailsLikeDto hikingTrailEntityToHikingTrailDetailsLikeDto(HikingTrailEntity trail, UserEntity user);
 
-    HikingTrailReviewDto hikingTrailEntityToHikingTrailReviewDto(HikingTrailEntity hikingTrailEntity);
+    HikingTrailReviewDto hikingTrailEntityToHikingTrailReviewDto(HikingTrailEntity trail);
 
     @Mapping(target = "destinations", ignore = true)
     @Mapping(target = "availableHuts", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "reviewedBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "trailStatus", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "modificationDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "gpxFile", ignore = true)
+    @Mapping(target = "mainImage", ignore = true)
+    @Mapping(target = "images", ignore = true)
+    @Mapping(target = "likedByUsers", ignore = true)
+    @Mapping(target = "maxNumberOfImages", ignore = true)
+    @Mapping(target = "singleComment", ignore = true)
     HikingTrailEntity hikingTrailCreateDtoToHikingTrailEntity(HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto);
 
-    default List<ImageIdUrlIsMainDto> mapImageEntityToImageIdUrlIsMainDto(
+    default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(
             List<ImageEntity> images,
             HikingTrailEntity trail
     ) {
@@ -46,7 +60,7 @@ public interface HikingTrailMapper {
                 .stream()
                 .map(i -> {
                     boolean isMain = Objects.equals(i.getId(), mainImage.getId());
-                    return new ImageIdUrlIsMainDto(i.getId(), i.getImageUrl(), isMain);
+                    return new ImageIdUrlIsMainStatusDto(i.getId(), i.getImageUrl(), isMain, i.getStatus());
                 })
                 .collect(Collectors.toList());
     }

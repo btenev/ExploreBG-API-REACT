@@ -13,7 +13,7 @@ SELECT 3, 'ADMIN'
 FROM DUAL
 WHERE NOT EXISTS (SELECT * FROM roles WHERE id = 3);
 
-INSERT INTO images (id, cloud_id, folder, image_url, image_status, creation_date)
+INSERT INTO images (id, cloud_id, folder, image_url, status, creation_date)
 VALUES (1, '707325df-b536-47e2-b511-d106296ad5ec', 'Users-demo',
         'https://res.cloudinary.com/dcljilaws/image/upload/v1725364534/Users-demo/707325df-b536-47e2-b511-d106296ad5ec',
         'APPROVED', UTC_TIMESTAMP()),
@@ -139,8 +139,8 @@ VALUES (1,
        (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown', 'CULTURAL_HERITAGE', 'APPROVED');
 
 INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, season_visited,
-                          water_available, trail_difficulty, elevation_gained, next_to, creation_date, details_status,
-                          max_number_of_images, created_by_id, main_image_id, trail_status)
+                          water_available, trail_difficulty, elevation_gained, next_to, creation_date, trail_status,
+                          max_number_of_images, created_by_id, main_image_id, status)
 VALUES (1, 'Selo Zheleznitsa', 'Cherni vrah', 9.00,
         'The route from the village of Zheleznitsa to Cherni vrah (2290 m) is interesting, somewhat varied and above all beautiful. Some say it is the most picturesque ascent of the summit of Vitosha. So far I think so, but I haven''t climbed it on the southern routes yet. Of course, before you go, you should keep in mind that this hike overcomes nearly 1,300 meters of positive elevation gain. Consider your physical strength well and keep in mind that you have to get down somehow, the closest point after that being the Aleko hut.',
         'SUMMER', 'NO_INFORMATION', 4, 1258, 'Zheleznitsa', UTC_TIMESTAMP(),

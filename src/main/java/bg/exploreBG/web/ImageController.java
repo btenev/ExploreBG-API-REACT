@@ -8,6 +8,7 @@ import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.single.ImageUrlDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateDto;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.validation.MaxFileSize;
 import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.ImageService;
@@ -80,7 +81,7 @@ public class ImageController {
     ) {
         List<ImageIdUrlIsMainDto> urlDto = switch (imageCreateDto.folder().toLowerCase()) {
             case "trails-demo", "trails" -> this.imageService.saveTrailPictures(
-                    id, imageCreateDto, files, userDetails);
+                    id, imageCreateDto, files, userDetails, List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
             /*       case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateDto, files, userDetails);
             case "destination" -> imageService.saveDestinationPictures(id, imageCreateDto, files, userDetails);*/
             default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);

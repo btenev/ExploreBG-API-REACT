@@ -12,6 +12,7 @@ import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -83,7 +84,10 @@ public class HikingTrailController {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            response = new ApiResponse<>(this.hikingTrailService.getHikingTrail(trailId));
+            response = new ApiResponse<>(
+                    this.hikingTrailService
+                            .getApprovedHikingTrailWithApprovedImagesById(trailId, StatusEnum.APPROVED));
+            logger.info("No token response");
         }
 
         return ResponseEntity.ok(response);
@@ -287,7 +291,11 @@ public class HikingTrailController {
     ) {
         AccommodationWrapperDto accommodationBasicDto =
                 this.hikingTrailService
-                        .updateHikingTrailAvailableHuts(trailId, hikingTrailUpdateAvailableHutsDto, userDetails);
+                        .updateHikingTrailAvailableHuts(
+                                trailId,
+                                hikingTrailUpdateAvailableHutsDto,
+                                userDetails,
+                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
 
         ApiResponse<AccommodationWrapperDto> response = new ApiResponse<>(accommodationBasicDto);
 
@@ -302,7 +310,11 @@ public class HikingTrailController {
     ) {
         DestinationWrapperDto destinations =
                 this.hikingTrailService
-                        .updateHikingTrailDestinations(trailId, hikingTrailUpdateDestinationsDto, userDetails);
+                        .updateHikingTrailDestinations(
+                                trailId,
+                                hikingTrailUpdateDestinationsDto,
+                                userDetails,
+                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
 
         ApiResponse<DestinationWrapperDto> response = new ApiResponse<>(destinations);
 
@@ -317,7 +329,12 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean updatedMainImage =
-                this.hikingTrailService.updateHikingTrailMainImage(trailId, imageMainUpdateDto, userDetails);
+                this.hikingTrailService.updateHikingTrailMainImage(
+                        trailId,
+                        imageMainUpdateDto,
+                        userDetails,
+                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
+                );
 
         ApiResponse<Boolean> response = new ApiResponse<>(updatedMainImage);
 
@@ -331,7 +348,8 @@ public class HikingTrailController {
             @RequestBody LikeBooleanDto likeBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.hikingTrailService.likeOrUnlikeTrail(trailId, likeBooleanDto, userDetails);
+        boolean success =
+                this.hikingTrailService.likeOrUnlikeTrail(trailId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 
@@ -355,7 +373,7 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         CommentDto commentDto = this.hikingTrailService
-                .addNewTrailComment(trailId, commentCreateDto, userDetails);
+                .addNewTrailComment(trailId, commentCreateDto, userDetails, StatusEnum.APPROVED);
 
         ApiResponse<CommentDto> response = new ApiResponse<>(commentDto);
 

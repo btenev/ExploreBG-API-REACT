@@ -91,10 +91,15 @@ public class ImageService {
             Long trailId,
             ImageCreateDto imageCreateDto,
             MultipartFile[] files,
-            UserDetails userDetails
+            UserDetails userDetails,
+            List<StatusEnum> statuses
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailWithImagesAndImageReviewerByIdAndStatusIfOwner(trailId, userDetails.getUsername());
+                this.hikingTrailService.getTrailWithImagesAndImageReviewerByIdAndStatusIfOwner(
+                        trailId,
+                        statuses,
+                        userDetails.getUsername()
+                );
         UserEntity loggedUser = currentTrail.getCreatedBy();
         logger.info("Save trail pictures - logged user {}", loggedUser.getUsername());
         List<ImageEntity> currentTrailImages = currentTrail.getImages();
@@ -132,7 +137,7 @@ public class ImageService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailWithImagesByIdIfOwner(id, userDetails);
+                this.hikingTrailService.getTrailWithImagesByIdIfOwner(id, userDetails.getUsername());
 
         Set<ImageEntity> imagesToDelete = getImagesToDelete(toDeleteDto, currentTrail);
         logger.info("Images to delete: {}", imagesToDelete);
@@ -226,11 +231,11 @@ public class ImageService {
         image.setImageUrl(url);
         image.setFolder(folder);
         image.setCloudId(cloudinaryId);
-        if(isProfileImage) {
+        if (isProfileImage) {
             image.setProfileOwner(owner);
-            image.setImageStatus(StatusEnum.APPROVED);
+            image.setStatus(StatusEnum.APPROVED);
         } else {
-            image.setImageStatus(StatusEnum.PENDING);
+            image.setStatus(StatusEnum.PENDING);
         }
         image.setCreationDate(LocalDateTime.now());
 

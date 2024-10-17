@@ -24,9 +24,12 @@ import java.util.Optional;
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long>, HikingTrailRepositoryCustom {
 
     @EntityGraph(attributePaths = {"likedByUsers"})
-    Optional<HikingTrailEntity> findWithLikesByIdAndDetailsStatus(Long id, StatusEnum detailsStatus);
+    Optional<HikingTrailEntity> findWithLikesByIdAndStatus(Long id, StatusEnum detailsStatus);
 
     Optional<HikingTrailEntity> findByIdAndCreatedBy_Email(Long id, String createdBy_email);
+
+    @EntityGraph(attributePaths = {"images"})
+    Optional<HikingTrailEntity> findWithImagesById(Long trailId);
 
     /*used in deleteImages, we don't care about the status*/
     @EntityGraph(attributePaths = {"images"})
@@ -37,27 +40,27 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     Optional<HikingTrailEntity> findWithImagesByIdAndTrailStatus(
             Long id, SuperUserReviewStatusEnum trailStatus);
 
-    Optional<HikingTrailEntity> findByIdAndDetailsStatusInAndCreatedByEmail(
+    Optional<HikingTrailEntity> findByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used updateMainImage*/
     @EntityGraph(attributePaths = {"images"})
-    Optional<HikingTrailEntity> findWithImagesByIdAndDetailsStatusInAndCreatedByEmail(
+    Optional<HikingTrailEntity> findWithImagesByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in saveImages*/
     @EntityGraph(attributePaths = {"images", "createdBy"})
-    Optional<HikingTrailEntity> findWithImagesAndImageReviewerByIdAndDetailsStatusInAndCreatedByEmail(
+    Optional<HikingTrailEntity> findWithImagesAndImageReviewerByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in updateDestinations*/
     @EntityGraph(attributePaths = {"destinations"})
-    Optional<HikingTrailEntity> findWithDestinationsByIdAndDetailsStatusInAndCreatedByEmail(
+    Optional<HikingTrailEntity> findWithDestinationsByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in updateAvailableHuts*/
     @EntityGraph(attributePaths = {"availableHuts"})
-    Optional<HikingTrailEntity> findWithHutsByIdAndDetailsStatusInAndCreatedByEmail(
+    Optional<HikingTrailEntity> findWithHutsByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     @Query("""
@@ -68,7 +71,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             mi.imageUrl)
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
-            WHERE t.detailsStatus = :statusEnum
+            WHERE t.status = :statusEnum
             """)
     Page<HikingTrailBasicDto> findAllByTrailStatus(@Param("statusEnum") StatusEnum statusEnum, Pageable pageable);
 
@@ -119,11 +122,11 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             """)
    */
 
-    @Query("""
+/*    @Query("""
             SELECT t
             FROM HikingTrailEntity t
             WHERE t.id = :id
-            AND t.detailsStatus = :approvedStatus
+            AND t.status = :approvedStatus
 
             UNION
 
@@ -131,23 +134,24 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             FROM HikingTrailEntity t
             JOIN t.createdBy cb
             WHERE t.id = :id
-            AND t.detailsStatus IN (:pendingStatus, :reviewStatus)
+            AND t.status IN (:pendingStatus, :reviewStatus)
             AND cb.email = :email
-              """)
+            """)
     Optional<HikingTrailEntity> findByIdAndStatusApprovedOrStatusPendingAndOwner(
             @Param("id") Long id,
             @Param("email") String email,
             @Param("approvedStatus") StatusEnum approvedStatus,
             @Param("pendingStatus") StatusEnum pendingStatus,
             @Param("reviewStatus") StatusEnum reviewStatus
-    );
+    );*/
 
     /*MultipleBagFetchException is use @EntityGraph with more than one list collection, use @Transactional for the time being*/
-    Optional<HikingTrailEntity> findByIdAndDetailsStatus(Long id, StatusEnum detailsStatus);
+    /*@EntityGraph(attributePaths = {"images"})*/
+    Optional<HikingTrailEntity> findByIdAndStatus(Long id, StatusEnum detailsStatus);
 
     /*used in addNewTrailComment*/
     @EntityGraph(attributePaths = {"comments"})
-    Optional<HikingTrailEntity> findWithCommentsByIdAndDetailsStatus(Long id, StatusEnum detailsStatus);
+    Optional<HikingTrailEntity> findWithCommentsByIdAndStatus(Long id, StatusEnum detailsStatus);
 
     @EntityGraph(attributePaths = {"comments"})
     Optional<HikingTrailEntity> findWithCommentsById(Long id);
@@ -179,7 +183,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             mi.imageUrl)
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
-            WHERE t.detailsStatus = "APPROVED"
+            WHERE t.status = "APPROVED"
             ORDER BY function('RAND')
             """)
     List<HikingTrailBasicDto> findRandomApprovedTrails(Pageable pageable);
@@ -197,7 +201,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             FROM HikingTrailEntity t
             LEFT JOIN t.mainImage mi
             LEFT JOIN t.likedByUsers lbu ON lbu.email = :email
-            WHERE t.detailsStatus = "APPROVED"
+            WHERE t.status = "APPROVED"
             ORDER BY function('RAND')
             """)
     List<HikingTrailBasicLikesDto> findRandomApprovedTrailsWithLikes(
@@ -210,7 +214,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             CONCAT(t.startPoint, ' - ', t.endPoint)
             )
             FROM HikingTrailEntity t
-            WHERE t.detailsStatus = 'APPROVED'
+            WHERE t.status = 'APPROVED'
             """)
     List<HikingTrailIdTrailNameDto> findAllBy();
 

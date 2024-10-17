@@ -5,10 +5,12 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
+import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.serializer.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ public record HikingTrailDetailsDto(
         String endPoint,
         Double totalDistance,
         String trailInfo,
-        List<ImageIdUrlIsMainDto> images,
+        List<ImageIdUrlIsMainStatusDto> images,
         @JsonSerialize(using = SeasonEnumSerializer.class)
         SeasonEnum seasonVisited,
         @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)
@@ -38,7 +40,8 @@ public record HikingTrailDetailsDto(
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime lastUpdateDate,
         @JsonSerialize(using = StatusEnumSerializer.class)
-        StatusEnum detailsStatus,
+        @JsonProperty(value = "detailsStatus")
+        StatusEnum status,
         List<DestinationBasicDto> destinations
 ) {
 }

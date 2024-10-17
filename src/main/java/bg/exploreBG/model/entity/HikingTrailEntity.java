@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "hiking_trail")
-public class HikingTrailEntity {
+public class HikingTrailEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,9 +71,9 @@ public class HikingTrailEntity {
     @Column(name = "next_to")
     private String nextTo;
 
-    @Column(name = "details_status")
-    @Enumerated(EnumType.STRING)
-    private StatusEnum detailsStatus;
+//    @Column(name = "details_status")
+//    @Enumerated(EnumType.STRING)
+//    private StatusEnum detailsStatus;
 
     @Column(name = "trail_status")
     @Enumerated(EnumType.STRING)
@@ -96,8 +96,8 @@ public class HikingTrailEntity {
     @ManyToOne
     private UserEntity createdBy;
 
-    @ManyToOne
-    private UserEntity reviewedBy;
+    /*@ManyToOne
+    private UserEntity reviewedBy;*/
 
     @OneToOne
     private GpxEntity gpxFile;
@@ -221,14 +221,6 @@ public class HikingTrailEntity {
         this.nextTo = nextTo;
     }
 
-    public StatusEnum getDetailsStatus() {
-        return detailsStatus;
-    }
-
-    public void setDetailsStatus(StatusEnum detailsStatus) {
-        this.detailsStatus = detailsStatus;
-    }
-
     public SuperUserReviewStatusEnum getTrailStatus() {
         return trailStatus;
     }
@@ -267,14 +259,6 @@ public class HikingTrailEntity {
 
     public void setCreatedBy(UserEntity createdBy) {
         this.createdBy = createdBy;
-    }
-
-    public UserEntity getReviewedBy() {
-        return reviewedBy;
-    }
-
-    public void setReviewedBy(UserEntity reviewedBy) {
-        this.reviewedBy = reviewedBy;
     }
 
     public GpxEntity getGpxFile() {
@@ -337,18 +321,17 @@ public class HikingTrailEntity {
                 ", comments=" + comments +
                 ", elevationGained=" + elevationGained +
                 ", nextTo='" + nextTo + '\'' +
-                ", detailsStatus=" + detailsStatus +
                 ", trailStatus=" + trailStatus +
                 ", destinations=" + destinations +
                 ", creationDate=" + creationDate +
                 ", modificationDate=" + modificationDate +
                 ", createdBy=" + createdBy +
-                ", reviewedBy=" + reviewedBy +
                 ", gpxFile=" + gpxFile +
                 ", mainImage=" + mainImage +
                 ", images=" + images +
                 ", likedByUsers=" + likedByUsers +
                 ", maxNumberOfImages=" + maxNumberOfImages +
+                ", " + super.toString() +
                 '}';
     }
 }

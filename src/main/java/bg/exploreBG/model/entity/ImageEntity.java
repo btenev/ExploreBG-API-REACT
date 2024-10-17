@@ -1,13 +1,12 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.model.enums.StatusEnum;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "images")
-public class ImageEntity {
+public class ImageEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,17 +26,17 @@ public class ImageEntity {
     @OneToOne(mappedBy = "userImage")
     private UserEntity profileOwner;
 
-    @Column(name = "image_status")
-    @Enumerated(EnumType.STRING)
-    private StatusEnum imageStatus;
+//    @Column(name = "image_status")
+//    @Enumerated(EnumType.STRING)
+//    private StatusEnum imageStatus;
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
-    @ManyToOne
-    private UserEntity reviewedBy;
+//    @ManyToOne
+//    private UserEntity reviewedBy;
 
-    public ImageEntity(){
+    public ImageEntity() {
     }
 
     public Long getId() {
@@ -88,22 +87,6 @@ public class ImageEntity {
         this.profileOwner = owner;
     }
 
-    public UserEntity getReviewedBy() {
-        return reviewedBy;
-    }
-
-    public void setReviewedBy(UserEntity reviewedBy) {
-        this.reviewedBy = reviewedBy;
-    }
-
-    public StatusEnum getImageStatus() {
-        return imageStatus;
-    }
-
-    public void setImageStatus(StatusEnum imageStatus) {
-        this.imageStatus = imageStatus;
-    }
-
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
@@ -121,9 +104,8 @@ public class ImageEntity {
                 ", folder='" + folder + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", profileOwner=" + profileOwner +
-                ", imageStatus=" + imageStatus +
                 ", creationDate=" + creationDate +
-                ", reviewedBy=" + reviewedBy +
+                ", " + super.toString() +
                 '}';
     }
 }
