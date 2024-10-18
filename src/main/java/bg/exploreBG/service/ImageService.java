@@ -9,6 +9,7 @@ import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.ImageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,7 @@ public class ImageService {
             List<StatusEnum> statuses
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailWithImagesAndImageReviewerByIdAndStatusIfOwner(
+                this.hikingTrailService.getTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
                         trailId,
                         statuses,
                         userDetails.getUsername()
@@ -121,6 +122,7 @@ public class ImageService {
         }
 
         currentTrailImages.addAll(newImageEntities);
+        currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
         this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
 
         return savedImages.stream()
@@ -295,5 +297,9 @@ public class ImageService {
         }
 
         return uploadResults;
+    }
+
+    public void saveImagesWithoutReturn(List<ImageEntity> images) {
+        this.imageRepository.saveAll(images);
     }
 }

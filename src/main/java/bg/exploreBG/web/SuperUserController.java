@@ -15,10 +15,7 @@ import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
-import bg.exploreBG.service.AccommodationService;
-import bg.exploreBG.service.DestinationService;
-import bg.exploreBG.service.HikingTrailService;
-import bg.exploreBG.service.UserService;
+import bg.exploreBG.service.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -39,17 +36,20 @@ public class SuperUserController {
     private final DestinationService destinationService;
     private final HikingTrailService hikingTrailService;
     private final UserService userService;
+    private final SuperUserService superUserService;
 
     public SuperUserController(
             AccommodationService accommodationService,
             DestinationService destinationService,
             HikingTrailService hikingTrailService,
-            UserService userService
+            UserService userService,
+            SuperUserService superUserService
     ) {
         this.accommodationService = accommodationService;
         this.destinationService = destinationService;
         this.hikingTrailService = hikingTrailService;
         this.userService = userService;
+        this.superUserService = superUserService;
     }
 
     /*
@@ -83,11 +83,11 @@ public class SuperUserController {
     /*TODO: IVO: only messages, no errors*/
     @PatchMapping("/{id}/update-role")
     public ResponseEntity<ApiResponse<UserDataDto>> toggleModeratorRole(
-            @PathVariable Long id,
+            @PathVariable("id") Long userId,
             @RequestBody UserModRoleDto userModRoleDto
     ) {
 
-        UserDataDto updatedUserRole = this.userService.addRemoveModeratorRoleToUserRoles(id, userModRoleDto);
+        UserDataDto updatedUserRole = this.userService.addRemoveModeratorRoleToUserRoles(userId, userModRoleDto);
 
         ApiResponse<UserDataDto> response = new ApiResponse<>(updatedUserRole);
 
@@ -99,15 +99,16 @@ public class SuperUserController {
      */
     @PatchMapping("/{id}/lock-account")
     public ResponseEntity<ApiResponse<Boolean>> toggleUserAccountLock(
-            @PathVariable Long id,
+            @PathVariable("id") Long userId,
             @RequestBody UserAccountLockUnlockDto userAccountLockUnlockDto
     ) {
-        boolean success = this.userService.lockOrUnlockUserAccount(id, userAccountLockUnlockDto);
+        boolean success = this.userService.lockOrUnlockUserAccount(userId, userAccountLockUnlockDto);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 
         return ResponseEntity.ok(response);
     }
+
     /*TODO:  old: /waiting-approval/count new: /entities/waiting-approval/count*/
     @GetMapping("/entities/waiting-approval/count")
     public ResponseEntity<EntitiesForApprovalUnderReviewCountDto> waitingForApprovalUnderReviewCount() {
@@ -135,6 +136,7 @@ public class SuperUserController {
 
         return ResponseEntity.ok(countDto);
     }
+
     /*TODO: old: /waiting-approval/trails new: /trails/waiting-approval*/
     @GetMapping("/trails/waiting-approval")
     public ResponseEntity<Page<HikingTrailForApprovalProjection>> waitingForApprovalTrails(
@@ -154,15 +156,17 @@ public class SuperUserController {
 
         return ResponseEntity.ok(forApproval);
     }
-    /*TODO: old: /review/trail/{id} new: /trails/{id}/review  rewrite reviewNewTrail so it returns image information as well */
+
+    /*TODO: old: /review/trail/{id} new: /trails/{id}/review  returns details, images, gpx file info*/
     //Add data ???
     @Transactional
     @GetMapping("/trails/{id}/review")
-    public ResponseEntity<ApiResponse<HikingTrailReviewDto>> reviewNewTrail(
-            @PathVariable Long id,
+    public ResponseEntity<ApiResponse<HikingTrailReviewDto>> reviewTrail(
+            @PathVariable("id") Long trailId,
             @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
     ) {
-        HikingTrailReviewDto toReview = this.hikingTrailService.reviewTrail(id, exploreBgUserDetails);
+        HikingTrailReviewDto toReview =
+                this.superUserService.reviewTrail(trailId, exploreBgUserDetails, SuperUserReviewStatusEnum.PENDING);
 
         ApiResponse<HikingTrailReviewDto> response = new ApiResponse<>(toReview);
 
@@ -174,28 +178,42 @@ public class SuperUserController {
     */
     @PatchMapping("/trails/{id}/claim")
     public ResponseEntity<ApiResponse<Boolean>> toggleTrailReviewClaim(
-            @PathVariable Long id,
+            @PathVariable("id") Long trailId,
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.hikingTrailService.claimTrailReview(id, reviewBooleanDto, userDetails);
+        boolean success = this.superUserService.toggleTrailReviewClaim(trailId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 
         return ResponseEntity.ok(response);
     }
-    /*TODO: tell Ivo old: /approve/trail/{id}   new: /trail/{id}/approve*/
+
+    /*TODO: tell Ivo old: /approve/trails/{id}   new: /trails/{id}/approve*/
     @Transactional
-    @PatchMapping("/trail/{id}/approve")
-    public ResponseEntity<ApiResponse<Boolean>> approveNewTrail(
-            @PathVariable Long id,
+    @PatchMapping("/trails/{id}/approve")
+    public ResponseEntity<ApiResponse<Boolean>> approveTrail(
+            @PathVariable("id") Long trailId,
             @Valid @RequestBody HikingTrailCreateOrReviewDto trailCreateOrReviewDto,
             @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
     ) {
         boolean approved =
-                this.hikingTrailService.approveTrail(id, trailCreateOrReviewDto, exploreBgUserDetails);
+                this.superUserService.approveTrail(trailId, trailCreateOrReviewDto, exploreBgUserDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(approved);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("trails/{id}/images/claim")
+    public ResponseEntity<ApiResponse<Boolean>> toggleTrailReviewImagesClaim(
+            @PathVariable("id") Long trailId,
+            @RequestBody ReviewBooleanDto reviewBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = this.superUserService.toggleTrailReviewImagesClaim(trailId, reviewBooleanDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
 
         return ResponseEntity.ok(response);
     }

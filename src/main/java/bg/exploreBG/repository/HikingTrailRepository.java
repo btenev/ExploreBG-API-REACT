@@ -28,7 +28,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     Optional<HikingTrailEntity> findByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
-    @EntityGraph(attributePaths = {"images"})
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
     Optional<HikingTrailEntity> findWithImagesById(Long trailId);
 
     /*used in deleteImages, we don't care about the status*/
@@ -50,7 +50,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     /*used in saveImages*/
     @EntityGraph(attributePaths = {"images", "createdBy"})
-    Optional<HikingTrailEntity> findWithImagesAndImageReviewerByIdAndStatusInAndCreatedByEmail(
+    Optional<HikingTrailEntity> findWithImagesAndImageCreatorByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
     /*used in updateDestinations*/

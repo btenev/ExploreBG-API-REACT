@@ -66,12 +66,12 @@ public class HikingTrailQueryBuilder {
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
-    public HikingTrailEntity getHikingTrailWithImagesAndImageReviewerByIdAndStatusIfOwner(
+    public HikingTrailEntity getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
             Long trailId,
             List<StatusEnum> statues,
             String email
     ) {
-        return this.hikingTrailRepository.findWithImagesAndImageReviewerByIdAndStatusInAndCreatedByEmail(
+        return this.hikingTrailRepository.findWithImagesAndImageCreatorByIdAndStatusInAndCreatedByEmail(
                         trailId, statues, email)
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
