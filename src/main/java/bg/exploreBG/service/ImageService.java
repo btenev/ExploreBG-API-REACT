@@ -133,7 +133,7 @@ public class ImageService {
                 .toList();
     }
 
-    public boolean deleteTrailPictures(
+    public boolean deleteTrailPicturesById(
             Long id,
             EntityIdsToDeleteDto toDeleteDto,
             UserDetails userDetails
@@ -141,14 +141,27 @@ public class ImageService {
         HikingTrailEntity currentTrail =
                 this.hikingTrailService.getTrailWithImagesByIdIfOwner(id, userDetails.getUsername());
 
+        deleteImagesFromTrail(currentTrail, toDeleteDto);
+
+        return true;
+    }
+
+    public HikingTrailEntity deleteTrailPictureByEntity(
+            HikingTrailEntity trailEntity,
+            EntityIdsToDeleteDto toDeleteDto
+    ) {
+        return deleteImagesFromTrail(trailEntity, toDeleteDto);
+    }
+
+    private HikingTrailEntity deleteImagesFromTrail(
+            HikingTrailEntity currentTrail,
+            EntityIdsToDeleteDto toDeleteDto
+    ) {
         Set<ImageEntity> imagesToDelete = getImagesToDelete(toDeleteDto, currentTrail);
         logger.info("Images to delete: {}", imagesToDelete);
         validateDeleteResult(imagesToDelete);
 
-        if (!currentTrail.getImages().removeAll(imagesToDelete)) {
-            logger.warn("No images were removed from the current trail.");
-            return false;
-        }
+        currentTrail.getImages().removeAll(imagesToDelete);
 
         logger.info("Images successfully removed from currentTrail.");
 
@@ -162,10 +175,10 @@ public class ImageService {
             }
         }
 
-        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
+        HikingTrailEntity savedTrail = this.hikingTrailService.saveTrailWithReturn(currentTrail);
         this.imageRepository.deleteAll(imagesToDelete);
 
-        return true;
+        return savedTrail;
     }
 
     private void validateDeleteResult(Set<ImageEntity> imagesToDelete) {

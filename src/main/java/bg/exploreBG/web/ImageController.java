@@ -99,7 +99,7 @@ public class ImageController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean success = switch (toDeleteDto.folder().toLowerCase()) {
-            case "trails" -> this.imageService.deleteTrailPictures(id, toDeleteDto, userDetails);
+            case "trails" -> this.imageService.deleteTrailPicturesById(id, toDeleteDto, userDetails);
             default -> throw new IllegalStateException("Unexpected value: " + toDeleteDto.folder().toLowerCase());
         };
 
