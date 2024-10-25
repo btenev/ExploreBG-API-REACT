@@ -3,14 +3,17 @@ package bg.exploreBG.model.dto.hikingTrail.validate;
 import bg.exploreBG.deserializer.SuitableForEnumDeserializer;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
+import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.DifficultyLevelEnum;
 import bg.exploreBG.model.enums.SeasonEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.enums.WaterAvailabilityEnum;
+import bg.exploreBG.updatable.UpdatableEntityDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.*;
 
 import java.util.List;
+import java.util.Set;
 
 public record HikingTrailCreateOrReviewDto(
         @NotNull(message = "err-start-point-required")
@@ -79,10 +82,10 @@ public record HikingTrailCreateOrReviewDto(
                 message = "err-place-length")
         String nextTo,
 
-        List<DestinationIdDto> destinations,
+        Set<DestinationIdDto> destinations,
 
-        List<AccommodationIdDto> availableHuts
-) {
+        Set<AccommodationIdDto> availableHuts
+) implements UpdatableEntityDto<HikingTrailEntity> {
 }
 
 

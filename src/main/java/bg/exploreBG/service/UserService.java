@@ -306,6 +306,15 @@ public class UserService {
         return true;
     }
 
+    public boolean isSuperUser(UserDetails userDetails) {
+        return userDetails
+                .getAuthorities()
+                .stream()
+                .anyMatch(grantedAuthority ->
+                        grantedAuthority.getAuthority().equals("ROLE_ADMIN")
+                                || grantedAuthority.getAuthority().equals("ROLE_MODERATOR"));
+    }
+
     public UserEntity saveUserWithReturn(UserEntity user) {
         return this.userRepository.save(user);
     }
