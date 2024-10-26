@@ -1,10 +1,12 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
-import bg.exploreBG.model.entity.GpxEntity;
+import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -19,7 +21,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -92,18 +93,18 @@ public class SuperUserService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean approveTrail(
-            Long id,
+            Long trailId,
             HikingTrailCreateOrReviewDto trailCreateOrReview,
             ExploreBgUserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailById(id);
-        validateTrailApproval(currentTrail, userDetails);
+        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailById(trailId);
+        this.reviewService.validateAndApproveEntity(currentTrail, trailCreateOrReview, userDetails);
 
-        updateTrailFields(currentTrail, trailCreateOrReview);
-        /*TODO: TrailStatus to be updated if no images and no gpx with status PENDING or REVIEWED to APPROVED*/
-        currentTrail.setStatus(StatusEnum.APPROVED);
-
-        if (areAllApproved(currentTrail.getGpxFile(), currentTrail.getImages())) {
+        HikingTrailImageStatusAndGpxFileStatus statuses =
+                this.hikingTrailService.getTrailImageStatusAndGpxFileStatus(trailId);
+        logger.info("Hiking trail image and gpx status: {}", statuses);
+        if ((statuses.imageStatus() == null || !statuses.imageStatus().equals("NOT_APPROVED") && StatusEnum.valueOf(statuses.imageStatus())  == StatusEnum.APPROVED)
+                && statuses.gpxFileStatus() == null || statuses.gpxFileStatus() == StatusEnum.APPROVED) {
             currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
         }
 
@@ -158,69 +159,6 @@ public class SuperUserService {
                         userDetails.getProfileName());
     }
 
-    private void validateTrailApproval(
-            HikingTrailEntity currentTrail,
-            ExploreBgUserDetails userDetails
-    ) {
-        StatusEnum status = currentTrail.getStatus();
-        String reviewedByUserProfile = currentTrail.getReviewedBy() != null ? currentTrail.getReviewedBy().getUsername() : null;
-
-        if (reviewedByUserProfile == null) {
-            throw new AppException("A pending item can not be approved!", HttpStatus.BAD_REQUEST);
-        }
-
-        if (status.equals(StatusEnum.REVIEW) && !reviewedByUserProfile.equals(userDetails.getProfileName())) {
-            throw new AppException("The item has already been claimed by another user! You can not approved it!", HttpStatus.BAD_REQUEST);
-        }
-
-        if (status.equals(StatusEnum.APPROVED)) {
-            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private void updateTrailFields(
-            HikingTrailEntity currentTrail,
-            HikingTrailCreateOrReviewDto trailCreateOrReview
-    ) {
-        boolean isUpdated =
-                this.hikingTrailService.updateFieldIfDifferent(currentTrail::getStartPoint, currentTrail::setStartPoint, trailCreateOrReview.startPoint()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getEndPoint, currentTrail::setEndPoint, trailCreateOrReview.endPoint()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getTotalDistance, currentTrail::setTotalDistance, trailCreateOrReview.totalDistance()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getTrailInfo, currentTrail::setTrailInfo, trailCreateOrReview.trailInfo()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getSeasonVisited, currentTrail::setSeasonVisited, trailCreateOrReview.seasonVisited()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getWaterAvailable, currentTrail::setWaterAvailable, trailCreateOrReview.waterAvailable()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getTrailDifficulty, currentTrail::setTrailDifficulty, trailCreateOrReview.trailDifficulty()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getActivity, currentTrail::setActivity, trailCreateOrReview.activity()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getElevationGained, currentTrail::setElevationGained, trailCreateOrReview.elevationGained()) ||
-                        this.hikingTrailService.updateFieldIfDifferent(currentTrail::getNextTo, currentTrail::setNextTo, trailCreateOrReview.nextTo()) ||
-
-                        this.hikingTrailService.updateAccommodationList(currentTrail, trailCreateOrReview.availableHuts()) ||
-                        this.hikingTrailService.updateDestinationList(currentTrail, trailCreateOrReview.destinations());
-
-        if (isUpdated) {
-            currentTrail.setModificationDate(LocalDateTime.now());
-        }
-    }
-
-    private boolean areAllApproved(GpxEntity gpx, List<ImageEntity> images) {
-        /* TODO: implement when we add logic for gpx status
-        if (gpx != null && gpx.getStatus() != StatusEnum.APPROVED) {
-            return false;
-        }
-        */
-
-        if (images == null || images.isEmpty()) {
-            return true;
-        }
-
-        for (ImageEntity image : images) {
-            if (image.getStatus() != StatusEnum.APPROVED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private void handleClaimWithErrorHandling(
             ImageEntity image,
             UserEntity loggedUser,
@@ -243,5 +181,38 @@ public class SuperUserService {
         } catch (AppException e) {
             errorMessages.add("Image ID " + image.getId() + ": " + e.getMessage());
         }
+    }
+
+    public boolean approveTrailImages(
+            Long trailId,
+            ImageApproveDto imageApproveDto,
+            UserDetails userDetails,
+            String folder
+    ) {
+        HikingTrailEntity currentTrail =
+                this.hikingTrailService.getTrailWithImagesAndImageReviewerAndGpxFileById(trailId);
+
+        currentTrail = this.reviewService
+                .saveApprovedImages(currentTrail, imageApproveDto, userDetails);
+
+        List<Long> approvedIds = currentTrail.getImages().stream()
+                .filter(image -> image.getStatus() == StatusEnum.REVIEW && image.getReviewedBy().getEmail().equals(userDetails.getUsername()))
+                .map(ImageEntity::getId)
+                .toList();
+
+        if (!approvedIds.isEmpty()) {
+            currentTrail =
+                    this.imageService
+                            .deleteTrailPictureByEntity(currentTrail, new EntityIdsToDeleteDto(folder, approvedIds));
+        }
+
+        if (currentTrail.getGpxFile() == null || currentTrail.getGpxFile().getStatus() == StatusEnum.APPROVED
+                && currentTrail.getStatus() == StatusEnum.APPROVED) {
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
+        }
+
+        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
+
+        return true;
     }
 }

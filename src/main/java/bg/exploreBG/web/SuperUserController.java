@@ -9,6 +9,7 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
+import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
@@ -16,7 +17,7 @@ import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/super-users")
 public class SuperUserController {
+    private static final String TRAILFOLDER = "Trails";
     private final AccommodationService accommodationService;
     private final DestinationService destinationService;
     private final HikingTrailService hikingTrailService;
@@ -214,6 +216,21 @@ public class SuperUserController {
         boolean success = this.superUserService.toggleTrailReviewImagesClaim(trailId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/trails/{id}/images/approve")
+    public ResponseEntity<ApiResponse<Boolean>> approveTrailImagesClaim(
+            @PathVariable("id") Long trailId,
+            @RequestBody ImageApproveDto imageApproveDto,    /*TODO validate that imageApproveDto doesnt contain empty array*/
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        boolean approved =
+                this.superUserService.approveTrailImages(trailId, imageApproveDto, userDetails, TRAILFOLDER);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(approved);
 
         return ResponseEntity.ok(response);
     }

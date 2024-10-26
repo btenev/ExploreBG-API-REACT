@@ -49,29 +49,26 @@ public class HikingTrailService {
     private final HikingTrailMapper hikingTrailMapper;
     private final CommentMapper commentMapper;
     private final UserService userService;
-    private final DestinationService destinationService;
-    private final AccommodationService accommodationService;
     private final CommentService commentService;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
+    private final EntityUpdateService entityUpdateService;
 
     public HikingTrailService(
             HikingTrailRepository hikingTrailRepository,
             HikingTrailMapper hikingTrailMapper,
             CommentMapper commentMapper,
             UserService userService,
-            DestinationService destinationService,
-            AccommodationService accommodationService,
             CommentService commentService,
-            HikingTrailQueryBuilder hikingTrailQueryBuilder
+            HikingTrailQueryBuilder hikingTrailQueryBuilder,
+            EntityUpdateService entityUpdateService
     ) {
         this.hikingTrailRepository = hikingTrailRepository;
         this.hikingTrailMapper = hikingTrailMapper;
         this.commentMapper = commentMapper;
         this.userService = userService;
-        this.destinationService = destinationService;
-        this.accommodationService = accommodationService;
         this.commentService = commentService;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
+        this.entityUpdateService = entityUpdateService;
     }
 
     public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
@@ -89,7 +86,7 @@ public class HikingTrailService {
     }
 
     public HikingTrailDetailsDto getApprovedHikingTrailWithApprovedImagesById(Long id, StatusEnum status) {
-        HikingTrailEntity trailById = getHikingTrailByIdAndStatus(id, status);
+        HikingTrailEntity trailById = getTrailByIdAndStatus(id, status);
 
         List<ImageEntity> approvedImages = getApprovedImages(trailById);
 
@@ -167,7 +164,7 @@ public class HikingTrailService {
                         .hikingTrailCreateDtoToHikingTrailEntity(hikingTrailCreateOrReviewDto);
 
 //        logger.debug("{}", newHikingTrail);
-        boolean superUser = isSuperUser(userDetails);
+        boolean superUser = this.userService.isSuperUser(userDetails);
 
         StatusEnum status = superUser ? StatusEnum.APPROVED : StatusEnum.PENDING;
 
@@ -186,13 +183,13 @@ public class HikingTrailService {
 
         if (!hikingTrailCreateOrReviewDto.destinations().isEmpty()) {
             List<DestinationEntity> destinationEntities =
-                    mapDtoToDestinationEntities(hikingTrailCreateOrReviewDto.destinations());
+                    this.entityUpdateService.mapDtoToDestinationEntities(hikingTrailCreateOrReviewDto.destinations());
             newHikingTrail.setDestinations(destinationEntities);
         }
 
         if (!hikingTrailCreateOrReviewDto.availableHuts().isEmpty()) {
-            List<AccommodationEntity> accommodationEntities
-                    = mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
+            List<AccommodationEntity> accommodationEntities =
+                    this.entityUpdateService.mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
 
@@ -206,10 +203,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getStartPoint,
-                currentTrail::setStartPoint,
-                newStartPoint.startPoint());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getStartPoint,
+                        currentTrail::setStartPoint,
+                        newStartPoint.startPoint());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -225,10 +223,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getEndPoint,
-                currentTrail::setEndPoint,
-                newEndPoint.endPoint());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getEndPoint,
+                        currentTrail::setEndPoint,
+                        newEndPoint.endPoint());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -244,10 +243,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getTotalDistance,
-                currentTrail::setTotalDistance,
-                newTotalDistance.totalDistance());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getTotalDistance,
+                        currentTrail::setTotalDistance,
+                        newTotalDistance.totalDistance());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -263,10 +263,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getElevationGained,
-                currentTrail::setElevationGained,
-                newElevationGained.elevationGained());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getElevationGained,
+                        currentTrail::setElevationGained,
+                        newElevationGained.elevationGained());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -282,10 +283,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getWaterAvailable,
-                currentTrail::setWaterAvailable,
-                newWaterAvailable.waterAvailable());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getWaterAvailable,
+                        currentTrail::setWaterAvailable,
+                        newWaterAvailable.waterAvailable());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -301,10 +303,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
         /*TODO: Test Object.equals with list, might need to change to set*/
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getActivity,
-                currentTrail::setActivity,
-                newActivity.activity());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getActivity,
+                        currentTrail::setActivity,
+                        newActivity.activity());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -320,10 +323,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getTrailInfo,
-                currentTrail::setTrailInfo,
-                newTrailInfo.trailInfo());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getTrailInfo,
+                        currentTrail::setTrailInfo,
+                        newTrailInfo.trailInfo());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -340,7 +344,7 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailWithHutsByIdAndStatusIfOwner(id, statuses, userDetails.getUsername());
         /*TODO: Test Object.equals with list, might need to change to set*/
-        boolean isUpdated = updateAccommodationList(currentTrail, newHuts.availableHuts());
+        boolean isUpdated = this.entityUpdateService.updateAccommodationList(currentTrail, newHuts.availableHuts());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -363,7 +367,7 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailWithDestinationsByAndStatusIfOwner(id, statuses, userDetails.getUsername());
         /*TODO: Test Object.equals with list, might need to change to set*/
-        boolean isUpdated = updateDestinationList(currentTrail, newDestinations.destinations());
+        boolean isUpdated = this.entityUpdateService.updateDestinationList(currentTrail, newDestinations.destinations());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -386,10 +390,11 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
 
-        boolean isUpdated = updateFieldIfDifferent(
-                currentTrail::getTrailDifficulty,
-                currentTrail::setTrailDifficulty,
-                newDifficulty.trailDifficulty());
+        boolean isUpdated =
+                this.entityUpdateService.updateFieldIfDifferent(
+                        currentTrail::getTrailDifficulty,
+                        currentTrail::setTrailDifficulty,
+                        newDifficulty.trailDifficulty());
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
@@ -430,7 +435,9 @@ public class HikingTrailService {
                                 new AppException("Unable to update main image: The specified image is not part of the user's collection.",
                                         HttpStatus.BAD_REQUEST));
 
-        boolean isUpdated = updateFieldIfDifferent(currentTrail::getMainImage, currentTrail::setMainImage, found);
+        boolean isUpdated =
+                this.entityUpdateService
+                        .updateFieldIfDifferent(currentTrail::getMainImage, currentTrail::setMainImage, found);
 
         if (isUpdated) {
             currentTrail.setMainImage(found);
@@ -446,7 +453,7 @@ public class HikingTrailService {
             UserDetails userDetails,
             StatusEnum status
     ) {
-        HikingTrailEntity currentTrail = getHikingTrailWithCommentsByIdAndStatus(trailId, status);
+        HikingTrailEntity currentTrail = getTrailWithCommentsByIdAndStatus(trailId, status);
 
         UserEntity userCommenting = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
@@ -578,77 +585,24 @@ public class HikingTrailService {
         return this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdAndTrailStatus(trailId, status);
     }
 
-    public HikingTrailEntity getHikingTrailWithCommentsByIdAndStatus(Long trailId, StatusEnum status) {
+    public HikingTrailEntity getTrailWithCommentsByIdAndStatus(Long trailId, StatusEnum status) {
         return this.hikingTrailQueryBuilder.getHikingTrailWithCommentsByIdAndStatus(trailId, status);
     }
 
-    public HikingTrailEntity getHikingTrailWithLikesByIdAndStatus(Long trailId, StatusEnum status) {
+    public HikingTrailEntity getTrailWithLikesByIdAndStatus(Long trailId, StatusEnum status) {
         return this.hikingTrailQueryBuilder.getHikingTrailWithLikesByIdAndStatus(trailId, status);
     }
 
-    private HikingTrailEntity getHikingTrailByIdAndStatus(Long trailId, StatusEnum status) {
+    private HikingTrailEntity getTrailByIdAndStatus(Long trailId, StatusEnum status) {
         return this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus(trailId, status);
     }
 
-    public <T> boolean updateFieldIfDifferent(Supplier<T> getter, Consumer<T> setter, T newValue) {
-        T currentValue = getter.get();
-
-        if (!Objects.equals(currentValue, newValue)) {
-            setter.accept(newValue);
-            return true;
-        }
-        return false;
+    public HikingTrailEntity getTrailWithImagesAndImageReviewerAndGpxFileById(Long trailId) {
+        return this.hikingTrailQueryBuilder.getHikingTrailWithImagesAndImageReviewerAndGpxFileById(trailId);
     }
 
-    public boolean updateAccommodationList(HikingTrailEntity currentTrail, List<AccommodationIdDto> newHuts) {
-        List<AccommodationIdDto> currentHuts = currentTrail.getAvailableHuts()
-                .stream()
-                .map(a -> new AccommodationIdDto(a.getId()))
-                .toList();
-
-        if (!Objects.equals(currentHuts, newHuts)) {
-            List<AccommodationEntity> accommodationEntities = mapDtoToAccommodationEntities(newHuts);
-            currentTrail.setAvailableHuts(accommodationEntities);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean updateDestinationList(HikingTrailEntity currentTrail, List<DestinationIdDto> newDestinations) {
-        List<DestinationIdDto> currentDestinations = currentTrail.getDestinations()
-                .stream()
-                .map(de -> new DestinationIdDto(de.getId()))
-                .toList();
-
-        if (!Objects.equals(currentDestinations, newDestinations)) {
-            List<DestinationEntity> destinationEntities = mapDtoToDestinationEntities(newDestinations);
-            currentTrail.setDestinations(destinationEntities);
-            return true;
-        }
-        return false;
-    }
-
-    private List<AccommodationEntity> mapDtoToAccommodationEntities(List<AccommodationIdDto> ids) {
-
-        List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
-
-        return this.accommodationService.getAccommodationsById(accommodationIds);
-    }
-
-    private List<DestinationEntity> mapDtoToDestinationEntities(List<DestinationIdDto> ids) {
-
-        List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
-
-        return this.destinationService.getDestinationsByIds(destinationIds);
-    }
-
-    public boolean isSuperUser(UserDetails userDetails) {
-        return userDetails
-                .getAuthorities()
-                .stream()
-                .anyMatch(grantedAuthority ->
-                        grantedAuthority.getAuthority().equals("ROLE_ADMIN")
-                                || grantedAuthority.getAuthority().equals("ROLE_MODERATOR"));
+    public HikingTrailImageStatusAndGpxFileStatus getTrailImageStatusAndGpxFileStatus(Long trailId) {
+        return this.hikingTrailQueryBuilder.getHikingTrailImageStatusAndGpxStatusById(trailId);
     }
 
     public boolean likeOrUnlikeTrail(
@@ -657,7 +611,7 @@ public class HikingTrailService {
             UserDetails userDetails,
             StatusEnum status
     ) {
-        HikingTrailEntity currentTrail = getHikingTrailWithLikesByIdAndStatus(trailId, status);
+        HikingTrailEntity currentTrail = getTrailWithLikesByIdAndStatus(trailId, status);
         UserEntity loggedUser = userService.getUserEntityByEmail(userDetails.getUsername());
         Set<UserEntity> likedByUsers = currentTrail.getLikedByUsers();
         boolean userHasLiked = likedByUsers.contains(loggedUser);

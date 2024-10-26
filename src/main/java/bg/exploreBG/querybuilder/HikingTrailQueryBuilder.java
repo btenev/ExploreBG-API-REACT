@@ -1,6 +1,7 @@
 package bg.exploreBG.querybuilder;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -24,9 +25,9 @@ public class HikingTrailQueryBuilder {
                 .orElseThrow(this::trailNotFoundException);
     }
 
-    public HikingTrailEntity getHikingTrailWithCommentsById(Long id) {
+    public HikingTrailEntity getHikingTrailWithCommentsById(Long trailId) {
         return this.hikingTrailRepository
-                .findWithCommentsById(id)
+                .findWithCommentsById(trailId)
                 .orElseThrow(this::trailNotFoundException);
     }
 
@@ -87,37 +88,48 @@ public class HikingTrailQueryBuilder {
     }
 
     public HikingTrailEntity getHikingTrailWithHutsByIdAndStatusIfOwner(
-            Long id,
+            Long trailId,
             List<StatusEnum> statuses,
             String email
     ) {
         return this.hikingTrailRepository.findWithHutsByIdAndStatusInAndCreatedByEmail(
-                        id, statuses, email)
+                        trailId, statuses, email)
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
-    public HikingTrailEntity getHikingTrailWithImagesByIdAndTrailStatus(Long id, SuperUserReviewStatusEnum status) {
+    public HikingTrailEntity getHikingTrailWithImagesByIdAndTrailStatus(Long trailId, SuperUserReviewStatusEnum status) {
         return this.hikingTrailRepository.findWithImagesByIdAndTrailStatus(
-                        id, status)
+                        trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
-    public HikingTrailEntity getHikingTrailWithCommentsByIdAndStatus(Long id, StatusEnum status) {
+    public HikingTrailEntity getHikingTrailWithCommentsByIdAndStatus(Long trailId, StatusEnum status) {
         return this.hikingTrailRepository
-                .findWithCommentsByIdAndStatus(id, status)
+                .findWithCommentsByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
-    public HikingTrailEntity getHikingTrailWithLikesByIdAndStatus(Long id, StatusEnum status) {
+    public HikingTrailEntity getHikingTrailWithLikesByIdAndStatus(Long trailId, StatusEnum status) {
         return this.hikingTrailRepository
-                .findWithLikesByIdAndStatus(id, status)
+                .findWithLikesByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
-    public HikingTrailEntity getHikingTrailByIdAndStatus(Long id, StatusEnum status) {
+    public HikingTrailEntity getHikingTrailByIdAndStatus(Long trailId, StatusEnum status) {
         return this.hikingTrailRepository
-                .findByIdAndStatus(id, status)
+                .findByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
+    }
+
+    public HikingTrailEntity getHikingTrailWithImagesAndImageReviewerAndGpxFileById(Long id) {
+        return this.hikingTrailRepository.findWithImageAndGpxFileById(id)
+                .orElseThrow(this::trailNotFoundException);
+    }
+
+    public HikingTrailImageStatusAndGpxFileStatus getHikingTrailImageStatusAndGpxStatusById(Long trailId) {
+        return this.hikingTrailRepository
+                .findImageStatusAndGpxStatusById(trailId)
+                .orElseThrow(this::trailNotFoundException);
     }
 
     private AppException trailNotFoundException() {

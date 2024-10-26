@@ -1,9 +1,6 @@
 package bg.exploreBG.repository;
 
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicLikesDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
+import bg.exploreBG.model.dto.hikingTrail.*;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -172,6 +169,9 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
     Page<HikingTrailForApprovalProjection> getHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum status, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy", "gpxFile"})
+    Optional<HikingTrailEntity> findWithImageAndGpxFileById(Long id);
+
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     int countHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum trailStatus);
 
@@ -228,4 +228,23 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     @Override
     Page<HikingTrailBasicLikesDto> getTrailsWithLikes(StatusEnum statusEnum, String email, Pageable pageable, Boolean sortByLikedUser);
+
+    @Query("""
+            SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus(
+              CASE
+                   WHEN COUNT(i) = 0 THEN null
+                   WHEN COUNT(i) > 0
+                   AND SUM(CASE WHEN i.status = 'APPROVED' THEN 1 ELSE 0 END) = COUNT(i)
+                   THEN 'APPROVED'
+                   ELSE 'NOT_APPROVED'
+              END,
+              f.status
+            )
+            FROM HikingTrailEntity t
+            LEFT JOIN t.images i
+            LEFT JOIN t.gpxFile f
+            WHERE t.id = :trailId
+            GROUP BY f.status
+            """)
+    Optional<HikingTrailImageStatusAndGpxFileStatus> findImageStatusAndGpxStatusById(@Param("trailId")Long id);
 }
