@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.entity.BaseEntity;
 import bg.exploreBG.model.entity.ImageEntity;
@@ -24,15 +25,21 @@ public class ReviewService {
     private final ImageService imageService;
     private final UserService userService;
     private final EntityUpdateService entityUpdateService;
+    private final ImageClaimService imageClaimService;
+    private final ImageApprovalService imageApprovalService;
 
     public ReviewService(
             ImageService imageService,
             UserService userService,
-            EntityUpdateService entityUpdateService
+            EntityUpdateService entityUpdateService,
+            ImageClaimService imageClaimService,
+            ImageApprovalService imageApprovalService
     ) {
         this.imageService = imageService;
         this.userService = userService;
         this.entityUpdateService = entityUpdateService;
+        this.imageClaimService = imageClaimService;
+        this.imageApprovalService = imageApprovalService;
     }
 
     public <T extends BaseEntity> void handleClaimReview(T entity, UserEntity loggedUser) {
@@ -44,10 +51,6 @@ public class ReviewService {
             } else {
                 throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
             }
-        }
-
-        if (entityStatus == StatusEnum.APPROVED) {
-            throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
         }
 
         validateApprovedStatus(entityStatus);
@@ -89,6 +92,18 @@ public class ReviewService {
         entity.setStatus(StatusEnum.APPROVED);
     }
 
+    public <T extends ReviewableWithImages> void toggleImageClaimAndSave(
+            T entity,
+            ReviewBooleanDto reviewBoolean,
+            UserDetails userDetails
+    ) {
+        UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
+
+        List<ImageEntity> claimed = this.imageClaimService.toggleImageClaim(entity, reviewBoolean.review(), reviewer);
+
+        this.imageService.saveImagesWithoutReturn(claimed);
+    }
+
     public <T extends ReviewableWithImages> T saveApprovedImages(
             T entity,
             ImageApproveDto approveDto,
@@ -96,7 +111,8 @@ public class ReviewService {
     ) {
         UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
-        List<ImageEntity> approved = entity.approvalWithValidation(approveDto.imageIds(), reviewer);
+        List<ImageEntity> approved =
+                this.imageApprovalService.approvalWithValidation(entity, approveDto.imageIds(), reviewer);
 
         this.imageService.saveImagesWithoutReturn(approved);
 

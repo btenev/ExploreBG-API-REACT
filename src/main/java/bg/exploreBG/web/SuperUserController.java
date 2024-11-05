@@ -208,12 +208,12 @@ public class SuperUserController {
     }
 
     @PatchMapping("trails/{id}/images/claim")
-    public ResponseEntity<ApiResponse<Boolean>> toggleTrailReviewImagesClaim(
+    public ResponseEntity<ApiResponse<Boolean>> toggleTrailImagesClaim(
             @PathVariable("id") Long trailId,
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.superUserService.toggleTrailReviewImagesClaim(trailId, reviewBooleanDto, userDetails);
+        boolean success = this.superUserService.toggleTrailImageClaim(trailId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 

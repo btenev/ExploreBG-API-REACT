@@ -103,7 +103,7 @@ public class SuperUserService {
         HikingTrailImageStatusAndGpxFileStatus statuses =
                 this.hikingTrailService.getTrailImageStatusAndGpxFileStatus(trailId);
         logger.info("Hiking trail image and gpx status: {}", statuses);
-        if ((statuses.imageStatus() == null || !statuses.imageStatus().equals("NOT_APPROVED") && StatusEnum.valueOf(statuses.imageStatus())  == StatusEnum.APPROVED)
+        if ((statuses.imageStatus() == null || !statuses.imageStatus().equals("NOT_APPROVED") && StatusEnum.valueOf(statuses.imageStatus()) == StatusEnum.APPROVED)
                 && statuses.gpxFileStatus() == null || statuses.gpxFileStatus() == StatusEnum.APPROVED) {
             currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
         }
@@ -113,74 +113,16 @@ public class SuperUserService {
         return true;
     }
 
-    public boolean toggleTrailReviewImagesClaim(
+    public boolean toggleTrailImageClaim(
             Long trailId,
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = this.hikingTrailService.getTrailWithImagesById(trailId);
 
-        UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
-        List<String> errorMessages = new ArrayList<>();
-
-        List<ImageEntity> images = currentTrail.getImages();
-
-        if (images == null || images.isEmpty()) {
-            throw new AppException("No images available for review.", HttpStatus.BAD_REQUEST);
-        }
-
-        if (reviewBoolean.review()) {
-            images.forEach(image -> handleClaimWithErrorHandling(image, loggedUser, errorMessages));
-        } else {
-            images.forEach(image -> handleCancelClaimWithErrorHandling(image, loggedUser, errorMessages));
-        }
-
-        this.imageService.saveImagesWithoutReturn(images);
-
-        if (!errorMessages.isEmpty()) {
-            throw new AppException(String.join(", ", errorMessages), HttpStatus.BAD_REQUEST);
-        }
+        this.reviewService.toggleImageClaimAndSave(currentTrail, reviewBoolean, userDetails);
 
         return true;
-    }
-
-    private boolean isEligibleForReview(
-            StatusEnum status,
-            UserEntity reviewedBy,
-            ExploreBgUserDetails userDetails
-    ) {
-        if (status == StatusEnum.PENDING) {
-            return true;
-        }
-
-        return status == StatusEnum.REVIEW &&
-                Objects.equals(reviewedBy != null
-                                ? reviewedBy.getUsername() : null,
-                        userDetails.getProfileName());
-    }
-
-    private void handleClaimWithErrorHandling(
-            ImageEntity image,
-            UserEntity loggedUser,
-            List<String> errorMessages
-    ) {
-        try {
-            this.reviewService.handleClaimReview(image, loggedUser);
-        } catch (AppException e) {
-            errorMessages.add("Image ID " + image.getId() + ": " + e.getMessage());
-        }
-    }
-
-    private void handleCancelClaimWithErrorHandling(
-            ImageEntity image,
-            UserEntity loggedUser,
-            List<String> errorMessages
-    ) {
-        try {
-            this.reviewService.handleCancelClaim(image, loggedUser);
-        } catch (AppException e) {
-            errorMessages.add("Image ID " + image.getId() + ": " + e.getMessage());
-        }
     }
 
     public boolean approveTrailImages(
@@ -215,4 +157,20 @@ public class SuperUserService {
 
         return true;
     }
+
+    private boolean isEligibleForReview(
+            StatusEnum status,
+            UserEntity reviewedBy,
+            ExploreBgUserDetails userDetails
+    ) {
+        if (status == StatusEnum.PENDING) {
+            return true;
+        }
+
+        return status == StatusEnum.REVIEW &&
+                Objects.equals(reviewedBy != null
+                                ? reviewedBy.getUsername() : null,
+                        userDetails.getProfileName());
+    }
+
 }
