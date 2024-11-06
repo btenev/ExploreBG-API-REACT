@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,63 +26,38 @@ public class ReviewService {
     private final EntityUpdateService entityUpdateService;
     private final ImageClaimService imageClaimService;
     private final ImageApprovalService imageApprovalService;
+    private final EntityClaimService entityClaimService;
 
     public ReviewService(
             ImageService imageService,
             UserService userService,
             EntityUpdateService entityUpdateService,
             ImageClaimService imageClaimService,
-            ImageApprovalService imageApprovalService
+            ImageApprovalService imageApprovalService,
+            EntityClaimService entityClaimService
     ) {
         this.imageService = imageService;
         this.userService = userService;
         this.entityUpdateService = entityUpdateService;
         this.imageClaimService = imageClaimService;
         this.imageApprovalService = imageApprovalService;
+        this.entityClaimService = entityClaimService;
     }
 
-    public <T extends BaseEntity> void handleClaimReview(T entity, UserEntity loggedUser) {
-        StatusEnum entityStatus = entity.getStatus();
-
-        if (entityStatus == StatusEnum.REVIEW) {
-            if (Objects.equals(entity.getReviewedBy().getUsername(), loggedUser.getUsername())) {
-                throw new AppException("You have already claimed this item for review!", HttpStatus.BAD_REQUEST);
-            } else {
-                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        validateApprovedStatus(entityStatus);
-
-        entity.setStatus(StatusEnum.REVIEW);
-        entity.setReviewedBy(loggedUser);
-    }
-
-    public <T extends BaseEntity> void handleCancelClaim(T entity, UserEntity loggedUser) {
-        StatusEnum entityStatus = entity.getStatus();
-
-        if (entityStatus == StatusEnum.PENDING) {
-            throw new AppException("You cannot cancel the review for an item you haven't claimed!", HttpStatus.BAD_REQUEST);
-        }
-
-        if (entityStatus == StatusEnum.REVIEW) {
-            if (Objects.equals(entity.getReviewedBy().getUsername(), loggedUser.getUsername())) {
-                entity.setStatus(StatusEnum.PENDING);
-                entity.setReviewedBy(null);
-            } else {
-                throw new AppException("The item has already been claimed by another user!", HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        validateApprovedStatus(entityStatus);
+    public <T extends ReviewableEntity> void toggleEntityClaim(
+            T entity,
+            Boolean claimEntity,
+            UserEntity reviewer
+    ) {
+        this.entityClaimService.toggleEntityClaim(entity, claimEntity, reviewer);
     }
 
     public <T extends ReviewableEntity & UpdatableEntity> void validateAndApproveEntity(
             T entity,
             UpdatableEntityDto<T> dto,
-            ExploreBgUserDetails loggedUser
+            ExploreBgUserDetails reviewer
     ) {
-        entity.validateForApproval(loggedUser);
+        validateItemApproval(entity, reviewer);
 
         if (dto != null) {
             this.entityUpdateService.updateFieldsIfNecessary(entity, dto);
@@ -119,7 +93,7 @@ public class ReviewService {
         return entity;
     }
 
-    private <T extends BaseEntity> void validateItemApproval(
+    private <T extends ReviewableEntity> void validateItemApproval(
             T item,
             ExploreBgUserDetails userDetails
     ) {
@@ -134,7 +108,7 @@ public class ReviewService {
         }
 
         if (status == StatusEnum.REVIEW && !reviewedByUserProfile.equals(userDetails.getProfileName())) {
-            throw new AppException("The item has already been claimed by another user! You cannot approve it!", HttpStatus.BAD_REQUEST);
+            throw new AppException("The item has already been claimed by another user! You can not approve it!", HttpStatus.BAD_REQUEST);
         }
 
         validateApprovedStatus(status);

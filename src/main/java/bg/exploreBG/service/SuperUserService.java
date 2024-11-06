@@ -21,7 +21,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,19 +48,15 @@ public class SuperUserService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public boolean toggleTrailReviewClaim(
+    public boolean toggleTrailClaim(
             Long id,
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = this.hikingTrailService.getTrailById(id);
-        UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
-        if (reviewBoolean.review()) {
-            this.reviewService.handleClaimReview(currentTrail, loggedUser);
-        } else {
-            this.reviewService.handleCancelClaim(currentTrail, loggedUser);
-        }
+        this.reviewService.toggleEntityClaim(currentTrail, reviewBoolean.review(), reviewer);
 
         this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
         return true;

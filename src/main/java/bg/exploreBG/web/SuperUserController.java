@@ -184,7 +184,7 @@ public class SuperUserController {
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.superUserService.toggleTrailReviewClaim(trailId, reviewBooleanDto, userDetails);
+        boolean success = this.superUserService.toggleTrailClaim(trailId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 
