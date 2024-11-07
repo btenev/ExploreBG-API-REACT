@@ -4,6 +4,8 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.GpxUrlDateDto;
 import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
+import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.GpxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +58,7 @@ public class GpxService {
         GpxEntity saved = this.gpxRepository.save(newGpx);
 
         currentTrail.setGpxFile(saved);
-
+        currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
         this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
 
         return new GpxUrlDateDto(saved.getGpxUrl(), saved.getCreationDate());
@@ -100,7 +102,7 @@ public class GpxService {
         gpx.setGpxUrl(url);
         gpx.setFolder(folder);
         gpx.setCreationDate(LocalDateTime.now());
-
+        gpx.setStatus(StatusEnum.PENDING);
         return gpx;
     }
 

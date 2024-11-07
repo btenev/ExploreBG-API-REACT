@@ -1,5 +1,6 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
+import bg.exploreBG.model.dto.gpxFile.GpxFileUrlProjection;
 import bg.exploreBG.model.dto.image.ImageProjections;
 import bg.exploreBG.model.dto.user.UserIdNameProjection;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -16,9 +17,10 @@ public interface HikingTrailForApprovalProjection {
     @Value("#{target.startPoint + ' - ' + target.endPoint}")
     String getName();
     @JsonSerialize(using = StatusEnumSerializer.class)
-    @JsonProperty(value = "details_status")
+    @JsonProperty(value = "detailsStatus")
     StatusEnum getStatus();
     LocalDateTime getCreationDate();
     UserIdNameProjection getReviewedBy();
     List<ImageProjections> getImages();
+    GpxFileUrlProjection getGpxFile();
 }

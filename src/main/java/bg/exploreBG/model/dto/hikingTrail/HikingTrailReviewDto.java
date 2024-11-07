@@ -2,6 +2,7 @@ package bg.exploreBG.model.dto.hikingTrail;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+import bg.exploreBG.model.dto.gpxFile.GpxBasicDto;
 import bg.exploreBG.model.dto.image.ImageBasicDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
@@ -33,6 +34,7 @@ public record HikingTrailReviewDto(
         StatusEnum status,
         UserBasicInfo reviewedBy,
         List<DestinationBasicDto> destinations,
-        List<ImageBasicDto> images
+        List<ImageBasicDto> images,
+        GpxBasicDto gpxFile
 ) {
 }

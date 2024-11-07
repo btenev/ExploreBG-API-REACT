@@ -166,7 +166,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 //            JOIN t.reviewedBy rb
 //            WHERE t.trailStatus in ?1
 //            """)
-    @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy", "gpxFile", "gpxFile.reviewedBy"})
     Page<HikingTrailForApprovalProjection> getHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"images", "images.reviewedBy", "gpxFile"})
