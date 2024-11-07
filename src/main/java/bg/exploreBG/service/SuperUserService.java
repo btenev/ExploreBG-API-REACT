@@ -7,6 +7,7 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
+import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -32,33 +33,56 @@ public class SuperUserService {
     private final ReviewService reviewService;
     private final ImageService imageService;
     private final HikingTrailMapper hikingTrailMapper;
+    private final GpxService gpxService;
 
     public SuperUserService(
             HikingTrailService hikingTrailService,
             UserService userService,
             ReviewService reviewService,
             ImageService imageService,
-            HikingTrailMapper hikingTrailMapper
+            HikingTrailMapper hikingTrailMapper,
+            GpxService gpxService
     ) {
         this.hikingTrailService = hikingTrailService;
         this.userService = userService;
         this.reviewService = reviewService;
         this.imageService = imageService;
         this.hikingTrailMapper = hikingTrailMapper;
+        this.gpxService = gpxService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean toggleTrailClaim(
-            Long id,
+            Long trailId,
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailById(id);
+        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailById(trailId);
         UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
 
         this.reviewService.toggleEntityClaim(currentTrail, reviewBoolean.review(), reviewer);
 
         this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
+        return true;
+    }
+
+    public boolean toggleTrailGpxFileClaim(
+            Long trailId,
+            ReviewBooleanDto reviewBoolean,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailWithGpxFile(trailId);
+
+        GpxEntity gpxFile = currentTrail.getGpxFile();
+        if (gpxFile == null) {
+            throw new AppException("Cannot claim a GPX file that doesn't exist!", HttpStatus.BAD_REQUEST);
+        }
+
+        UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
+
+        this.reviewService.toggleEntityClaim(gpxFile, reviewBoolean.review(), reviewer);
+        this.gpxService.saveGpxFileWithoutReturn(gpxFile);
+
         return true;
     }
 

@@ -584,6 +584,10 @@ public class HikingTrailService {
         return this.hikingTrailQueryBuilder.getHikingTrailImageStatusAndGpxStatusById(trailId);
     }
 
+    public HikingTrailEntity getTrailWithGpxFile(Long trailId) {
+        return this.hikingTrailQueryBuilder.getHikingTrailWithGpxFileById(trailId);
+    }
+
     public boolean likeOrUnlikeTrail(
             Long trailId,
             LikeBooleanDto likeBoolean,

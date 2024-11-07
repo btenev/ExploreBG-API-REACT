@@ -131,4 +131,8 @@ public class GpxService {
 
         return true;
     }
+
+    public void saveGpxFileWithoutReturn(GpxEntity gpx) {
+        this.gpxRepository.save(gpx);
+    }
 }

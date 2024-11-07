@@ -1,12 +1,13 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.reviewable.ReviewableEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "gpxs")
-public class GpxEntity extends BaseEntity {
+public class GpxEntity extends BaseEntity implements ReviewableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

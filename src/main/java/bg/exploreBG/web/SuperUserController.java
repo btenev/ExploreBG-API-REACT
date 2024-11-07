@@ -17,7 +17,6 @@ import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.*;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -231,6 +231,19 @@ public class SuperUserController {
                 this.superUserService.approveTrailImages(trailId, imageApproveDto, userDetails, TRAILFOLDER);
 
         ApiResponse<Boolean> response = new ApiResponse<>(approved);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/trails/{id}/gpx-file/claim")
+    public ResponseEntity<ApiResponse<Boolean>> toggleTrailGpxFileClaim(
+            @PathVariable("id") Long trailId,
+            @RequestBody ReviewBooleanDto reviewBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = this.superUserService.toggleTrailGpxFileClaim(trailId, reviewBooleanDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
 
         return ResponseEntity.ok(response);
     }

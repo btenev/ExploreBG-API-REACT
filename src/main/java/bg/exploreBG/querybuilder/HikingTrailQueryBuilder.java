@@ -121,14 +121,20 @@ public class HikingTrailQueryBuilder {
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
-    public HikingTrailEntity getHikingTrailWithImagesAndImageReviewerAndGpxFileById(Long id) {
-        return this.hikingTrailRepository.findWithImageAndGpxFileById(id)
+    public HikingTrailEntity getHikingTrailWithImagesAndImageReviewerAndGpxFileById(Long trailId) {
+        return this.hikingTrailRepository.findWithImageAndGpxFileById(trailId)
                 .orElseThrow(this::trailNotFoundException);
     }
 
     public HikingTrailImageStatusAndGpxFileStatus getHikingTrailImageStatusAndGpxStatusById(Long trailId) {
         return this.hikingTrailRepository
                 .findImageStatusAndGpxStatusById(trailId)
+                .orElseThrow(this::trailNotFoundException);
+    }
+
+    public HikingTrailEntity getHikingTrailWithGpxFileById(Long trailId) {
+        return this.hikingTrailRepository
+                .findWithGpxFileById(trailId)
                 .orElseThrow(this::trailNotFoundException);
     }
 
