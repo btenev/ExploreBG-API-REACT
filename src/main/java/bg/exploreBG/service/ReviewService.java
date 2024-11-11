@@ -2,6 +2,7 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
+import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.entity.BaseEntity;
 import bg.exploreBG.model.entity.ImageEntity;
@@ -13,6 +14,7 @@ import bg.exploreBG.reviewable.ReviewableWithImages;
 import bg.exploreBG.updatable.UpdatableEntity;
 import bg.exploreBG.updatable.UpdatableEntityDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -93,7 +95,7 @@ public class ReviewService {
         return entity;
     }
 
-    private <T extends ReviewableEntity> void validateItemApproval(
+    public  <T extends ReviewableEntity> void validateItemApproval(
             T item,
             ExploreBgUserDetails userDetails
     ) {

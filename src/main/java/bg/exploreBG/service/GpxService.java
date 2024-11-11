@@ -1,11 +1,12 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.GpxUrlDateDto;
+import bg.exploreBG.model.dto.gpxFile.GpxUrlDateDto;
 import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.repository.GpxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,12 +65,25 @@ public class GpxService {
         return new GpxUrlDateDto(saved.getGpxUrl(), saved.getCreationDate());
     }
 
+    public void deleteGpxFileByTrailEntity(
+            HikingTrailEntity currentTrail
+    ) {
+        deleteGpxFile(currentTrail);
+    }
+
     @Transactional
     public boolean deleteGpxFileIfOwner(
             Long id,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail = this.hikingTrailService.getTrailByIdIfOwner(id, userDetails.getUsername());
+
+        return deleteGpxFile(currentTrail);
+    }
+
+    private boolean deleteGpxFile(
+            HikingTrailEntity currentTrail
+    ) {
         GpxEntity gpxFile = currentTrail.getGpxFile();
 
         if (gpxFile == null) {

@@ -1,7 +1,7 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.GpxUrlDateDto;
+import bg.exploreBG.model.dto.gpxFile.GpxUrlDateDto;
 import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.GpxService;
 import jakarta.validation.constraints.NotNull;

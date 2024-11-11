@@ -3,6 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
+import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
@@ -66,12 +67,13 @@ public class SuperUserService {
         return true;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean toggleTrailGpxFileClaim(
             Long trailId,
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailWithGpxFile(trailId);
+        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailWithGpxFileById(trailId);
 
         GpxEntity gpxFile = currentTrail.getGpxFile();
         if (gpxFile == null) {
@@ -132,6 +134,31 @@ public class SuperUserService {
         return true;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public boolean approveTrailGpxFile(
+            Long trailId,
+            GpxApproveDto gpxApprove,
+            ExploreBgUserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailWithGpxFileById(trailId);
+
+        if (currentTrail.getGpxFile() == null) {
+            throw new AppException("Cannot approve a GPX file that doesn't exist!", HttpStatus.BAD_REQUEST);
+        }
+
+        this.reviewService.validateItemApproval(currentTrail.getGpxFile(), userDetails);
+
+        if (gpxApprove.approved()) {
+            currentTrail.getGpxFile().setStatus(StatusEnum.APPROVED);
+            this.gpxService.saveGpxFileWithoutReturn(currentTrail.getGpxFile());
+        } else {
+            this.gpxService.deleteGpxFileByTrailEntity(currentTrail);
+        }
+
+        return true;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean toggleTrailImageClaim(
             Long trailId,
             ReviewBooleanDto reviewBoolean,
@@ -144,6 +171,7 @@ public class SuperUserService {
         return true;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean approveTrailImages(
             Long trailId,
             ImageApproveDto imageApproveDto,
@@ -191,5 +219,4 @@ public class SuperUserService {
                                 ? reviewedBy.getUsername() : null,
                         userDetails.getProfileName());
     }
-
 }

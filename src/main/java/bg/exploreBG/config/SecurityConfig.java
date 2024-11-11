@@ -66,8 +66,13 @@ public class SecurityConfig {
                     req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/update-role").hasRole("ADMIN");
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/count").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/waiting-approval/trails").hasAnyRole("ADMIN", "MODERATOR");
-                    req.requestMatchers(HttpMethod.GET, "/api/super-users/review/trail/{id:[1-9]+}").hasAnyRole("ADMIN", "MODERATOR");
-                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/approve/trail/{id:[1-9]+}").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.GET, "/api/super-users/trails/{id:[1-9]+}/review").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.GET, "/api/super-users/trails/{id:[1-9]+}/claim").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/trails/{id:[1-9]+}/approve").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/trails/{id:[1-9]+}/images/claim").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/trails/{id:[1-9]+}/images/approve").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/trails/{id:[1-9]+}/gpx-file/claim").hasAnyRole("ADMIN", "MODERATOR");
+                    req.requestMatchers(HttpMethod.PATCH, "/api/super-users/trails/{id:[1-9]+}/gpx-file/approve").hasAnyRole("ADMIN", "MODERATOR");
                     req.requestMatchers(HttpMethod.PATCH, "/api/super-users/{id:[1-9]+}/lock-account").hasAnyRole("ADMIN", "MODERATOR");
 
                     req.requestMatchers(

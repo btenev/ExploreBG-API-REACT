@@ -1,10 +1,9 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
-import bg.exploreBG.model.dto.GpxUrlDateDto;
+import bg.exploreBG.model.dto.gpxFile.GpxUrlDateDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;

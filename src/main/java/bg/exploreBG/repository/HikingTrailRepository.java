@@ -249,5 +249,5 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     Optional<HikingTrailImageStatusAndGpxFileStatus> findImageStatusAndGpxStatusById(@Param("trailId")Long id);
 
     @EntityGraph(attributePaths = {"gpxFile", "gpxFile.reviewedBy"})
-    Optional<HikingTrailEntity> findWithGpxFileById(Long id);
+    Optional<HikingTrailEntity> findWithGpxFileAndReviewerById(Long id);
 }

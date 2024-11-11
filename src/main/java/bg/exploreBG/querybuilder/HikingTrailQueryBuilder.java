@@ -134,7 +134,7 @@ public class HikingTrailQueryBuilder {
 
     public HikingTrailEntity getHikingTrailWithGpxFileById(Long trailId) {
         return this.hikingTrailRepository
-                .findWithGpxFileById(trailId)
+                .findWithGpxFileAndReviewerById(trailId)
                 .orElseThrow(this::trailNotFoundException);
     }
 

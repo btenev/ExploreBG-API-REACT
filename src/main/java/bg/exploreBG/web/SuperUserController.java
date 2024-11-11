@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.EntitiesForApprovalUnderReviewCountDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationApprovalReviewCountDto;
 import bg.exploreBG.model.dto.accommodation.DestinationApprovalReviewCountDto;
+import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
@@ -207,7 +208,7 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("trails/{id}/images/claim")
+    @PatchMapping("/trails/{id}/images/claim")
     public ResponseEntity<ApiResponse<Boolean>> toggleTrailImagesClaim(
             @PathVariable("id") Long trailId,
             @RequestBody ReviewBooleanDto reviewBooleanDto,
@@ -244,6 +245,19 @@ public class SuperUserController {
         boolean success = this.superUserService.toggleTrailGpxFileClaim(trailId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/trails/{id}/gpx-file/approve")
+    public ResponseEntity<ApiResponse<Boolean>> approveTrailGpxFileClaim(
+            @PathVariable("id") Long trailId,
+            @RequestBody GpxApproveDto gpxApproveDto,
+            @AuthenticationPrincipal ExploreBgUserDetails userDetails
+    ) {
+        boolean approved = this.superUserService.approveTrailGpxFile(trailId, gpxApproveDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(approved);
 
         return ResponseEntity.ok(response);
     }
