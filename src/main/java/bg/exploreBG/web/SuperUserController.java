@@ -19,6 +19,7 @@ import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,8 +35,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/super-users")
 public class SuperUserController {
-    private static final String TRAILFOLDER = "Trails";
+    private static final String TRAIL_FOLDER = "Trails";
     private final AccommodationService accommodationService;
+
     private final DestinationService destinationService;
     private final HikingTrailService hikingTrailService;
     private final UserService userService;
@@ -224,12 +226,11 @@ public class SuperUserController {
     @PatchMapping("/trails/{id}/images/approve")
     public ResponseEntity<ApiResponse<Boolean>> approveTrailImagesClaim(
             @PathVariable("id") Long trailId,
-            @RequestBody ImageApproveDto imageApproveDto,    /*TODO validate that imageApproveDto doesnt contain empty array*/
+            @Valid @RequestBody ImageApproveDto imageApproveDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-
         boolean approved =
-                this.superUserService.approveTrailImages(trailId, imageApproveDto, userDetails, TRAILFOLDER);
+                this.superUserService.approveTrailImages(trailId, imageApproveDto, userDetails, TRAIL_FOLDER);
 
         ApiResponse<Boolean> response = new ApiResponse<>(approved);
 

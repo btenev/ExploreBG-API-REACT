@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,13 +26,16 @@ public class SecurityConfig {
 
     private final UserAuthenticationEntryPoint userAuthenticationEntryPoint;
     private final JwtAuthFilter jwtAuthFilter;
+    private final PathValidationFilter pathValidationFilter;
 
     public SecurityConfig(
             UserAuthenticationEntryPoint userAuthenticationEntryPoint,
-            JwtAuthFilter jwtAuthFilter
+            JwtAuthFilter jwtAuthFilter,
+            PathValidationFilter pathValidationFilter
     ) {
         this.userAuthenticationEntryPoint = userAuthenticationEntryPoint;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.pathValidationFilter = pathValidationFilter;
     }
 
     @Bean
@@ -83,6 +87,7 @@ public class SecurityConfig {
                             .anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(pathValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

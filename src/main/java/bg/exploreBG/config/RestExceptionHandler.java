@@ -54,7 +54,5 @@ public class RestExceptionHandler {
 
         return ResponseEntity.status(ex.getStatusCode()).body(errorMap);
     }
-
-
 }
 
