@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
@@ -20,8 +21,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
 
     Optional<UserEntity> findByEmail(String email);
 
-    @EntityGraph(attributePaths = {"roles"})
-    Optional<UserEntity> findWithRolesByEmail(String email);
+    @Query("""
+            SELECT u
+            FROM UserEntity u
+            JOIN FETCH u.roles
+            WHERE u.email = :userEmail AND SIZE(u.roles) > 0
+            """)
+    Optional<UserEntity> findWithRolesByEmail(@Param("userEmail") String email);
 
     @PreAuthorize("hasRole('ADMIN')")
     @Query("""

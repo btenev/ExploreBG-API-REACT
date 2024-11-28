@@ -1,6 +1,7 @@
 package bg.exploreBG.repository;
 
 import bg.exploreBG.model.dto.hikingTrail.*;
+import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -250,4 +251,9 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 
     @EntityGraph(attributePaths = {"gpxFile", "gpxFile.reviewedBy"})
     Optional<HikingTrailEntity> findWithGpxFileAndReviewerById(Long id);
+
+    @EntityGraph(attributePaths = {"hikes"})
+    Optional<HikingTrailEntity> findWithHikesHikingTrailByIdAndCreatedByEmail(Long id, String createdBy_email);
+
+     void deleteByIdAndCreatedBy_Email(Long id, String createdBy_email);
 }

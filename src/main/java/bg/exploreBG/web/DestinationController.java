@@ -43,7 +43,7 @@ public class DestinationController {
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<DestinationDetailsDto> getDestination(@PathVariable Long id) {
-        DestinationDetailsDto destination = this.destinationService.getDestination(id);
+        DestinationDetailsDto destination = this.destinationService.getDestinationDetailsById(id);
 
         return ResponseEntity.ok(destination);
     }

@@ -9,6 +9,8 @@ import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.mapper.DestinationMapper;
+import bg.exploreBG.querybuilder.DestinationQueryBuilder;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.repository.DestinationRepository;
 import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
@@ -19,65 +21,56 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class DestinationService {
-    private final DestinationRepository destinationRepository;
     private final DestinationMapper destinationMapper;
-    private final UserService userService;
+    private final GenericPersistenceService<DestinationEntity> destinationPersistence;
+    private final UserQueryBuilder userQueryBuilder;
+    private final DestinationQueryBuilder destinationQueryBuilder;
     private static final Logger logger = LoggerFactory.getLogger(DestinationService.class);
+
     public DestinationService(
-            DestinationRepository destinationRepository,
             DestinationMapper destinationMapper,
-            UserService userService
+            GenericPersistenceService<DestinationEntity> destinationPersistence,
+            UserQueryBuilder userQueryBuilder, DestinationQueryBuilder destinationQueryBuilder
     ) {
-        this.destinationRepository = destinationRepository;
         this.destinationMapper = destinationMapper;
-        this.userService = userService;
+        this.destinationPersistence = destinationPersistence;
+        this.userQueryBuilder = userQueryBuilder;
+        this.destinationQueryBuilder = destinationQueryBuilder;
     }
 
     public List<DestinationBasicPlusDto> getRandomNumOfDestinations(int limit) {
-        long countOfDestinations = this.destinationRepository.count();
+        long countOfDestinations = this.destinationQueryBuilder.getDestinationCount();
         // TODO: implement error logic if no destinations are available
         // TODO: return all destinations if count <= limit
         Set<Long> randomIds = RandomUtil.generateUniqueRandomIds(limit, countOfDestinations);
 
-        return this.destinationRepository
-                .findByIdIn(randomIds);
+        return this.destinationQueryBuilder.getDestinationsByIds(randomIds);
     }
 
-    public DestinationDetailsDto getDestination(Long id) {
-        Optional<DestinationEntity> byId = this.destinationRepository.findById(id);
-        if (byId.isEmpty()) {
-            // TODO: return error message
-        }
+    public DestinationDetailsDto getDestinationDetailsById(Long destinationId) {
+        DestinationEntity destinationById = this.destinationQueryBuilder.getDestinationById(destinationId);
 
-        return this.destinationMapper.destinationEntityToDestinationDetailsDto(byId.get());
+        return this.destinationMapper.destinationEntityToDestinationDetailsDto(destinationById);
     }
 
     public Page<DestinationBasicPlusDto> getAllDestinations(Pageable pageable) {
-        return this.destinationRepository
-                .findAllBy(pageable);
+        return this.destinationQueryBuilder.getAllDestinations(pageable);
     }
 
     public List<DestinationBasicDto> selectAll() {
-        return this.destinationRepository
-                .findAllByDestinationStatus(StatusEnum.APPROVED);
-    }
-
-    public List<DestinationEntity> getDestinationsByIds(List<Long> ids) {
-        return this.destinationRepository.findAllByIdInAndDestinationStatus(ids, StatusEnum.APPROVED);
+        return this.destinationQueryBuilder.selectAllApprovedDestinations();
     }
 
     public DestinationIdDto createDestination(
             DestinationCreateDto destinationCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity validUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         DestinationEntity newDestination =
                 this.destinationMapper.destinationCreateDtoToDestinationEntity(destinationCreateDto);
@@ -85,19 +78,17 @@ public class DestinationService {
         newDestination.setCreatedBy(validUser);
 
 //        logger.debug("{}", newDestination);
-        DestinationEntity saved = this.destinationRepository.save(newDestination);
+        DestinationEntity saved = this.destinationPersistence.saveEntityWithReturn(newDestination);
         return new DestinationIdDto(saved.getId());
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getPendingApprovalDestinationCount() {
-        return this.destinationRepository
-                .countDestinationEntitiesByDestinationStatus(StatusEnum.PENDING);
+        return this.destinationQueryBuilder.getDestinationCountByStatus(StatusEnum.PENDING);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getUnderReviewDestinationCount() {
-        return this.destinationRepository
-                .countDestinationEntitiesByDestinationStatus(StatusEnum.REVIEW);
+        return this.destinationQueryBuilder.getDestinationCountByStatus(StatusEnum.REVIEW);
     }
 }

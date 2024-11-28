@@ -7,7 +7,6 @@ import bg.exploreBG.model.enums.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
@@ -29,7 +28,7 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
 
     Page<AccommodationBasicPlusImageDto> findAllBy(Pageable pageable);
 
-    List<AccommodationBasicDto> findAllByAccommodationStatus(StatusEnum accommodationStatus);
+    List<AccommodationBasicDto> findByAccommodationStatus(StatusEnum accommodationStatus);
 
-    List<AccommodationEntity> findAllByIdInAndAccommodationStatus(List<Long> ids, StatusEnum statusEnum);
+    List<AccommodationEntity> findByIdInAndAccommodationStatus(List<Long> ids, StatusEnum statusEnum);
 }

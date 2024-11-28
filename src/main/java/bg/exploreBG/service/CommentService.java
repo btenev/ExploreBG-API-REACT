@@ -7,6 +7,7 @@ import bg.exploreBG.model.dto.comment.validate.CommentUpdateDto;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.mapper.CommentMapper;
+import bg.exploreBG.querybuilder.CommentQueryBuilder;
 import bg.exploreBG.repository.CommentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,21 +16,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Service
 public class CommentService {
-    private final Logger logger = LoggerFactory.getLogger(CloudinaryService.class);
-    private final CommentRepository commentRepository;
+    private final Logger logger = LoggerFactory.getLogger(CommentService.class);
     private final CommentMapper commentMapper;
-
+    private final GenericPersistenceService<CommentEntity> commentPersistence;
+    private final CommentQueryBuilder commentQueryBuilder;
 
     public CommentService(
-            CommentRepository commentRepository,
-            CommentMapper commentMapper
+            CommentMapper commentMapper,
+            GenericPersistenceService<CommentEntity> commentPersistence,
+            CommentQueryBuilder commentQueryBuilder
     ) {
-        this.commentRepository = commentRepository;
         this.commentMapper = commentMapper;
+        this.commentPersistence = commentPersistence;
+        this.commentQueryBuilder = commentQueryBuilder;
     }
 
     public CommentDto updateComment(
@@ -37,22 +39,18 @@ public class CommentService {
             CommentUpdateDto commentDto,
             UserDetails userDetails
     ) {
-        CommentEntity verifiedComment = getCommentEntityByIdIfOwner(commentId, userDetails.getUsername());
+        CommentEntity verifiedComment = this.commentQueryBuilder
+                .getCommentEntityByIdIfOwner(commentId, userDetails.getUsername());
         CommentEntity updated = updateCommentValues(verifiedComment, commentDto);
 
-        CommentEntity saved = this.commentRepository.save(updated);
+        CommentEntity saved = this.commentPersistence.saveEntityWithReturn(updated);
 
         return this.commentMapper.commentEntityToCommentDto(saved);
     }
 
     public CommentEntity saveComment(CommentCreateDto commentDto, UserEntity commentUser) {
         CommentEntity newComment = createNewComment(commentDto, commentUser);
-        return this.commentRepository.save(newComment);
-    }
-
-    public void deleteCommentById(Long commentId) {
-        this.commentRepository.deleteById(commentId);
-        ;
+        return this.commentPersistence.saveEntityWithReturn(newComment);
     }
 
     private CommentEntity updateCommentValues(
@@ -76,20 +74,5 @@ public class CommentService {
         newComment.setOwner(verifiedUser);
 
         return newComment;
-    }
-
-    public void validateCommentOwnership(Long commentId, String email) {
-        boolean isOwner = this.commentRepository.isUserOwnerOfComment(commentId, email);
-
-        if (!isOwner) {
-            throw new AppException("Comment not found or user is not the owner!", HttpStatus.FORBIDDEN);
-        }
-    }
-
-    private CommentEntity getCommentEntityByIdIfOwner(Long commentId, String email) {
-        return this.commentRepository
-                .findByIdAndOwnerEmail(commentId, email)
-                .orElseThrow(() -> new AppException("Comment not found or is not owned by the specified user!",
-                        HttpStatus.BAD_REQUEST));
     }
 }

@@ -9,7 +9,8 @@ import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
-import bg.exploreBG.repository.AccommodationRepository;
+import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,66 +21,56 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class AccommodationService {
-
     private static final Logger logger = LoggerFactory.getLogger(AccommodationService.class);
-    private final UserService userService;
-    private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper mapper;
+    private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
+    private final UserQueryBuilder userQueryBuilder;
+    private final AccommodationQueryBuilder accommodationQueryBuilder;
 
     public AccommodationService(
-            UserService userService,
-            AccommodationRepository accommodationRepository,
-            AccommodationMapper mapper
+            AccommodationMapper mapper,
+            GenericPersistenceService<AccommodationEntity> accommodationPersistence,
+            UserQueryBuilder userQueryBuilder,
+            AccommodationQueryBuilder accommodationQueryBuilder
     ) {
-        this.userService = userService;
-        this.accommodationRepository = accommodationRepository;
         this.mapper = mapper;
+        this.accommodationPersistence = accommodationPersistence;
+        this.userQueryBuilder = userQueryBuilder;
+        this.accommodationQueryBuilder = accommodationQueryBuilder;
     }
 
     public List<AccommodationBasicPlusImageDto> getRandomNumOfAccommodations(int limit) {
-        long countOfAvailableAccommodations = this.accommodationRepository.count();
-        // TODO: implement error logic if no accommodations are available
+        long countOfAvailableAccommodations = this.accommodationQueryBuilder.getAccommodationCount();
 
         Set<Long> randomIds = RandomUtil.generateUniqueRandomIds(limit, countOfAvailableAccommodations);
 
-        return this.accommodationRepository
-                .findByIdIn(randomIds);
+        return this.accommodationQueryBuilder.getAccommodationsByIds(randomIds);
     }
 
-    public AccommodationDetailsDto getAccommodation(Long id) {
-        Optional<AccommodationEntity> accommodationById = this.accommodationRepository.findById(id);
+    public AccommodationDetailsDto getAccommodationDetailsById(Long accommodationId) {
+        AccommodationEntity accommodationEntityById =
+                this.accommodationQueryBuilder.getAccommodationEntityById(accommodationId);
 
-        if (accommodationById.isEmpty()) {
-            // TODO: implement error logic
-        }
-
-        return this.mapper.accommodationEntityToAccommodationDetailsDto(accommodationById.get());
+        return this.mapper.accommodationEntityToAccommodationDetailsDto(accommodationEntityById);
     }
 
     public Page<AccommodationBasicPlusImageDto> getAllAccommodations(Pageable pageable) {
-        return this.accommodationRepository
-                .findAllBy(pageable);
+        return this.accommodationQueryBuilder.getAllAccommodations(pageable);
     }
 
     public List<AccommodationBasicDto> selectAll() {
-        return this.accommodationRepository
-                .findAllByAccommodationStatus(StatusEnum.APPROVED);
-    }
-
-    public List<AccommodationEntity> getAccommodationsById(List<Long> ids) {
-        return  this.accommodationRepository.findAllByIdInAndAccommodationStatus(ids, StatusEnum.APPROVED);
+        return this.accommodationQueryBuilder.selectAllApprovedAccommodations();
     }
 
     public AccommodationIdDto createAccommodation(
             AccommodationCreateDto accommodationCreateDto,
             UserDetails userDetails
     ) {
-        UserEntity verifiedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity verifiedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         AccommodationEntity newAccommodation =
                 this.mapper.accommodationCreateDtoToAccommodationEntity(accommodationCreateDto);
@@ -88,19 +79,17 @@ public class AccommodationService {
 
         logger.debug("{}", newAccommodation);
 
-        AccommodationEntity saved = this.accommodationRepository.save(newAccommodation);
+        AccommodationEntity saved = this.accommodationPersistence.saveEntityWithReturn(newAccommodation);
         return new AccommodationIdDto(saved.getId());
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getPendingApprovalAccommodationCount() {
-        return this.accommodationRepository
-                .countAccommodationEntitiesByAccommodationStatus(StatusEnum.PENDING);
+        return this.accommodationQueryBuilder.getAccommodationCountByStatus(StatusEnum.PENDING);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public int getUnderReviewAccommodationCount() {
-        return this.accommodationRepository
-                .countAccommodationEntitiesByAccommodationStatus(StatusEnum.REVIEW);
+        return this.accommodationQueryBuilder.getAccommodationCountByStatus(StatusEnum.REVIEW);
     }
 }

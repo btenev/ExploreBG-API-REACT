@@ -14,9 +14,9 @@ import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
+import bg.exploreBG.querybuilder.RoleQueryBuilder;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,46 +25,48 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
-    private final UserRepository userRepository;
-    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final UserMapper userMapper;
+    private final GenericPersistenceService<UserEntity> userPersistence;
+    private final UserQueryBuilder userQueryBuilder;
+    private final RoleQueryBuilder roleQueryBuilder;
+
 
     public UserService(
-            UserRepository userRepository,
-            RoleService roleService,
             PasswordEncoder passwordEncoder,
             UserDetailsService userDetailsService,
-            UserMapper userMapper
+            UserMapper userMapper,
+            GenericPersistenceService<UserEntity> userPersistence,
+            UserQueryBuilder userQueryBuilder,
+            RoleQueryBuilder roleQueryBuilder
     ) {
-        this.userRepository = userRepository;
-        this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.userMapper = userMapper;
+        this.userPersistence = userPersistence;
+        this.userQueryBuilder = userQueryBuilder;
+        this.roleQueryBuilder = roleQueryBuilder;
     }
 
     public UserIdNameEmailRolesDto register(UserRegisterDto userRegisterDto) {
-        Optional<UserEntity> optionalUserEntity = this.userRepository.findByEmail(userRegisterDto.email());
-        if (optionalUserEntity.isPresent()) {
-            throw new AppException("User with email " + userRegisterDto.email() + " already exist!",
-                    HttpStatus.CONFLICT);
-        }
+        this.userQueryBuilder.ensureUserEmailAbsent(userRegisterDto.email());
 
-        RoleEntity roleExist = this.roleService.roleExist(UserRoleEnum.MEMBER);
+        RoleEntity roleExist = this.roleQueryBuilder.getRoleEntityByRoleEnum(UserRoleEnum.MEMBER);
 
         UserEntity newUser = mapDtoToUserEntity(userRegisterDto, roleExist);
         newUser.setCreationDate(LocalDateTime.now());
         newUser.setAccountNonLocked(true);
 
-        UserEntity persistedUser = saveUserWithReturn(newUser);
+        UserEntity persistedUser = this.userPersistence.saveEntityWithReturn(newUser);
 
         return new UserIdNameEmailRolesDto(
                 persistedUser.getId(),
@@ -82,22 +84,22 @@ public class UserService {
             throw new AppException("Invalid password!", HttpStatus.UNAUTHORIZED);
         }
 
-        Optional<UserEntity> currentUser = this.userRepository.findWithRolesByEmail(foundUser.getUsername());
+        UserEntity currentUser = this.userQueryBuilder.getUserEntityByEmailWithRoles(foundUser.getUsername());
 
         return new UserIdNameEmailRolesDto(
-                currentUser.get().getId(),
-                currentUser.get().getEmail(),
-                currentUser.get().getUsername(),
-                getRoles(currentUser.get()));
+                currentUser.getId(),
+                currentUser.getEmail(),
+                currentUser.getUsername(),
+                getRoles(currentUser));
     }
 
     public UserDetailsOwnerDto findMyProfile(UserDetails userDetails) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         return this.userMapper.userEntityToUserDetailsOwnerDto(loggedUser);
     }
 
     public UserDetailsDto findProfileById(Long id) {
-        UserEntity userExist = getUserEntityById(id);
+        UserEntity userExist = this.userQueryBuilder.getUserEntityById(id);
 
         return this.userMapper.userEntityToUserDetailsDto(userExist);
     }
@@ -106,10 +108,10 @@ public class UserService {
             UserUpdateEmailDto userUpdateEmailDto,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmailWithRoles(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmailWithRoles(userDetails.getUsername());
 
         loggedUser.setEmail(userUpdateEmailDto.email());
-        UserEntity updatedEmail = saveUserWithReturn(loggedUser);
+        UserEntity updatedEmail = this.userPersistence.saveEntityWithReturn(loggedUser);
 
         return new UserEmailRolesDto(updatedEmail.getEmail(), getRoles(updatedEmail));
     }
@@ -118,10 +120,10 @@ public class UserService {
             UserUpdateUsernameDto userUpdateUsernameDto,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         loggedUser.setUsername(userUpdateUsernameDto.username());
-        UserEntity updatedUsername = saveUserWithReturn(loggedUser);
+        UserEntity updatedUsername = this.userPersistence.saveEntityWithReturn(loggedUser);
 
         return new UserUsernameDto(updatedUsername.getUsername());
     }
@@ -130,7 +132,7 @@ public class UserService {
             UserUpdatePasswordDto updatePassword,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         boolean matches = this.passwordEncoder.matches(updatePassword.currentPassword(), userDetails.getPassword());
 
         if (!matches) {
@@ -138,7 +140,7 @@ public class UserService {
         }
 
         loggedUser.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
-        saveUserWithoutReturn(loggedUser);
+        this.userPersistence.saveEntityWithReturn(loggedUser);
         return new SuccessStringDto("Password updated successfully!");
     }
 
@@ -146,11 +148,11 @@ public class UserService {
             UserUpdateGenderDto userUpdateGenderDto,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         GenderEnum setGender = userUpdateGenderDto.gender();
         loggedUser.setGender(setGender);
 
-        UserEntity updatedGenderEnum = saveUserWithReturn(loggedUser);
+        UserEntity updatedGenderEnum = this.userPersistence.saveEntityWithReturn(loggedUser);
         return new UserGenderDto(updatedGenderEnum.getGender().getValue());
     }
 
@@ -158,10 +160,10 @@ public class UserService {
             UserUpdateBirthdate userBirthdate,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         loggedUser.setBirthdate(userBirthdate.birthdate());
 
-        UserEntity updatedBirthDate = saveUserWithReturn(loggedUser);
+        UserEntity updatedBirthDate = this.userPersistence.saveEntityWithReturn(loggedUser);
         return new UserBirthdateDto(updatedBirthDate.getBirthdate());
     }
 
@@ -169,38 +171,11 @@ public class UserService {
             UserUpdateInfo userUpdateInfo,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         loggedUser.setUserInfo(userUpdateInfo.userInfo());
 
-        UserEntity updatedUserInfo = saveUserWithReturn(loggedUser);
+        UserEntity updatedUserInfo = this.userPersistence.saveEntityWithReturn(loggedUser);
         return new UserInfoDto(updatedUserInfo.getUserInfo());
-    }
-
-    private UserEntity getUserEntityById(Long id) {
-        Optional<UserEntity> byId = this.userRepository.findById(id);
-
-        if (byId.isEmpty()) {
-            throw new AppException("User not found!", HttpStatus.NOT_FOUND);
-        }
-        return byId.get();
-    }
-
-    protected UserEntity getUserEntityByEmail(String email) {
-        Optional<UserEntity> byEmail = this.userRepository.findByEmail(email);
-
-        if (byEmail.isEmpty()) {
-            throw new AppException("User not found!", HttpStatus.NOT_FOUND);
-        }
-        return byEmail.get();
-    }
-
-    protected UserEntity getUserEntityByEmailWithRoles(String email) {
-        Optional<UserEntity> byEmail = this.userRepository.findWithRolesByEmail(email);
-
-        if (byEmail.isEmpty()) {
-            throw new AppException("User not found!", HttpStatus.NOT_FOUND);
-        }
-        return byEmail.get();
     }
 
     private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, RoleEntity role) {
@@ -220,16 +195,11 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public Page<UserDataProjection> getAllUsers(Pageable pageable) {
-        return this.userRepository.findAllBy(pageable);
-    }
-
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public List<UserClassDataDto> getAllUsers() {
         Map<Long, UserClassDataDto> userDataDtoMap = new LinkedHashMap<>();
 
-        return this.userRepository.getAllUsers().map(tuple -> {
+        return this.userQueryBuilder.getAllUsers().map(tuple -> {
 
                     UserClassDataDto userDataDto =
                             userDataDtoMap.computeIfAbsent(tuple.get("id", Long.class),
@@ -255,9 +225,9 @@ public class UserService {
             Long id,
             UserModRoleDto mod
     ) {
-        UserEntity userExist = this.getUserEntityById(id);
+        UserEntity userExist = this.userQueryBuilder.getUserEntityById(id);
         List<RoleEntity> userRoles = userExist.getRoles();
-        RoleEntity moderator = this.roleService.roleExist(UserRoleEnum.MODERATOR);
+        RoleEntity moderator = this.roleQueryBuilder.getRoleEntityByRoleEnum(UserRoleEnum.MODERATOR);
 
         if (mod.moderator()) { // add role moderator
             if (userRoles.contains(moderator)) {
@@ -275,7 +245,7 @@ public class UserService {
             userExist.setRoles(userRoles);
         }
 
-        UserEntity saved = saveUserWithReturn(userExist);
+        UserEntity saved = this.userPersistence.saveEntityWithReturn(userExist);
         return this.userMapper.userEntityToUserDataDto(saved);
     }
 
@@ -284,7 +254,7 @@ public class UserService {
             Long id,
             UserAccountLockUnlockDto lockUnlockDto
     ) {
-        UserEntity userExist = getUserEntityById(id);
+        UserEntity userExist = this.userQueryBuilder.getUserEntityById(id);
 
         boolean accountNonLocked = userExist.isAccountNonLocked();
 
@@ -302,7 +272,7 @@ public class UserService {
             userExist.setAccountNonLocked(true);
         }
 
-        saveUserWithoutReturn(userExist);
+        this.userPersistence.saveEntityWithReturn(userExist);
         return true;
     }
 
@@ -313,13 +283,5 @@ public class UserService {
                 .anyMatch(grantedAuthority ->
                         grantedAuthority.getAuthority().equals("ROLE_ADMIN")
                                 || grantedAuthority.getAuthority().equals("ROLE_MODERATOR"));
-    }
-
-    public UserEntity saveUserWithReturn(UserEntity user) {
-        return this.userRepository.save(user);
-    }
-
-    public void saveUserWithoutReturn(UserEntity user) {
-        this.userRepository.save(user);
     }
 }

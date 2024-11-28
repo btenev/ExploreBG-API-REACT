@@ -7,6 +7,6 @@ import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 public record EntitiesForApprovalUnderReviewCountDto(
         AccommodationApprovalReviewCountDto accommodations,
         DestinationApprovalReviewCountDto destinations,
-        TrailApprovalReviewCountDto trails
+        int trail
 ) {
 }

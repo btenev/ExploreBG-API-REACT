@@ -10,7 +10,9 @@ import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
-import bg.exploreBG.repository.ImageRepository;
+import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
+import bg.exploreBG.querybuilder.ImageQueryBuilder;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,26 +26,31 @@ import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
-
     private final Logger logger = LoggerFactory.getLogger(ImageService.class);
-    private final ImageRepository imageRepository;
-    private final UserService userService;
-    private final HikingTrailService hikingTrailService;
-    private final AccommodationService accommodationService;
     private final CloudinaryService cloudinaryService;
+    private final GenericPersistenceService<ImageEntity> imagePersistence;
+    private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
+    private final GenericPersistenceService<UserEntity> userPersistence;
+    private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
+    private final UserQueryBuilder userQueryBuilder;
+    private final ImageQueryBuilder imageQueryBuilder;
 
     public ImageService(
-            ImageRepository imageRepository,
-            UserService userService,
-            HikingTrailService hikingTrailService,
-            AccommodationService accommodationService,
-            CloudinaryService cloudinaryService
+            CloudinaryService cloudinaryService,
+            GenericPersistenceService<ImageEntity> imagePersistence,
+            GenericPersistenceService<HikingTrailEntity> trailPersistence,
+            GenericPersistenceService<UserEntity> userPersistence,
+            HikingTrailQueryBuilder hikingTrailQueryBuilder,
+            UserQueryBuilder userQueryBuilder,
+            ImageQueryBuilder imageQueryBuilder
     ) {
-        this.imageRepository = imageRepository;
-        this.userService = userService;
-        this.hikingTrailService = hikingTrailService;
-        this.accommodationService = accommodationService;
         this.cloudinaryService = cloudinaryService;
+        this.imagePersistence = imagePersistence;
+        this.trailPersistence = trailPersistence;
+        this.userPersistence = userPersistence;
+        this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
+        this.userQueryBuilder = userQueryBuilder;
+        this.imageQueryBuilder = imageQueryBuilder;
     }
 
     public ImageIdPlusUrlDto saveProfileImage(
@@ -51,7 +58,7 @@ public class ImageService {
             MultipartFile file,
             UserDetails userDetails
     ) {
-        UserEntity loggedUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         ImageEntity userImage = loggedUser.getUserImage();
 
         if (userImage == null) {
@@ -72,20 +79,17 @@ public class ImageService {
             userImage.setImageUrl(url);
         }
 
-        ImageEntity saved = this.imageRepository.save(userImage);
+        ImageEntity saved = this.imagePersistence.saveEntityWithReturn(userImage);
 
         loggedUser.setUserImage(saved);
 
-        this.userService.saveUserWithoutReturn(loggedUser);
+        this.userPersistence.saveEntityWithoutReturn(loggedUser);
 
         return new ImageIdPlusUrlDto(saved.getId(), saved.getImageUrl());
     }
 
     public String getUserImageUrlByEmail(UserDetails userDetails) {
-        Optional<String> userUrl =
-                this.imageRepository.findImageUrlByOwnerEmail(userDetails.getUsername());
-
-        return userUrl.orElse(null);
+        return this.imageQueryBuilder.getImagerUrlByEmail(userDetails.getUsername());
     }
 
     public List<ImageIdUrlIsMainDto> saveTrailPictures(
@@ -96,11 +100,11 @@ public class ImageService {
             List<StatusEnum> statuses
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
-                        trailId,
-                        statuses,
-                        userDetails.getUsername()
-                );
+                this.hikingTrailQueryBuilder.getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
+                                trailId,
+                                statuses,
+                                userDetails.getUsername()
+                        );
         UserEntity loggedUser = currentTrail.getCreatedBy();
         logger.info("Save trail pictures - logged user {}", loggedUser.getUsername());
         List<ImageEntity> currentTrailImages = currentTrail.getImages();
@@ -115,7 +119,7 @@ public class ImageService {
         List<Map<String, String>> uploadResults = validateUploadResult(files, folder);
         List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, loggedUser);
 
-        List<ImageEntity> savedImages = this.imageRepository.saveAll(newImageEntities);
+        List<ImageEntity> savedImages = this.imagePersistence.saveEntitiesWithReturn(newImageEntities);
 
         if (currentTrailImages.isEmpty()) {
             currentTrail.setMainImage(savedImages.get(0));
@@ -123,7 +127,7 @@ public class ImageService {
 
         currentTrailImages.addAll(newImageEntities);
         currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
-        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
+        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
 
         return savedImages.stream()
                 .map(e -> {
@@ -139,7 +143,7 @@ public class ImageService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailWithImagesByIdIfOwner(id, userDetails.getUsername());
+                this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdIfOwner(id, userDetails.getUsername());
 
         deleteImagesFromTrail(currentTrail, toDeleteDto);
 
@@ -175,8 +179,8 @@ public class ImageService {
             }
         }
 
-        HikingTrailEntity savedTrail = this.hikingTrailService.saveTrailWithReturn(currentTrail);
-        this.imageRepository.deleteAll(imagesToDelete);
+        HikingTrailEntity savedTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
+        this.imagePersistence.deleteEntitiesWithoutReturn(imagesToDelete);
 
         return savedTrail;
     }
@@ -310,9 +314,5 @@ public class ImageService {
         }
 
         return uploadResults;
-    }
-
-    public void saveImagesWithoutReturn(List<ImageEntity> images) {
-        this.imageRepository.saveAll(images);
     }
 }

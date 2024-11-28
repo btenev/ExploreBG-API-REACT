@@ -93,6 +93,17 @@ public class HikingTrailController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteHikingTrail(
+            @PathVariable("id") Long trailId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = this.hikingTrailService.deleteOwnedTrailById(trailId, userDetails);
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
     /*
     APPROVED
     */
@@ -115,12 +126,12 @@ public class HikingTrailController {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetails userDetails) {
                 allHikingTrails = this.hikingTrailService
-                        .getAllHikingTrailsWithLikes(userDetails, pageable, sortByLikedUser);
+                        .getAllApprovedHikingTrailsWithLikes(userDetails, pageable, sortByLikedUser);
             } else {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            allHikingTrails = this.hikingTrailService.getAllHikingTrails(pageable);
+            allHikingTrails = this.hikingTrailService.getAllApprovedHikingTrails(pageable);
         }
 
         ApiResponse<Page<?>> response = new ApiResponse<>(allHikingTrails);
@@ -152,15 +163,7 @@ public class HikingTrailController {
 //        boolean success = this.hikingTrailService.deleteHikingTrail(trailId);
 //        return ResponseEntity.ok().build();
 //    }
-
-    @GetMapping("/{id}/reviewer")
-    public ResponseEntity<UserIdDto> getHikingTrailReviewer(
-            @PathVariable("id") Long trailId
-    ) {
-        UserIdDto reviewerId = this.hikingTrailService.getReviewerId(trailId);
-
-        return ResponseEntity.ok(reviewerId);
-    }
+    /*TODO: /api/trails/{id}/reviewer moved to superuser controller*/
 
     @PatchMapping("/{id}/start-point")
     public ResponseEntity<ApiResponse<HikingTrailStartPointDto>> updateStartPoint(

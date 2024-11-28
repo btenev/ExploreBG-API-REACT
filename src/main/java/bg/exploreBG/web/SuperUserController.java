@@ -13,13 +13,13 @@ import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
 import bg.exploreBG.model.dto.user.UserDataDto;
+import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.service.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,22 +37,18 @@ import java.util.List;
 public class SuperUserController {
     private static final String TRAIL_FOLDER = "Trails";
     private final AccommodationService accommodationService;
-
     private final DestinationService destinationService;
-    private final HikingTrailService hikingTrailService;
     private final UserService userService;
     private final SuperUserService superUserService;
 
     public SuperUserController(
             AccommodationService accommodationService,
             DestinationService destinationService,
-            HikingTrailService hikingTrailService,
             UserService userService,
             SuperUserService superUserService
     ) {
         this.accommodationService = accommodationService;
         this.destinationService = destinationService;
-        this.hikingTrailService = hikingTrailService;
         this.userService = userService;
         this.superUserService = superUserService;
     }
@@ -127,16 +123,13 @@ public class SuperUserController {
         DestinationApprovalReviewCountDto destinations
                 = new DestinationApprovalReviewCountDto(destinationCountPending, destinationCountReview);
         // TODO: Refactor show only items with with trailStatus PENDING
-        int trailCountPending = this.hikingTrailService.getPendingApprovalTrailCount();
-        int trailCountReview = this.hikingTrailService.getUnderReviewTrailCount();
-        TrailApprovalReviewCountDto trails
-                = new TrailApprovalReviewCountDto(trailCountPending, trailCountReview);
+        int trailCountPending = this.superUserService.getPendingApprovalTrailCount();
 
         EntitiesForApprovalUnderReviewCountDto countDto =
                 new EntitiesForApprovalUnderReviewCountDto(
                         accommodations,
                         destinations,
-                        trails
+                        trailCountPending
                 );
 
         return ResponseEntity.ok(countDto);
@@ -156,10 +149,18 @@ public class SuperUserController {
         Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
 
         Page<HikingTrailForApprovalProjection> forApproval =
-                this.hikingTrailService
-                        .getAllHikingTrailsForApproval(SuperUserReviewStatusEnum.PENDING, pageable);
+                this.superUserService.getAllHikingTrailsForApproval(pageable);
 
         return ResponseEntity.ok(forApproval);
+    }
+    /*TODO: moved from hiking trail controller*/
+    @GetMapping("/trails/{id}/reviewer")
+    public ResponseEntity<UserIdDto> getHikingTrailReviewer(
+            @PathVariable("id") Long trailId
+    ) {
+        UserIdDto reviewerId = this.superUserService.getReviewerId(trailId);
+
+        return ResponseEntity.ok(reviewerId);
     }
 
     /*TODO: old: /review/trail/{id} new: /trails/{id}/review  returns details, images, gpx file info*/

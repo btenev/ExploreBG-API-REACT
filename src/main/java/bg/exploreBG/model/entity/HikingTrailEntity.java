@@ -67,6 +67,9 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     )
     private List<CommentEntity> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "hikingTrail")
+    private List<HikeEntity> hikes = new ArrayList<>();
+
     @Column(name = "elevation_gained")
     private Integer elevationGained;
 
@@ -96,6 +99,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     private LocalDateTime modificationDate;
 
     @ManyToOne
+    @JoinColumn(name = "created_by_id", referencedColumnName = "id")
     private UserEntity createdBy;
 
     /*@ManyToOne
@@ -305,6 +309,14 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
 
     public void setSingleComment(CommentEntity savedComment) {
         this.comments.add(savedComment);
+    }
+
+    public List<HikeEntity> getHikes() {
+        return hikes;
+    }
+
+    public void setHikes(List<HikeEntity> hikes) {
+        this.hikes = hikes;
     }
 
     @Override

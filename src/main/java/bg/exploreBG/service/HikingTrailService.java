@@ -8,26 +8,28 @@ import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationWrapperDto;
-import bg.exploreBG.model.dto.hikingTrail.*;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicLikesDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
-import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
+import bg.exploreBG.querybuilder.CommentQueryBuilder;
+import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
-import bg.exploreBG.repository.HikingTrailRepository;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,48 +45,57 @@ import java.util.stream.Collectors;
 @Service
 public class HikingTrailService {
     private static final Logger logger = LoggerFactory.getLogger(HikingTrailService.class);
-    private final HikingTrailRepository hikingTrailRepository;
     private final HikingTrailMapper hikingTrailMapper;
     private final CommentMapper commentMapper;
     private final UserService userService;
     private final CommentService commentService;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final EntityUpdateService entityUpdateService;
+    private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
+    private final GenericPersistenceService<HikeEntity> hikePersistence;
+    private final GenericPersistenceService<CommentEntity> commentPersistence;
+    private final UserQueryBuilder userQueryBuilder;
+    private final CommentQueryBuilder commentQueryBuilder;
+    private final HikeQueryBuilder hikeQueryBuilder;
 
     public HikingTrailService(
-            HikingTrailRepository hikingTrailRepository,
             HikingTrailMapper hikingTrailMapper,
             CommentMapper commentMapper,
             UserService userService,
             CommentService commentService,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
-            EntityUpdateService entityUpdateService
+            EntityUpdateService entityUpdateService,
+            GenericPersistenceService<HikingTrailEntity> trailPersistence,
+            GenericPersistenceService<HikeEntity> hikePersistence,
+            GenericPersistenceService<CommentEntity> commentPersistence,
+            UserQueryBuilder userQueryBuilder,
+            CommentQueryBuilder commentQueryBuilder,
+            HikeQueryBuilder hikeQueryBuilder
     ) {
-        this.hikingTrailRepository = hikingTrailRepository;
         this.hikingTrailMapper = hikingTrailMapper;
         this.commentMapper = commentMapper;
         this.userService = userService;
         this.commentService = commentService;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.entityUpdateService = entityUpdateService;
+        this.trailPersistence = trailPersistence;
+        this.hikePersistence = hikePersistence;
+        this.commentPersistence = commentPersistence;
+        this.userQueryBuilder = userQueryBuilder;
+        this.commentQueryBuilder = commentQueryBuilder;
+        this.hikeQueryBuilder = hikeQueryBuilder;
     }
 
     public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
-        Pageable pageable = PageRequest.of(0, limit);
-        return this.hikingTrailRepository.findRandomApprovedTrails(pageable);
+        return this.hikingTrailQueryBuilder.getRandomNumOfHikingTrails(limit);
     }
 
-    public List<HikingTrailBasicLikesDto> getRandomNumOfHikingTrailsWithLikes(
-            int limit,
-            UserDetails userDetails
-    ) {
-        Pageable pageable = PageRequest.of(0, limit);
-        return this.hikingTrailRepository.
-                findRandomApprovedTrailsWithLikes(userDetails.getUsername(), pageable);
+    public List<HikingTrailBasicLikesDto> getRandomNumOfHikingTrailsWithLikes(int limit, UserDetails userDetails) {
+        return this.hikingTrailQueryBuilder.getRandomNumOfHikingTrailsWithLikes(userDetails.getUsername(), limit);
     }
 
     public HikingTrailDetailsDto getApprovedHikingTrailWithApprovedImagesById(Long id, StatusEnum status) {
-        HikingTrailEntity trailById = getTrailByIdAndStatus(id, status);
+        HikingTrailEntity trailById = this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus(id, status);
 
         List<ImageEntity> approvedImages = getApprovedImages(trailById);
 
@@ -97,7 +108,7 @@ public class HikingTrailService {
 
     @SuppressWarnings("unchecked")
     public <T> T getHikingTrailAuthenticated(Long id, UserDetails userDetails) {
-        HikingTrailEntity current = getTrailById(id);
+        HikingTrailEntity current = this.hikingTrailQueryBuilder.getHikingTrailById(id);
         String username = userDetails.getUsername();
 
         if (isOwner(current, username)) {
@@ -114,8 +125,29 @@ public class HikingTrailService {
             current.setImages(approvedImages);
         }
 
-        UserEntity loggedUser = this.userService.getUserEntityByEmail(username);
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(username);
         return (T) this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsLikeDto(current, loggedUser);
+    }
+
+    public boolean deleteOwnedTrailById(
+            Long trailId,
+            UserDetails userDetails
+    ) {
+/*        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailWithHikesByIdIfOwner(trailId, userDetails.getUsername());
+
+        for (HikeEntity hike : currentTrail.getHikes()) {
+            hike.setHikingTrail(null);
+        }
+
+        this.hikePersistence.saveEntitiesWithoutReturn(currentTrail.getHikes());*/
+
+        /*Alternative of the code above without fetching any entities, but directly updating the database*/
+        this.hikeQueryBuilder.removeHikingTrailFromHikesByTrailIdIfTrailOwner(trailId, userDetails.getUsername());
+
+        this.trailPersistence.deleteEntityWithoutReturnById(trailId);
+        
+        return true;
     }
 
     private List<ImageEntity> getApprovedImages(HikingTrailEntity current) {
@@ -132,30 +164,30 @@ public class HikingTrailService {
         }
     }
 
-    public Page<HikingTrailBasicDto> getAllHikingTrails(Pageable pageable) {
-        return this.hikingTrailRepository
-                .findAllByTrailStatus(StatusEnum.APPROVED, pageable);
+    public Page<HikingTrailBasicDto> getAllApprovedHikingTrails(Pageable pageable) {
+        return this.hikingTrailQueryBuilder.getAllAHikingTrailsByStatus(StatusEnum.APPROVED, pageable);
     }
 
     @Transactional
-    public Page<HikingTrailBasicLikesDto> getAllHikingTrailsWithLikes(
+    public Page<HikingTrailBasicLikesDto> getAllApprovedHikingTrailsWithLikes(
             UserDetails userDetails,
             Pageable pageable,
             Boolean sortByLikedUser
     ) {
-        return this.hikingTrailRepository
-                .getTrailsWithLikes(StatusEnum.APPROVED, userDetails.getUsername(), pageable, sortByLikedUser);
+        return this.hikingTrailQueryBuilder
+                .getAllHikingTrailsWithLikesByStatus(
+                        StatusEnum.APPROVED, userDetails.getUsername(), pageable, sortByLikedUser);
     }
 
     public List<HikingTrailIdTrailNameDto> selectAll() {
-        return this.hikingTrailRepository.findAllBy();
+        return this.hikingTrailQueryBuilder.selectAll();
     }
 
     public Long createHikingTrail(
             HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
             UserDetails userDetails
     ) {
-        UserEntity validUser = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity validUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         HikingTrailEntity newHikingTrail =
                 this.hikingTrailMapper
@@ -190,8 +222,7 @@ public class HikingTrailService {
                     this.entityUpdateService.mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
-
-        return saveTrailWithReturn(newHikingTrail).getId();
+        return this.trailPersistence.saveEntityWithReturn(newHikingTrail).getId();
     }
 
     public HikingTrailStartPointDto updateHikingTrailStartPoint(
@@ -199,7 +230,9 @@ public class HikingTrailService {
             HikingTrailUpdateStartPointDto newStartPoint,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
+
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getStartPoint,
@@ -215,7 +248,8 @@ public class HikingTrailService {
             HikingTrailUpdateEndPointDto newEndPoint,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getEndPoint,
@@ -231,7 +265,8 @@ public class HikingTrailService {
             HikingTrailUpdateTotalDistanceDto newTotalDistance,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getTotalDistance,
@@ -247,7 +282,8 @@ public class HikingTrailService {
             HikingTrailUpdateElevationGainedDto newElevationGained,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getElevationGained,
@@ -259,11 +295,12 @@ public class HikingTrailService {
     }
 
     public HikingTrailWaterAvailableDto updateHikingTrailWaterAvailable(
-            Long id,
+            Long trailId,
             HikingTrailUpdateWaterAvailableDto newWaterAvailable,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getWaterAvailable,
@@ -275,11 +312,12 @@ public class HikingTrailService {
     }
 
     public HikingTrailActivityDto updateHikingTrailActivity(
-            Long id,
+            Long trailId,
             HikingTrailUpdateActivityDto newActivity,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         /*TODO: Test Object.equals with list, might need to change to set*/
         return updateHikingTrailField(
                 currentTrail,
@@ -292,11 +330,12 @@ public class HikingTrailService {
     }
 
     public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
-            Long id,
+            Long trailId,
             HikingTrailUpdateTrailInfoDto newTrailInfo,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getTrailInfo,
@@ -313,7 +352,9 @@ public class HikingTrailService {
             UserDetails userDetails,
             List<StatusEnum> statuses
     ) {
-        HikingTrailEntity currentTrail = getTrailWithHutsByIdAndStatusIfOwner(id, statuses, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder
+                        .getHikingTrailWithHutsByIdAndStatusIfOwner(id, statuses, userDetails.getUsername());
         /*TODO: Test Object.equals with list, might need to change to set*/
         boolean isUpdated = this.entityUpdateService.updateAccommodationList(currentTrail, newHuts.availableHuts());
 
@@ -336,7 +377,9 @@ public class HikingTrailService {
             UserDetails userDetails,
             List<StatusEnum> statuses
     ) {
-        HikingTrailEntity currentTrail = getTrailWithDestinationsByAndStatusIfOwner(id, statuses, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder
+                        .getHikingTrailWithDestinationsByAndStatusIfOwner(id, statuses, userDetails.getUsername());
         /*TODO: Test Object.equals with list, might need to change to set*/
         boolean isUpdated = this.entityUpdateService.updateDestinationList(currentTrail, newDestinations.destinations());
 
@@ -355,11 +398,12 @@ public class HikingTrailService {
     }
 
     public HikingTrailDifficultyDto updateHikingTrailDifficulty(
-            Long id,
+            Long trailId,
             HikingTrailUpdateTrailDifficultyDto newDifficulty,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
                 currentTrail::getTrailDifficulty,
@@ -376,8 +420,9 @@ public class HikingTrailService {
             UserDetails userDetails,
             List<StatusEnum> statuses
     ) {
-
-        HikingTrailEntity currentTrail = getTrailWithImagesByIdAndStatusIfOwner(id, statuses, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder
+                        .getHikingTrailWithImagesByIdAndStatusIfOwner(id, statuses, userDetails.getUsername());
 
         ImageEntity found =
                 currentTrail
@@ -395,7 +440,7 @@ public class HikingTrailService {
 
         if (isUpdated) {
             currentTrail.setMainImage(found);
-            saveTrailWithoutReturn(currentTrail);
+            this.trailPersistence.saveEntityWithoutReturn(currentTrail);
         }
 
         return true;
@@ -421,7 +466,7 @@ public class HikingTrailService {
             trail.setStatus(StatusEnum.PENDING);
             trail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
             trail.setModificationDate(LocalDateTime.now());
-            return saveTrailWithReturn(trail);
+            trail = this.trailPersistence.saveEntityWithReturn(trail);
         }
         return trail;
     }
@@ -432,14 +477,15 @@ public class HikingTrailService {
             UserDetails userDetails,
             StatusEnum status
     ) {
-        HikingTrailEntity currentTrail = getTrailWithCommentsByIdAndStatus(trailId, status);
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailWithCommentsByIdAndStatus(trailId, status);
 
-        UserEntity userCommenting = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity userCommenting = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         CommentEntity savedComment = this.commentService.saveComment(commentDto, userCommenting);
 
         currentTrail.setSingleComment(savedComment);
-        saveTrailWithoutReturn(currentTrail);
+        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
 
         return this.commentMapper.commentEntityToCommentDto(savedComment);
     }
@@ -457,9 +503,9 @@ public class HikingTrailService {
             Long commentId,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = getTrailWithCommentsById(trailId);
+        HikingTrailEntity currentTrail = this.hikingTrailQueryBuilder.getHikingTrailWithCommentsById(trailId);
 
-        this.commentService.validateCommentOwnership(commentId, userDetails.getUsername());
+        this.commentQueryBuilder.validateCommentOwnership(commentId, userDetails.getUsername());
 
         boolean commentRemoved = currentTrail.getComments().removeIf(c -> c.getId().equals(commentId));
 
@@ -468,124 +514,11 @@ public class HikingTrailService {
                     HttpStatus.NOT_FOUND);
         }
 
-        this.hikingTrailRepository.save(currentTrail);
+        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
         /*TODO: think how to handle exceptions*/
-        this.commentService.deleteCommentById(commentId);
+        this.commentPersistence.deleteEntityWithoutReturnById(commentId);
 
         return true;
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getPendingApprovalTrailCount() {
-        return this.hikingTrailRepository
-                .countHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum.PENDING);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getUnderReviewTrailCount() {
-        return this.hikingTrailRepository
-                .countHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum.PENDING);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public Page<HikingTrailForApprovalProjection> getAllHikingTrailsForApproval(
-            SuperUserReviewStatusEnum status,
-            Pageable pageable
-    ) {
-        return this.hikingTrailRepository
-                .getHikingTrailEntitiesByTrailStatus(status, pageable);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public UserIdDto getReviewerId(Long id) {
-        Long reviewerId = this.hikingTrailRepository.findReviewerId(id);
-        return new UserIdDto(reviewerId);
-    }
-
-    public HikingTrailEntity saveTrailWithReturn(HikingTrailEntity trail) {
-        return this.hikingTrailRepository.save(trail);
-    }
-
-    public void saveTrailWithoutReturn(HikingTrailEntity trail) {
-        this.hikingTrailRepository.save(trail);
-    }
-
-    public HikingTrailEntity getTrailById(Long trailId) {
-        return this.hikingTrailQueryBuilder.getHikingTrailById(trailId);
-    }
-
-    public HikingTrailEntity getTrailWithCommentsById(Long trailId) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithCommentsById(trailId);
-    }
-
-    public HikingTrailEntity getTrailWithImagesById(Long trailId) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithImagesById(trailId);
-    }
-
-    public HikingTrailEntity getTrailByIdIfOwner(Long trailId, String email) {
-        return this.hikingTrailQueryBuilder.getHikingTrailByIdIfOwner(trailId, email);
-    }
-
-    public HikingTrailEntity getTrailWithImagesByIdIfOwner(Long trailId, String email) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdIfOwner(trailId, email);
-    }
-
-    public HikingTrailEntity getTrailByIdAndStatusIfOwner(Long trailId, String email) {
-        return this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, email);
-    }
-
-    public HikingTrailEntity getTrailWithImagesByIdAndStatusIfOwner(
-            Long trailId, List<StatusEnum> statuses, String email
-    ) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdAndStatusIfOwner(trailId, statuses, email);
-    }
-
-    public HikingTrailEntity getTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
-            Long trailId, List<StatusEnum> statuses, String email
-    ) {
-        return this.hikingTrailQueryBuilder
-                .getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(trailId, statuses, email);
-    }
-
-    public HikingTrailEntity getTrailWithDestinationsByAndStatusIfOwner(
-            Long trailId, List<StatusEnum> statuses, String email
-    ) {
-        return this.hikingTrailQueryBuilder
-                .getHikingTrailWithDestinationsByAndStatusIfOwner(trailId, statuses, email);
-    }
-
-    public HikingTrailEntity getTrailWithHutsByIdAndStatusIfOwner(
-            Long trailId, List<StatusEnum> statuses, String email
-    ) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithHutsByIdAndStatusIfOwner(trailId, statuses, email);
-    }
-
-    public HikingTrailEntity getTrailWithImagesByIdAndTrailStatus(Long trailId, SuperUserReviewStatusEnum status) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdAndTrailStatus(trailId, status);
-    }
-
-    public HikingTrailEntity getTrailWithCommentsByIdAndStatus(Long trailId, StatusEnum status) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithCommentsByIdAndStatus(trailId, status);
-    }
-
-    public HikingTrailEntity getTrailWithLikesByIdAndStatus(Long trailId, StatusEnum status) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithLikesByIdAndStatus(trailId, status);
-    }
-
-    private HikingTrailEntity getTrailByIdAndStatus(Long trailId, StatusEnum status) {
-        return this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus(trailId, status);
-    }
-
-    public HikingTrailEntity getTrailWithImagesAndImageReviewerAndGpxFileById(Long trailId) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithImagesAndImageReviewerAndGpxFileById(trailId);
-    }
-
-    public HikingTrailImageStatusAndGpxFileStatus getTrailImageStatusAndGpxFileStatus(Long trailId) {
-        return this.hikingTrailQueryBuilder.getHikingTrailImageStatusAndGpxStatusById(trailId);
-    }
-
-    public HikingTrailEntity getTrailWithGpxFileById(Long trailId) {
-        return this.hikingTrailQueryBuilder.getHikingTrailWithGpxFileById(trailId);
     }
 
     public boolean likeOrUnlikeTrail(
@@ -594,8 +527,9 @@ public class HikingTrailService {
             UserDetails userDetails,
             StatusEnum status
     ) {
-        HikingTrailEntity currentTrail = getTrailWithLikesByIdAndStatus(trailId, status);
-        UserEntity loggedUser = userService.getUserEntityByEmail(userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailWithLikesByIdAndStatus(trailId, status);
+        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
         Set<UserEntity> likedByUsers = currentTrail.getLikedByUsers();
         boolean userHasLiked = likedByUsers.contains(loggedUser);
 
@@ -605,7 +539,7 @@ public class HikingTrailService {
             handleUnlike(likedByUsers, loggedUser, userHasLiked);
         }
 
-        saveTrailWithoutReturn(currentTrail);
+        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
         return true;
     }
 

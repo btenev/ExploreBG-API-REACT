@@ -6,6 +6,9 @@ import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
+import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
+import bg.exploreBG.querybuilder.DestinationQueryBuilder;
 import bg.exploreBG.updatable.UpdatableEntity;
 import bg.exploreBG.updatable.UpdatableEntityDto;
 import org.slf4j.Logger;
@@ -20,14 +23,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class EntityUpdateService {
-    private final AccommodationService accommodationService;
-    private final DestinationService destinationService;
-
+    private final AccommodationQueryBuilder accommodationQueryBuilder;
+    private final DestinationQueryBuilder destinationQueryBuilder;
     private final Logger logger = LoggerFactory.getLogger(EntityUpdateService.class);
 
-    public EntityUpdateService(AccommodationService accommodationService, DestinationService destinationService) {
-        this.accommodationService = accommodationService;
-        this.destinationService = destinationService;
+    public EntityUpdateService(
+            AccommodationQueryBuilder accommodationQueryBuilder,
+            DestinationQueryBuilder destinationQueryBuilder
+    ) {
+        this.accommodationQueryBuilder = accommodationQueryBuilder;
+        this.destinationQueryBuilder = destinationQueryBuilder;
     }
 
     public <T extends UpdatableEntity> void updateFieldsIfNecessary(T entity, UpdatableEntityDto<T> dto) {
@@ -106,14 +111,15 @@ public class EntityUpdateService {
 
         List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
 
-        return this.accommodationService.getAccommodationsById(accommodationIds);
+        return this.accommodationQueryBuilder
+                .getAccommodationEntitiesByIdAndStatus(accommodationIds, StatusEnum.APPROVED);
     }
 
     public List<DestinationEntity> mapDtoToDestinationEntities(Set<DestinationIdDto> ids) {
 
         List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
 
-        return this.destinationService.getDestinationsByIds(destinationIds);
+        return this.destinationQueryBuilder.getDestinationEntitiesByIdsAnStatus(destinationIds, StatusEnum.APPROVED);
     }
 
     public <T> boolean updateFieldIfDifferent(Supplier<T> getter, Consumer<T> setter, T newValue) {

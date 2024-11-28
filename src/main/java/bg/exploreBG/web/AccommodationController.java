@@ -41,7 +41,7 @@ public class AccommodationController {
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<AccommodationDetailsDto> getAccommodation(@PathVariable("id") Long id) {
-        AccommodationDetailsDto accommodation = this.accommodationService.getAccommodation(id);
+        AccommodationDetailsDto accommodation = this.accommodationService.getAccommodationDetailsById(id);
 
         return ResponseEntity.ok(accommodation);
     }

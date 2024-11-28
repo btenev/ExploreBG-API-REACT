@@ -1,11 +1,14 @@
 package bg.exploreBG.querybuilder;
 
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
+import bg.exploreBG.model.dto.hikingTrail.*;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.HikingTrailRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -13,44 +16,81 @@ import java.util.List;
 
 @Component
 public class HikingTrailQueryBuilder {
-    private final HikingTrailRepository hikingTrailRepository;
+    private final HikingTrailRepository repository;
 
-    public HikingTrailQueryBuilder(HikingTrailRepository hikingTrailRepository) {
-        this.hikingTrailRepository = hikingTrailRepository;
+    public HikingTrailQueryBuilder(HikingTrailRepository repository) {
+        this.repository = repository;
+    }
+
+    public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return this.repository.findRandomApprovedTrails(pageable);
+    }
+
+    public List<HikingTrailBasicLikesDto> getRandomNumOfHikingTrailsWithLikes(
+            String email,
+            int limit
+    ) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return this.repository.findRandomApprovedTrailsWithLikes(email, pageable);
+    }
+
+    public Page<HikingTrailBasicDto> getAllAHikingTrailsByStatus(StatusEnum statusEnum, Pageable pageable) {
+        return this.repository.findAllByTrailStatus(statusEnum, pageable);
+    }
+
+    public Page<HikingTrailBasicLikesDto> getAllHikingTrailsWithLikesByStatus(
+            StatusEnum statusEnum,
+            String email,
+            Pageable pageable,
+            Boolean sortByLikedUser
+    ) {
+        return this.repository.getTrailsWithLikes(statusEnum, email, pageable, sortByLikedUser);
+    }
+
+    public List<HikingTrailIdTrailNameDto> selectAll() {
+        return this.repository.findAllBy();
+    }
+
+    public int getTrailCountByStatus(SuperUserReviewStatusEnum statusEnum) {
+        return this.repository.countHikingTrailEntitiesByTrailStatus(statusEnum);
+    }
+
+    public Page<HikingTrailForApprovalProjection> getAllHikingTrailsByStatus(
+            SuperUserReviewStatusEnum status,
+            Pageable pageable
+    ) {
+        return this.repository.getHikingTrailEntitiesByTrailStatus(status, pageable);
+    }
+
+    public Long getReviewerId (Long id) {
+        return this.repository.findReviewerId(id);
     }
 
     public HikingTrailEntity getHikingTrailById(Long trailId) {
-        return hikingTrailRepository
-                .findById(trailId)
-                .orElseThrow(this::trailNotFoundException);
+        return repository.findById(trailId).orElseThrow(this::trailNotFoundException);
     }
 
     public HikingTrailEntity getHikingTrailWithCommentsById(Long trailId) {
-        return this.hikingTrailRepository
-                .findWithCommentsById(trailId)
-                .orElseThrow(this::trailNotFoundException);
+        return this.repository.findWithCommentsById(trailId).orElseThrow(this::trailNotFoundException);
     }
 
     public HikingTrailEntity getHikingTrailWithImagesById(Long trailId) {
-        return this.hikingTrailRepository
-                .findWithImagesById(trailId)
-                .orElseThrow(this::trailNotFoundException);
+        return this.repository.findWithImagesById(trailId).orElseThrow(this::trailNotFoundException);
     }
 
     public HikingTrailEntity getHikingTrailByIdIfOwner(Long trailId, String email) {
-        return this.hikingTrailRepository
-                .findByIdAndCreatedBy_Email(trailId, email)
+        return this.repository.findByIdAndCreatedBy_Email(trailId, email)
                 .orElseThrow(this::trailNotFoundOrNotOwnerException);
     }
 
     public HikingTrailEntity getHikingTrailWithImagesByIdIfOwner(Long trailId, String email) {
-        return this.hikingTrailRepository
-                .findWithImagesByIdAndCreatedBy_Email(trailId, email)
+        return this.repository.findWithImagesByIdAndCreatedBy_Email(trailId, email)
                 .orElseThrow(this::trailNotFoundOrNotOwnerException);
     }
 
     public HikingTrailEntity getHikingTrailByIdAndStatusIfOwner(Long trailId, String email) {
-        return this.hikingTrailRepository.findByIdAndStatusInAndCreatedByEmail(
+        return this.repository.findByIdAndStatusInAndCreatedByEmail(
                         trailId,
                         List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
                         email)
@@ -62,8 +102,7 @@ public class HikingTrailQueryBuilder {
             List<StatusEnum> statuses,
             String email
     ) {
-        return this.hikingTrailRepository.findWithImagesByIdAndStatusInAndCreatedByEmail(
-                        trailId, statuses, email)
+        return this.repository.findWithImagesByIdAndStatusInAndCreatedByEmail(trailId, statuses, email)
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
@@ -72,8 +111,7 @@ public class HikingTrailQueryBuilder {
             List<StatusEnum> statues,
             String email
     ) {
-        return this.hikingTrailRepository.findWithImagesAndImageCreatorByIdAndStatusInAndCreatedByEmail(
-                        trailId, statues, email)
+        return this.repository.findWithImagesAndImageCreatorByIdAndStatusInAndCreatedByEmail(trailId, statues, email)
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
@@ -82,8 +120,7 @@ public class HikingTrailQueryBuilder {
             List<StatusEnum> statuses,
             String email
     ) {
-        return this.hikingTrailRepository.findWithDestinationsByIdAndStatusInAndCreatedByEmail(
-                        trailId, statuses, email)
+        return this.repository.findWithDestinationsByIdAndStatusInAndCreatedByEmail(trailId, statuses, email)
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
@@ -92,50 +129,48 @@ public class HikingTrailQueryBuilder {
             List<StatusEnum> statuses,
             String email
     ) {
-        return this.hikingTrailRepository.findWithHutsByIdAndStatusInAndCreatedByEmail(
-                        trailId, statuses, email)
+        return this.repository.findWithHutsByIdAndStatusInAndCreatedByEmail(trailId, statuses, email)
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
     public HikingTrailEntity getHikingTrailWithImagesByIdAndTrailStatus(Long trailId, SuperUserReviewStatusEnum status) {
-        return this.hikingTrailRepository.findWithImagesByIdAndTrailStatus(
-                        trailId, status)
+        return this.repository.findWithImagesByIdAndTrailStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
     public HikingTrailEntity getHikingTrailWithCommentsByIdAndStatus(Long trailId, StatusEnum status) {
-        return this.hikingTrailRepository
-                .findWithCommentsByIdAndStatus(trailId, status)
+        return this.repository.findWithCommentsByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
     public HikingTrailEntity getHikingTrailWithLikesByIdAndStatus(Long trailId, StatusEnum status) {
-        return this.hikingTrailRepository
-                .findWithLikesByIdAndStatus(trailId, status)
+        return this.repository.findWithLikesByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
     public HikingTrailEntity getHikingTrailByIdAndStatus(Long trailId, StatusEnum status) {
-        return this.hikingTrailRepository
-                .findByIdAndStatus(trailId, status)
+        return this.repository.findByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 
     public HikingTrailEntity getHikingTrailWithImagesAndImageReviewerAndGpxFileById(Long trailId) {
-        return this.hikingTrailRepository.findWithImageAndGpxFileById(trailId)
+        return this.repository.findWithImageAndGpxFileById(trailId)
                 .orElseThrow(this::trailNotFoundException);
     }
 
     public HikingTrailImageStatusAndGpxFileStatus getHikingTrailImageStatusAndGpxStatusById(Long trailId) {
-        return this.hikingTrailRepository
-                .findImageStatusAndGpxStatusById(trailId)
+        return this.repository.findImageStatusAndGpxStatusById(trailId)
                 .orElseThrow(this::trailNotFoundException);
     }
 
     public HikingTrailEntity getHikingTrailWithGpxFileById(Long trailId) {
-        return this.hikingTrailRepository
-                .findWithGpxFileAndReviewerById(trailId)
+        return this.repository.findWithGpxFileAndReviewerById(trailId)
                 .orElseThrow(this::trailNotFoundException);
+    }
+
+    public HikingTrailEntity getHikingTrailWithHikesByIdIfOwner(Long trailId, String email) {
+        return this.repository.findWithHikesHikingTrailByIdAndCreatedByEmail(trailId, email)
+                .orElseThrow(this::trailNotFoundOrNotOwnerException);
     }
 
     private AppException trailNotFoundException() {

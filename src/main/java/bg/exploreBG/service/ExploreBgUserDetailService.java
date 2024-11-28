@@ -4,7 +4,7 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
-import bg.exploreBG.repository.UserRepository;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,31 +12,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ExploreBgUserDetailService implements UserDetailsService {
-    private final UserRepository userRepository;
+    private final UserQueryBuilder userQueryBuilder;
 
-    public ExploreBgUserDetailService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public ExploreBgUserDetailService(UserQueryBuilder userQueryBuilder) {
+        this.userQueryBuilder = userQueryBuilder;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> byEmail = this.userRepository.findWithRolesByEmail(username);
+        UserEntity existingUser = this.userQueryBuilder.getUserEntityByEmailWithRoles(username);
 
-        if (byEmail.isEmpty()) {
-            throw new AppException("Unknown user!", HttpStatus.NOT_FOUND);
-        }
-
-        UserEntity isPresent = byEmail.get();
-
-        if (!isPresent.isAccountNonLocked()) {
+        if (!existingUser.isAccountNonLocked()) {
             throw new AppException("Your account has been locked. You temporarily do not have access to it.", HttpStatus.FORBIDDEN);
         }
 
-        return map(isPresent);
+        return map(existingUser);
     }
 
     private UserDetails map(UserEntity userEntity) {

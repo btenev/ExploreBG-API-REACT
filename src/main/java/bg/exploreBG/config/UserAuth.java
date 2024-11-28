@@ -1,6 +1,6 @@
 package bg.exploreBG.config;
 
-import bg.exploreBG.repository.UserRepository;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.service.ExploreBgUserDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,11 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class UserAuth {
+    private final UserQueryBuilder userQueryBuilder;
 
-    private final UserRepository userRepository;
-
-    public UserAuth(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserAuth(UserQueryBuilder userQueryBuilder) {
+        this.userQueryBuilder = userQueryBuilder;
     }
 
     @Bean
@@ -24,6 +23,6 @@ public class UserAuth {
 
     @Bean
     public UserDetailsService userDetailService() {
-        return new ExploreBgUserDetailService(userRepository);
+        return new ExploreBgUserDetailService(userQueryBuilder);
     }
 }

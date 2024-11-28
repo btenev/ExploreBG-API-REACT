@@ -2,19 +2,17 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
-import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
-import bg.exploreBG.model.entity.BaseEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
+import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.reviewable.ReviewableEntity;
 import bg.exploreBG.reviewable.ReviewableWithImages;
 import bg.exploreBG.updatable.UpdatableEntity;
 import bg.exploreBG.updatable.UpdatableEntityDto;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -23,27 +21,27 @@ import java.util.Optional;
 
 @Service
 public class ReviewService {
-    private final ImageService imageService;
-    private final UserService userService;
     private final EntityUpdateService entityUpdateService;
     private final ImageClaimService imageClaimService;
     private final ImageApprovalService imageApprovalService;
     private final EntityClaimService entityClaimService;
+    private final GenericPersistenceService<ImageEntity> imagePersistence;
+    private final UserQueryBuilder userQueryBuilder;
 
     public ReviewService(
-            ImageService imageService,
-            UserService userService,
             EntityUpdateService entityUpdateService,
             ImageClaimService imageClaimService,
             ImageApprovalService imageApprovalService,
-            EntityClaimService entityClaimService
+            EntityClaimService entityClaimService,
+            GenericPersistenceService<ImageEntity> imagePersistence,
+            UserQueryBuilder userQueryBuilder
     ) {
-        this.imageService = imageService;
-        this.userService = userService;
         this.entityUpdateService = entityUpdateService;
         this.imageClaimService = imageClaimService;
         this.imageApprovalService = imageApprovalService;
         this.entityClaimService = entityClaimService;
+        this.imagePersistence = imagePersistence;
+        this.userQueryBuilder = userQueryBuilder;
     }
 
     public <T extends ReviewableEntity> void toggleEntityClaim(
@@ -73,11 +71,11 @@ public class ReviewService {
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
-        UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         List<ImageEntity> claimed = this.imageClaimService.toggleImageClaim(entity, reviewBoolean.review(), reviewer);
 
-        this.imageService.saveImagesWithoutReturn(claimed);
+        this.imagePersistence.saveEntitiesWithoutReturn(claimed);
     }
 
     public <T extends ReviewableWithImages> T saveApprovedImages(
@@ -85,17 +83,17 @@ public class ReviewService {
             ImageApproveDto approveDto,
             UserDetails userDetails
     ) {
-        UserEntity reviewer = this.userService.getUserEntityByEmail(userDetails.getUsername());
+        UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         List<ImageEntity> approved =
                 this.imageApprovalService.approvalWithValidation(entity, approveDto.imageIds(), reviewer);
 
-        this.imageService.saveImagesWithoutReturn(approved);
+        this.imagePersistence.saveEntitiesWithoutReturn(approved);
 
         return entity;
     }
 
-    public  <T extends ReviewableEntity> void validateItemApproval(
+    public <T extends ReviewableEntity> void validateItemApproval(
             T item,
             ExploreBgUserDetails userDetails
     ) {

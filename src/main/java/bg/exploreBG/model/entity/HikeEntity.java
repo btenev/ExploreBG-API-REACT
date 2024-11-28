@@ -30,6 +30,7 @@ public class HikeEntity {
     private String imageUrl;
 
     @ManyToOne
+    @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id")
     private HikingTrailEntity hikingTrail;
 
     @Column(name = "hike_info", columnDefinition ="TEXT" )

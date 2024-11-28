@@ -6,8 +6,7 @@ import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
-import bg.exploreBG.model.user.ExploreBgUserDetails;
-import bg.exploreBG.repository.GpxRepository;
+import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,20 +20,22 @@ import java.util.UUID;
 
 @Service
 public class GpxService {
-
     Logger logger = LoggerFactory.getLogger(GpxService.class);
-    private final GpxRepository gpxRepository;
-    private final HikingTrailService hikingTrailService;
     private final S3Service s3Service;
+    private final GenericPersistenceService<GpxEntity> gpxPersistence;
+    private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
+    private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
 
     public GpxService(
-            GpxRepository gpxRepository,
-            HikingTrailService hikingTrailService,
-            S3Service s3Service
+            S3Service s3Service,
+            GenericPersistenceService<GpxEntity> gpxPersistence,
+            GenericPersistenceService<HikingTrailEntity> trailPersistence,
+            HikingTrailQueryBuilder hikingTrailQueryBuilder
     ) {
-        this.gpxRepository = gpxRepository;
-        this.hikingTrailService = hikingTrailService;
         this.s3Service = s3Service;
+        this.gpxPersistence = gpxPersistence;
+        this.trailPersistence = trailPersistence;
+        this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
     }
 
     public GpxUrlDateDto saveGpxFileIfOwner(
@@ -44,8 +45,7 @@ public class GpxService {
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailService.getTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
-
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(id, userDetails.getUsername());
         GpxEntity gpxCurrentTrail = currentTrail.getGpxFile();
 
         if (gpxCurrentTrail != null) {
@@ -56,11 +56,11 @@ public class GpxService {
         String awsId = String.valueOf(UUID.randomUUID()).concat(".gpx");
 
         GpxEntity newGpx = createNewGpxEntity(file, folder, awsId);
-        GpxEntity saved = this.gpxRepository.save(newGpx);
+        GpxEntity saved = this.gpxPersistence.saveEntityWithReturn(newGpx);
 
         currentTrail.setGpxFile(saved);
         currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
-        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
+        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
 
         return new GpxUrlDateDto(saved.getGpxUrl(), saved.getCreationDate());
     }
@@ -76,7 +76,8 @@ public class GpxService {
             Long id,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailService.getTrailByIdIfOwner(id, userDetails.getUsername());
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdIfOwner(id, userDetails.getUsername());
 
         return deleteGpxFile(currentTrail);
     }
@@ -97,9 +98,9 @@ public class GpxService {
         boolean deleted = deleteS3GpxFileWithValidation(folder, aswId);
         logger.info("Deleted s3 - {}", deleted);
         currentTrail.setGpxFile(null);
-        this.hikingTrailService.saveTrailWithoutReturn(currentTrail);
+        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
 
-        this.gpxRepository.delete(gpxFile);
+        this.gpxPersistence.deleteEntityWithoutReturn(gpxFile);
 
         return deleted;
     }
@@ -144,9 +145,5 @@ public class GpxService {
         }
 
         return true;
-    }
-
-    public void saveGpxFileWithoutReturn(GpxEntity gpx) {
-        this.gpxRepository.save(gpx);
     }
 }
