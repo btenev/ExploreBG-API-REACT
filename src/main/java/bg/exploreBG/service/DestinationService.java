@@ -8,6 +8,7 @@ import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.DestinationMapper;
 import bg.exploreBG.querybuilder.DestinationQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
@@ -74,7 +75,8 @@ public class DestinationService {
 
         DestinationEntity newDestination =
                 this.destinationMapper.destinationCreateDtoToDestinationEntity(destinationCreateDto);
-        newDestination.setDestinationStatus(StatusEnum.PENDING);
+        newDestination.setStatus(StatusEnum.PENDING);
+        newDestination.setDestinationStatus(SuperUserReviewStatusEnum.PENDING);
         newDestination.setCreatedBy(validUser);
 
 //        logger.debug("{}", newDestination);
@@ -82,13 +84,4 @@ public class DestinationService {
         return new DestinationIdDto(saved.getId());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getPendingApprovalDestinationCount() {
-        return this.destinationQueryBuilder.getDestinationCountByStatus(StatusEnum.PENDING);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getUnderReviewDestinationCount() {
-        return this.destinationQueryBuilder.getDestinationCountByStatus(StatusEnum.REVIEW);
-    }
 }

@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicPlusImageDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.AccommodationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ public class AccommodationQueryBuilder {
         return this.repository.findByIdInAndAccommodationStatus(ids, status);
     }
 
-    public int getAccommodationCountByStatus(StatusEnum status) {
+    public int getAccommodationCountByAccommodationStatus(SuperUserReviewStatusEnum status) {
         return this.repository.countAccommodationEntitiesByAccommodationStatus(status);
     }
 

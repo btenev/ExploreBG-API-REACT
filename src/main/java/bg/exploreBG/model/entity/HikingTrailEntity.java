@@ -76,10 +76,6 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     @Column(name = "next_to")
     private String nextTo;
 
-//    @Column(name = "details_status")
-//    @Enumerated(EnumType.STRING)
-//    private StatusEnum detailsStatus;
-
     @Column(name = "trail_status")
     @Enumerated(EnumType.STRING)
     private SuperUserReviewStatusEnum trailStatus;
@@ -101,9 +97,6 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     @ManyToOne
     @JoinColumn(name = "created_by_id", referencedColumnName = "id")
     private UserEntity createdBy;
-
-    /*@ManyToOne
-    private UserEntity reviewedBy;*/
 
     @OneToOne
     private GpxEntity gpxFile;

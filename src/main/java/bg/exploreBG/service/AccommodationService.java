@@ -8,6 +8,7 @@ import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
 import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
@@ -75,21 +76,12 @@ public class AccommodationService {
         AccommodationEntity newAccommodation =
                 this.mapper.accommodationCreateDtoToAccommodationEntity(accommodationCreateDto);
         newAccommodation.setOwner(verifiedUser);
-        newAccommodation.setAccommodationStatus(StatusEnum.PENDING);
+        newAccommodation.setStatus(StatusEnum.PENDING);
+        newAccommodation.setAccommodationStatus(SuperUserReviewStatusEnum.PENDING);
 
         logger.debug("{}", newAccommodation);
 
         AccommodationEntity saved = this.accommodationPersistence.saveEntityWithReturn(newAccommodation);
         return new AccommodationIdDto(saved.getId());
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getPendingApprovalAccommodationCount() {
-        return this.accommodationQueryBuilder.getAccommodationCountByStatus(StatusEnum.PENDING);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getUnderReviewAccommodationCount() {
-        return this.accommodationQueryBuilder.getAccommodationCountByStatus(StatusEnum.REVIEW);
     }
 }

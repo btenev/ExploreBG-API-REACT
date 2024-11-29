@@ -1,7 +1,6 @@
 package bg.exploreBG.model.entity;
 
 import bg.exploreBG.model.enums.DestinationTypeEnum;
-import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import jakarta.persistence.*;
 
@@ -45,6 +44,7 @@ public class DestinationEntity extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
     )
     private List<CommentEntity> comments;
+
     public DestinationEntity() {
     }
 

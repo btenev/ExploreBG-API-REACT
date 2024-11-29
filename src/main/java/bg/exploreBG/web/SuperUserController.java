@@ -1,14 +1,11 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.EntitiesForApprovalUnderReviewCountDto;
+import bg.exploreBG.model.dto.EntitiesPendingApprovalCountDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
-import bg.exploreBG.model.dto.accommodation.AccommodationApprovalReviewCountDto;
-import bg.exploreBG.model.dto.accommodation.DestinationApprovalReviewCountDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
-import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
@@ -36,19 +33,13 @@ import java.util.List;
 @RequestMapping("/api/super-users")
 public class SuperUserController {
     private static final String TRAIL_FOLDER = "Trails";
-    private final AccommodationService accommodationService;
-    private final DestinationService destinationService;
     private final UserService userService;
     private final SuperUserService superUserService;
 
     public SuperUserController(
-            AccommodationService accommodationService,
-            DestinationService destinationService,
             UserService userService,
             SuperUserService superUserService
     ) {
-        this.accommodationService = accommodationService;
-        this.destinationService = destinationService;
         this.userService = userService;
         this.superUserService = superUserService;
     }
@@ -112,27 +103,11 @@ public class SuperUserController {
 
     /*TODO:  old: /waiting-approval/count new: /entities/waiting-approval/count*/
     @GetMapping("/entities/waiting-approval/count")
-    public ResponseEntity<EntitiesForApprovalUnderReviewCountDto> waitingForApprovalUnderReviewCount() {
-        int accommodationCountPending = this.accommodationService.getPendingApprovalAccommodationCount();
-        int accommodationCountReview = this.accommodationService.getUnderReviewAccommodationCount();
-        AccommodationApprovalReviewCountDto accommodations
-                = new AccommodationApprovalReviewCountDto(accommodationCountPending, accommodationCountReview);
+    public ResponseEntity<EntitiesPendingApprovalCountDto> getPendingApprovalEntitiesCount() {
 
-        int destinationCountPending = this.destinationService.getPendingApprovalDestinationCount();
-        int destinationCountReview = this.destinationService.getUnderReviewDestinationCount();
-        DestinationApprovalReviewCountDto destinations
-                = new DestinationApprovalReviewCountDto(destinationCountPending, destinationCountReview);
-        // TODO: Refactor show only items with with trailStatus PENDING
-        int trailCountPending = this.superUserService.getPendingApprovalTrailCount();
+        EntitiesPendingApprovalCountDto entitiesCount = this.superUserService.getPendingApprovalEntitiesCount();
 
-        EntitiesForApprovalUnderReviewCountDto countDto =
-                new EntitiesForApprovalUnderReviewCountDto(
-                        accommodations,
-                        destinations,
-                        trailCountPending
-                );
-
-        return ResponseEntity.ok(countDto);
+        return ResponseEntity.ok(entitiesCount);
     }
 
     /*TODO: old: /waiting-approval/trails new: /trails/waiting-approval*/

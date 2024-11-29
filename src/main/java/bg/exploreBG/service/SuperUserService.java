@@ -1,13 +1,13 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.EntitiesPendingApprovalCountDto;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
-import bg.exploreBG.model.dto.hikingTrail.TrailApprovalReviewCountDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
@@ -19,6 +19,8 @@ import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
+import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
+import bg.exploreBG.querybuilder.DestinationQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import org.slf4j.Logger;
@@ -44,6 +46,8 @@ public class SuperUserService {
     private final GenericPersistenceService<GpxEntity> gpxPersistence;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
+    private final DestinationQueryBuilder destinationQueryBuilder;
+    private final AccommodationQueryBuilder accommodationQueryBuilder;
 
     public SuperUserService(
             ReviewService reviewService,
@@ -53,7 +57,9 @@ public class SuperUserService {
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
             GenericPersistenceService<GpxEntity> gpxPersistence,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
-            UserQueryBuilder userQueryBuilder
+            UserQueryBuilder userQueryBuilder,
+            DestinationQueryBuilder destinationQueryBuilder,
+            AccommodationQueryBuilder accommodationQueryBuilder
     ) {
         this.reviewService = reviewService;
         this.imageService = imageService;
@@ -63,11 +69,20 @@ public class SuperUserService {
         this.gpxPersistence = gpxPersistence;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.userQueryBuilder = userQueryBuilder;
+        this.destinationQueryBuilder = destinationQueryBuilder;
+        this.accommodationQueryBuilder = accommodationQueryBuilder;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public int getPendingApprovalTrailCount() {
-        return this.hikingTrailQueryBuilder.getTrailCountByStatus(SuperUserReviewStatusEnum.PENDING);
+    public EntitiesPendingApprovalCountDto getPendingApprovalEntitiesCount() {
+        int accommodationCount =
+                this.accommodationQueryBuilder
+                        .getAccommodationCountByAccommodationStatus(SuperUserReviewStatusEnum.PENDING);
+        int destinationCount =
+                this.destinationQueryBuilder.getDestinationCountByStatus(SuperUserReviewStatusEnum.PENDING);
+        int trailCount =
+                this.hikingTrailQueryBuilder.getTrailCountByStatus(SuperUserReviewStatusEnum.PENDING);
+        return new EntitiesPendingApprovalCountDto(accommodationCount, destinationCount, trailCount);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")

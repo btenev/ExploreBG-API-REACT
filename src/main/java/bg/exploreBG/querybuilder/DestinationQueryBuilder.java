@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.DestinationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ public class DestinationQueryBuilder {
         return this.repository.findAllByIdInAndDestinationStatus(ids, status);
     }
 
-    public int getDestinationCountByStatus(StatusEnum status) {
+    public int getDestinationCountByStatus(SuperUserReviewStatusEnum status) {
         return this.repository.countDestinationEntitiesByDestinationStatus(status);
     }
 
