@@ -2,13 +2,14 @@ package bg.exploreBG.model.entity;
 
 import bg.exploreBG.model.enums.DestinationTypeEnum;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import jakarta.persistence.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "destinations")
-public class DestinationEntity {
+public class DestinationEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +33,7 @@ public class DestinationEntity {
 
     @Column(name = "destination_status")
     @Enumerated(EnumType.STRING)
-    private StatusEnum destinationStatus;
+    private SuperUserReviewStatusEnum destinationStatus;
 
     @ManyToOne
     private UserEntity createdBy;
@@ -111,11 +112,11 @@ public class DestinationEntity {
         this.comments = comments;
     }
 
-    public StatusEnum getDestinationStatus() {
+    public SuperUserReviewStatusEnum getDestinationStatus() {
         return destinationStatus;
     }
 
-    public void setDestinationStatus(StatusEnum destinationStatus) {
+    public void setDestinationStatus(SuperUserReviewStatusEnum destinationStatus) {
         this.destinationStatus = destinationStatus;
     }
 

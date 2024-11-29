@@ -3,13 +3,14 @@ package bg.exploreBG.model.entity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.StatusEnum;
+import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import jakarta.persistence.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "accommodations")
-public class AccommodationEntity {
+public class AccommodationEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,7 +55,7 @@ public class AccommodationEntity {
 
     @Column(name = "accommodation_status")
     @Enumerated(EnumType.STRING)
-    private StatusEnum accommodationStatus;
+    private SuperUserReviewStatusEnum accommodationStatus;
 
     @OneToMany
     @JoinTable(
@@ -179,11 +180,11 @@ public class AccommodationEntity {
         this.comments = comments;
     }
 
-    public StatusEnum getAccommodationStatus() {
+    public SuperUserReviewStatusEnum getAccommodationStatus() {
         return accommodationStatus;
     }
 
-    public void setAccommodationStatus(StatusEnum accommodationStatus) {
+    public void setAccommodationStatus(SuperUserReviewStatusEnum accommodationStatus) {
         this.accommodationStatus = accommodationStatus;
     }
 
