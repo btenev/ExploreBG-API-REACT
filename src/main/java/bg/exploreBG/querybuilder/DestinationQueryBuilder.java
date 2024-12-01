@@ -44,7 +44,7 @@ public class DestinationQueryBuilder {
     }
 
     public List<DestinationEntity> getDestinationEntitiesByIdsAnStatus(List<Long> ids, StatusEnum status) {
-        return this.repository.findAllByIdInAndDestinationStatus(ids, status);
+        return this.repository.findByIdInAndStatus(ids, status);
     }
 
     public int getDestinationCountByStatus(SuperUserReviewStatusEnum status) {

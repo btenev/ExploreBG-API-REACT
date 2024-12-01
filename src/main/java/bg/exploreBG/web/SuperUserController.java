@@ -101,7 +101,6 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO:  old: /waiting-approval/count new: /entities/waiting-approval/count*/
     @GetMapping("/entities/waiting-approval/count")
     public ResponseEntity<EntitiesPendingApprovalCountDto> getPendingApprovalEntitiesCount() {
 
@@ -110,7 +109,6 @@ public class SuperUserController {
         return ResponseEntity.ok(entitiesCount);
     }
 
-    /*TODO: old: /waiting-approval/trails new: /trails/waiting-approval*/
     @GetMapping("/trails/waiting-approval")
     public ResponseEntity<Page<HikingTrailForApprovalProjection>> waitingForApprovalTrails(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
@@ -128,7 +126,7 @@ public class SuperUserController {
 
         return ResponseEntity.ok(forApproval);
     }
-    /*TODO: moved from hiking trail controller*/
+
     @GetMapping("/trails/{id}/reviewer")
     public ResponseEntity<UserIdDto> getHikingTrailReviewer(
             @PathVariable("id") Long trailId
@@ -138,7 +136,6 @@ public class SuperUserController {
         return ResponseEntity.ok(reviewerId);
     }
 
-    /*TODO: old: /review/trail/{id} new: /trails/{id}/review  returns details, images, gpx file info*/
     //Add data ???
     @Transactional
     @GetMapping("/trails/{id}/review")
@@ -154,9 +151,6 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: old: /review/trail/{id}/claim new:  IVO: only messages, no errors
-    url: /trails/{id}/claim
-    */
     @PatchMapping("/trails/{id}/claim")
     public ResponseEntity<ApiResponse<Boolean>> toggleTrailReviewClaim(
             @PathVariable("id") Long trailId,
@@ -170,7 +164,6 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
-    /*TODO: tell Ivo old: /approve/trails/{id}   new: /trails/{id}/approve*/
     @Transactional
     @PatchMapping("/trails/{id}/approve")
     public ResponseEntity<ApiResponse<Boolean>> approveTrail(

@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public interface GpxFileUrlProjection {
-    String getGpxUrl();
-
     @JsonSerialize(using = StatusEnumSerializer.class)
     @JsonProperty(value = "gpxStatus")
     StatusEnum getStatus();

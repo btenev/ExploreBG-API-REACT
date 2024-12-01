@@ -156,7 +156,7 @@ public class SuperUserService {
                 return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
             }
         }
-
+        /*TODO: add gpx file validation*/
         throw new AppException("Item with invalid status for review!", HttpStatus.BAD_REQUEST);
     }
 

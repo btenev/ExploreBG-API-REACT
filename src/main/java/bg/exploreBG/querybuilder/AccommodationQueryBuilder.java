@@ -44,7 +44,7 @@ public class AccommodationQueryBuilder {
     }
 
     public List<AccommodationEntity> getAccommodationEntitiesByIdAndStatus(List<Long> ids, StatusEnum status) {
-        return this.repository.findByIdInAndAccommodationStatus(ids, status);
+        return this.repository.findByIdInAndStatus(ids, status);
     }
 
     public int getAccommodationCountByAccommodationStatus(SuperUserReviewStatusEnum status) {
