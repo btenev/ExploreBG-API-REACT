@@ -40,7 +40,7 @@ public class AccommodationQueryBuilder {
     }
 
     public List<AccommodationBasicDto> selectAllApprovedAccommodations() {
-        return this.repository.findByAccommodationStatus(StatusEnum.APPROVED);
+        return this.repository.findByStatus(StatusEnum.APPROVED);
     }
 
     public List<AccommodationEntity> getAccommodationEntitiesByIdAndStatus(List<Long> ids, StatusEnum status) {

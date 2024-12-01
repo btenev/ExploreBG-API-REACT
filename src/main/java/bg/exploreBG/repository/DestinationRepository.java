@@ -25,6 +25,6 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
     */
     List<DestinationBasicPlusDto> findByIdIn(Set<Long> ids);
     Page<DestinationBasicPlusDto> findAllBy(Pageable pageable);
-    List<DestinationBasicDto> findByDestinationStatus(StatusEnum destinationStatus);
+    List<DestinationBasicDto> findByStatus(StatusEnum destinationStatus);
     List<DestinationEntity> findAllByIdInAndDestinationStatus(List<Long> ids, StatusEnum statusEnum);
 }

@@ -40,7 +40,7 @@ public class DestinationQueryBuilder {
     }
 
     public List<DestinationBasicDto> selectAllApprovedDestinations() {
-        return this.repository.findByDestinationStatus(StatusEnum.APPROVED);
+        return this.repository.findByStatus(StatusEnum.APPROVED);
     }
 
     public List<DestinationEntity> getDestinationEntitiesByIdsAnStatus(List<Long> ids, StatusEnum status) {

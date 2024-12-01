@@ -29,7 +29,7 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
 
     Page<AccommodationBasicPlusImageDto> findAllBy(Pageable pageable);
 
-    List<AccommodationBasicDto> findByAccommodationStatus(StatusEnum accommodationStatus);
+    List<AccommodationBasicDto> findByStatus(StatusEnum accommodationStatus);
 
     List<AccommodationEntity> findByIdInAndAccommodationStatus(List<Long> ids, StatusEnum statusEnum);
 }
