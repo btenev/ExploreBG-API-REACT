@@ -43,7 +43,7 @@ public class UserEntity {
     @Column(name = "account_non_locked")
     private boolean accountNonLocked;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -53,7 +53,8 @@ public class UserEntity {
 
     // TODO: Think about FavouriteEntity implementation
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    /*@OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)*/
+    @OneToMany(mappedBy = "owner")
     private List<HikeEntity> createdHikes;
 
     public UserEntity() {

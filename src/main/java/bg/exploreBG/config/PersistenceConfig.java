@@ -48,4 +48,9 @@ public class PersistenceConfig {
     public GenericPersistenceService<DestinationEntity> destinationEntityPersistenceService(DestinationRepository destinationRepository) {
         return new GenericPersistenceServiceImpl<>(destinationRepository);
     }
+
+    @Bean
+    public GenericPersistenceService<RoleEntity> roleEntityPersistenceService(RoleRepository roleRepository) {
+        return new GenericPersistenceServiceImpl<>(roleRepository);
+    }
 }

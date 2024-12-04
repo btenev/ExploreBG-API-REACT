@@ -11,7 +11,6 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
-import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.HikingTrailService;
 import jakarta.validation.Valid;

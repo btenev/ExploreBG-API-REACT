@@ -2,7 +2,6 @@ package bg.exploreBG.model.entity;
 
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
-import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import jakarta.persistence.*;
 

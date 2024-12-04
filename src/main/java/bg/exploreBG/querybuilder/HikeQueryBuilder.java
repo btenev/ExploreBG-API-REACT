@@ -3,6 +3,8 @@ package bg.exploreBG.querybuilder;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.repository.HikeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,8 @@ import java.util.Set;
 @Component
 public class HikeQueryBuilder {
     private final HikeRepository repository;
+
+    private final Logger logger = LoggerFactory.getLogger(HikeQueryBuilder.class);
 
     public HikeQueryBuilder(HikeRepository repository) {
         this.repository = repository;
@@ -38,7 +42,14 @@ public class HikeQueryBuilder {
     public void removeHikingTrailFromHikesByTrailIdIfTrailOwner(Long trailId, String email) {
         int rows = this.repository.removeHikingTrailFromHikesByHikingTrailIdIfTrailOwner(trailId, email);
         if (rows == 0) {
-            throw trailNotFoundOrNotOwnerException();
+            this.logger.warn("No hiking trails updated for user email: {}", email);
+        }
+    }
+
+    public void removeUserFromHikesByEmail(Long newOwnerId, String oldOwnerEmail) {
+        int row = this.repository.removeUserFromHikesByEmail(newOwnerId, oldOwnerEmail);
+        if (row == 0) {
+            this.logger.warn("No hikes updated for user email: {}", oldOwnerEmail);
         }
     }
 

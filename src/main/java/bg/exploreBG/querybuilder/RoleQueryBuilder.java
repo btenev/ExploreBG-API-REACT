@@ -15,6 +15,10 @@ public class RoleQueryBuilder {
         this.repository = repository;
     }
 
+    public Long getRoleEntityCount() {
+       return this.repository.count();
+    }
+
     public RoleEntity getRoleEntityByRoleEnum(UserRoleEnum userRoleEnum) {
        return this.repository.findByRole(userRoleEnum).orElseThrow(this::roleNotFound);
     }

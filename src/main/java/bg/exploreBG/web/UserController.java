@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -68,7 +69,7 @@ public class UserController {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .body(userIdNameDto);
     }
-
+    @Transactional(readOnly = true)
     @GetMapping("/my-profile")
     public ResponseEntity<ApiResponse<UserDetailsOwnerDto>> myProfile(
 //            @PathVariable Long id,
@@ -83,6 +84,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDetailsDto>> profile(
             @PathVariable Long id
@@ -177,6 +179,18 @@ public class UserController {
                 this.userService.updateUserInfo(userUpdateInfo, userDetails);
 
         ApiResponse<UserInfoDto> response = new ApiResponse<>(userInfoDto);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /*TODO: not added to frontend*/
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Boolean>> deleteAccount(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = this.userService.deleteAccount(userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
 
         return ResponseEntity.ok(response);
     }

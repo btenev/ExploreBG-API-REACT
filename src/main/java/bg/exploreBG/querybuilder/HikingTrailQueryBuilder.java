@@ -6,6 +6,8 @@ import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.HikingTrailRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,7 @@ import java.util.List;
 @Component
 public class HikingTrailQueryBuilder {
     private final HikingTrailRepository repository;
+    private final Logger logger = LoggerFactory.getLogger(HikingTrailQueryBuilder.class);
 
     public HikingTrailQueryBuilder(HikingTrailRepository repository) {
         this.repository = repository;
@@ -63,7 +66,7 @@ public class HikingTrailQueryBuilder {
         return this.repository.getHikingTrailEntitiesByTrailStatus(status, pageable);
     }
 
-    public Long getReviewerId (Long id) {
+    public Long getReviewerId(Long id) {
         return this.repository.findReviewerId(id);
     }
 
@@ -171,6 +174,13 @@ public class HikingTrailQueryBuilder {
     public HikingTrailEntity getHikingTrailWithHikesByIdIfOwner(Long trailId, String email) {
         return this.repository.findWithHikesHikingTrailByIdAndCreatedByEmail(trailId, email)
                 .orElseThrow(this::trailNotFoundOrNotOwnerException);
+    }
+
+    public void removeUserEntityFromHikingTrailByEmail(Long newOwnerId, String oldOwnerEmail) {
+        int row = this.repository.removeUserEntityFromHikingTrailByEmail(newOwnerId, oldOwnerEmail);
+        if(row == 0) {
+            this.logger.warn("No hiking trail updated for owner email: {}", oldOwnerEmail);
+        }
     }
 
     private AppException trailNotFoundException() {

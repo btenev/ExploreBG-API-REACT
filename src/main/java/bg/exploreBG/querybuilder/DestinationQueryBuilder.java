@@ -7,6 +7,8 @@ import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.DestinationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.Set;
 @Component
 public class DestinationQueryBuilder {
     private final DestinationRepository repository;
+    private final Logger logger = LoggerFactory.getLogger(DestinationQueryBuilder.class);
 
     public DestinationQueryBuilder(DestinationRepository repository) {
         this.repository = repository;
@@ -49,6 +52,13 @@ public class DestinationQueryBuilder {
 
     public int getDestinationCountByStatus(SuperUserReviewStatusEnum status) {
         return this.repository.countDestinationEntitiesByDestinationStatus(status);
+    }
+
+    public void removeUserFromDestinationsByEmail(Long newOwnerId, String oldOwnerEmail) {
+        int row = this.repository.removeUserFromDestinationsByEmail(newOwnerId, oldOwnerEmail);
+        if(row == 0) {
+            this.logger.warn("No destination updated for owner email: {}", oldOwnerEmail);
+        }
     }
 
     private AppException destinationNotFound() {

@@ -23,7 +23,6 @@ public class UserQueryBuilder {
             throw new AppException("User with email " + email + " already exists!", HttpStatus.CONFLICT);
         }
     }
-
     public UserEntity getUserEntityByEmail(String email) {
         return this.repository.findByEmail(email).orElseThrow(this::userNotFound);
     }
@@ -39,6 +38,10 @@ public class UserQueryBuilder {
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public Stream<Tuple> getAllUsers() {
         return this.repository.getAllUsers();
+    }
+
+    public Long getUserIdByEmail(String email) {
+        return this.repository.findUserIdByEmail(email).orElseThrow(this::userNotFound);
     }
 
     private AppException userNotFound() {

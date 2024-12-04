@@ -31,4 +31,16 @@ public interface HikeRepository extends JpaRepository<HikeEntity, Long> {
             @Param("trailId") Long trailId,
             @Param("ownerEmail") String ownerEmail
     );
+
+    @Transactional
+    @Modifying
+    @Query("""
+            UPDATE HikeEntity h
+            SET h.owner.id = :newOwnerId
+            WHERE h.owner.email = :oldOwnerEmail
+            """)
+    int removeUserFromHikesByEmail(
+            @Param("newOwnerId") Long newOwnerId,
+            @Param("oldOwnerEmail") String oldOwnerEmail
+    );
 }

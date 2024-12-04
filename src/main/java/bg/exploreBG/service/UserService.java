@@ -14,9 +14,7 @@ import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
-import bg.exploreBG.querybuilder.RoleQueryBuilder;
-import bg.exploreBG.querybuilder.UserQueryBuilder;
-import bg.exploreBG.repository.UserRepository;
+import bg.exploreBG.querybuilder.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,7 +37,11 @@ public class UserService {
     private final GenericPersistenceService<UserEntity> userPersistence;
     private final UserQueryBuilder userQueryBuilder;
     private final RoleQueryBuilder roleQueryBuilder;
-
+    private final AccommodationQueryBuilder accommodationQueryBuilder;
+    private final CommentQueryBuilder commentQueryBuilder;
+    private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
+    private final HikeQueryBuilder hikeQueryBuilder;
+    private final DestinationQueryBuilder destinationQueryBuilder;
 
     public UserService(
             PasswordEncoder passwordEncoder,
@@ -47,7 +49,12 @@ public class UserService {
             UserMapper userMapper,
             GenericPersistenceService<UserEntity> userPersistence,
             UserQueryBuilder userQueryBuilder,
-            RoleQueryBuilder roleQueryBuilder
+            RoleQueryBuilder roleQueryBuilder,
+            AccommodationQueryBuilder accommodationQueryBuilder,
+            CommentQueryBuilder commentQueryBuilder,
+            HikingTrailQueryBuilder hikingTrailQueryBuilder,
+            HikeQueryBuilder hikeQueryBuilder,
+            DestinationQueryBuilder destinationQueryBuilder
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
@@ -55,6 +62,11 @@ public class UserService {
         this.userPersistence = userPersistence;
         this.userQueryBuilder = userQueryBuilder;
         this.roleQueryBuilder = roleQueryBuilder;
+        this.accommodationQueryBuilder = accommodationQueryBuilder;
+        this.commentQueryBuilder = commentQueryBuilder;
+        this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
+        this.hikeQueryBuilder = hikeQueryBuilder;
+        this.destinationQueryBuilder = destinationQueryBuilder;
     }
 
     public UserIdNameEmailRolesDto register(UserRegisterDto userRegisterDto) {
@@ -283,5 +295,21 @@ public class UserService {
                 .anyMatch(grantedAuthority ->
                         grantedAuthority.getAuthority().equals("ROLE_ADMIN")
                                 || grantedAuthority.getAuthority().equals("ROLE_MODERATOR"));
+    }
+
+    public boolean deleteAccount(UserDetails userDetails) {
+        Long replacementUserId = this.userQueryBuilder.getUserIdByEmail("deleted_user@explore.bg");
+        Long currentUserId = this.userQueryBuilder.getUserIdByEmail(userDetails.getUsername());
+
+        this.accommodationQueryBuilder.removeUserFromAccommodationsByUserEmailIfOwner(replacementUserId, userDetails.getUsername());
+        this.destinationQueryBuilder.removeUserFromDestinationsByEmail(replacementUserId, userDetails.getUsername());
+        this.commentQueryBuilder.removeUserFromCommentsByEmail(replacementUserId, userDetails.getUsername());
+        this.hikingTrailQueryBuilder.removeUserEntityFromHikingTrailByEmail(replacementUserId, userDetails.getUsername());
+        this.hikeQueryBuilder.removeUserFromHikesByEmail(replacementUserId, userDetails.getUsername());
+
+        /*TODO: add other entities that might have user_id foreign key */
+
+        this.userPersistence.deleteEntityWithoutReturnById(currentUserId);
+        return true;
     }
 }

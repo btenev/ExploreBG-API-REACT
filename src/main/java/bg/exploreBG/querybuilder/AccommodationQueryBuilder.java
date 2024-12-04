@@ -7,6 +7,8 @@ import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.AccommodationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,9 +17,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 
+
 @Component
 public class AccommodationQueryBuilder {
     private final AccommodationRepository repository;
+    private final Logger logger = LoggerFactory.getLogger(AccommodationQueryBuilder.class);
 
     public AccommodationQueryBuilder(AccommodationRepository repository) {
         this.repository = repository;
@@ -49,6 +53,13 @@ public class AccommodationQueryBuilder {
 
     public int getAccommodationCountByAccommodationStatus(SuperUserReviewStatusEnum status) {
         return this.repository.countAccommodationEntitiesByAccommodationStatus(status);
+    }
+
+    public void removeUserFromAccommodationsByUserEmailIfOwner(Long newOwnerId, String oldOwnerEmail) {
+       int rows = this.repository.removeUserEntityFromAccommodationsByUserEntityEmailIfOwner(newOwnerId, oldOwnerEmail);
+       if(rows == 0) {
+           this.logger.warn("No accommodations updated for owner email: {}", oldOwnerEmail);
+       }
     }
 
     private AppException accommodationNotFoundException() {
