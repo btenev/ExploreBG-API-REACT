@@ -19,10 +19,7 @@ import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
-import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
-import bg.exploreBG.querybuilder.DestinationQueryBuilder;
-import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
-import bg.exploreBG.querybuilder.UserQueryBuilder;
+import bg.exploreBG.querybuilder.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -47,6 +44,7 @@ public class SuperUserService {
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
     private final DestinationQueryBuilder destinationQueryBuilder;
+    private final ImageQueryBuilder imageQueryBuilder;
     private final AccommodationQueryBuilder accommodationQueryBuilder;
 
     public SuperUserService(
@@ -59,6 +57,7 @@ public class SuperUserService {
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             UserQueryBuilder userQueryBuilder,
             DestinationQueryBuilder destinationQueryBuilder,
+            ImageQueryBuilder imageQueryBuilder,
             AccommodationQueryBuilder accommodationQueryBuilder
     ) {
         this.reviewService = reviewService;
@@ -70,6 +69,7 @@ public class SuperUserService {
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.userQueryBuilder = userQueryBuilder;
         this.destinationQueryBuilder = destinationQueryBuilder;
+        this.imageQueryBuilder = imageQueryBuilder;
         this.accommodationQueryBuilder = accommodationQueryBuilder;
     }
 
@@ -161,7 +161,7 @@ public class SuperUserService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public boolean approveTrail(
+    public SuperUserReviewStatusEnum approveTrail(
             Long trailId,
             HikingTrailCreateOrReviewDto trailCreateOrReview,
             ExploreBgUserDetails userDetails
@@ -177,13 +177,13 @@ public class SuperUserService {
             currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
         }
 
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
+        HikingTrailEntity saved = this.trailPersistence.saveEntityWithReturn(currentTrail);
 
-        return true;
+        return saved.getTrailStatus();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public boolean approveTrailGpxFile(
+    public SuperUserReviewStatusEnum approveTrailGpxFile(
             Long trailId,
             GpxApproveDto gpxApprove,
             ExploreBgUserDetails userDetails
@@ -204,7 +204,13 @@ public class SuperUserService {
             this.gpxService.deleteGpxFileByTrailEntity(currentTrail);
         }
 
-        return true;
+        if (currentTrail.getStatus() == StatusEnum.APPROVED
+                && this.imageQueryBuilder.getCountOfNonApprovedImagesByTrailId(trailId) == 0) {
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
+            currentTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
+        }
+
+        return currentTrail.getTrailStatus();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -221,7 +227,7 @@ public class SuperUserService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public boolean approveTrailImages(
+    public SuperUserReviewStatusEnum approveTrailImages(
             Long trailId,
             ImageApproveDto imageApproveDto,
             UserDetails userDetails,
@@ -249,9 +255,9 @@ public class SuperUserService {
             currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
         }
 
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
+        HikingTrailEntity saved = this.trailPersistence.saveEntityWithReturn(currentTrail);
 
-        return true;
+        return saved.getTrailStatus();
     }
 
     private boolean isEligibleForReview(

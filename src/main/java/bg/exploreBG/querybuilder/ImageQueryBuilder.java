@@ -14,4 +14,10 @@ public class ImageQueryBuilder {
     public String getImagerUrlByEmail(String email) {
         return this.repository.findImageUrlByOwnerEmail(email).orElse(null);
     }
+
+    public long getCountOfNonApprovedImagesByTrailId(Long trailId) {
+        return repository.countNonApprovedImagesForTrailId(trailId);
+    }
 }
+
+/*long countNonApprovedImagesForTrailId(@Param("hikingTrailId") Long hikingTrailId);*/

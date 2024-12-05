@@ -6,6 +6,7 @@ import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailSuperUserReviewStatusDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
@@ -166,17 +167,15 @@ public class SuperUserController {
 
     @Transactional
     @PatchMapping("/trails/{id}/approve")
-    public ResponseEntity<ApiResponse<Boolean>> approveTrail(
+    public ResponseEntity<HikingTrailSuperUserReviewStatusDto> approveTrail(
             @PathVariable("id") Long trailId,
             @Valid @RequestBody HikingTrailCreateOrReviewDto trailCreateOrReviewDto,
             @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
     ) {
-        boolean approved =
+        SuperUserReviewStatusEnum trailStatus =
                 this.superUserService.approveTrail(trailId, trailCreateOrReviewDto, exploreBgUserDetails);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(approved);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new HikingTrailSuperUserReviewStatusDto(trailStatus));
     }
 
     @PatchMapping("/trails/{id}/images/claim")
@@ -193,17 +192,15 @@ public class SuperUserController {
     }
 
     @PatchMapping("/trails/{id}/images/approve")
-    public ResponseEntity<ApiResponse<Boolean>> approveTrailImagesClaim(
+    public ResponseEntity<HikingTrailSuperUserReviewStatusDto> approveTrailImagesClaim(
             @PathVariable("id") Long trailId,
             @Valid @RequestBody ImageApproveDto imageApproveDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean approved =
+        SuperUserReviewStatusEnum trailStatus =
                 this.superUserService.approveTrailImages(trailId, imageApproveDto, userDetails, TRAIL_FOLDER);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(approved);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new HikingTrailSuperUserReviewStatusDto(trailStatus));
     }
 
     @PatchMapping("/trails/{id}/gpx-file/claim")
@@ -220,15 +217,14 @@ public class SuperUserController {
     }
 
     @PatchMapping("/trails/{id}/gpx-file/approve")
-    public ResponseEntity<ApiResponse<Boolean>> approveTrailGpxFileClaim(
+    public ResponseEntity<HikingTrailSuperUserReviewStatusDto> approveTrailGpxFileClaim(
             @PathVariable("id") Long trailId,
             @RequestBody GpxApproveDto gpxApproveDto,
             @AuthenticationPrincipal ExploreBgUserDetails userDetails
     ) {
-        boolean approved = this.superUserService.approveTrailGpxFile(trailId, gpxApproveDto, userDetails);
+        SuperUserReviewStatusEnum trailStatus =
+                this.superUserService.approveTrailGpxFile(trailId, gpxApproveDto, userDetails);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(approved);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new HikingTrailSuperUserReviewStatusDto(trailStatus));
     }
 }

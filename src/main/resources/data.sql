@@ -200,7 +200,7 @@ VALUES (1, 1),
        (5, 7),
        (6, 7);
 
-INSERT INTO hiking_trail_images(hiking_trail_entity_id, images_id)
+INSERT INTO hiking_trail_images(hiking_trail_id, image_id)
 VALUES (1, 4),
        (1, 5),
        (1, 6),

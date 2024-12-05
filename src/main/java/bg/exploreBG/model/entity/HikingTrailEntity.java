@@ -105,6 +105,11 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     private ImageEntity mainImage;
 
     @OneToMany
+    @JoinTable(
+            name = "hiking_trail_images",
+            joinColumns = @JoinColumn(name = "hiking_trail_id"),
+            inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
     private List<ImageEntity> images;
 
     @ManyToMany
