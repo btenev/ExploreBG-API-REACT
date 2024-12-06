@@ -46,6 +46,7 @@ public class SuperUserService {
     private final DestinationQueryBuilder destinationQueryBuilder;
     private final ImageQueryBuilder imageQueryBuilder;
     private final AccommodationQueryBuilder accommodationQueryBuilder;
+    private final GpxQueryBuilder gpxQueryBuilder;
 
     public SuperUserService(
             ReviewService reviewService,
@@ -58,7 +59,8 @@ public class SuperUserService {
             UserQueryBuilder userQueryBuilder,
             DestinationQueryBuilder destinationQueryBuilder,
             ImageQueryBuilder imageQueryBuilder,
-            AccommodationQueryBuilder accommodationQueryBuilder
+            AccommodationQueryBuilder accommodationQueryBuilder,
+            GpxQueryBuilder gpxQueryBuilder
     ) {
         this.reviewService = reviewService;
         this.imageService = imageService;
@@ -71,6 +73,7 @@ public class SuperUserService {
         this.destinationQueryBuilder = destinationQueryBuilder;
         this.imageQueryBuilder = imageQueryBuilder;
         this.accommodationQueryBuilder = accommodationQueryBuilder;
+        this.gpxQueryBuilder = gpxQueryBuilder;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -93,8 +96,20 @@ public class SuperUserService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    public UserIdDto getReviewerId(Long id) {
-        Long reviewerId = this.hikingTrailQueryBuilder.getReviewerId(id);
+    public UserIdDto getReviewerIdByTrailId(Long trailId) {
+        Long reviewerId = this.hikingTrailQueryBuilder.getReviewerId(trailId);
+        return new UserIdDto(reviewerId);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public UserIdDto getReviewerIdByImageId(Long imageId) {
+        Long reviewerId = this.imageQueryBuilder.getReviewerIdByImageId(imageId);
+        return new UserIdDto(reviewerId);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public UserIdDto getReviewerIdByGpxId(Long gpxId) {
+        Long reviewerId = this.gpxQueryBuilder.getReviewerIdByGpxId(gpxId);
         return new UserIdDto(reviewerId);
     }
 

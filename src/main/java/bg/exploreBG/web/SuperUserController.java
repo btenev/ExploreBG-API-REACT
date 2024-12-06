@@ -16,7 +16,8 @@ import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
-import bg.exploreBG.service.*;
+import bg.exploreBG.service.SuperUserService;
+import bg.exploreBG.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -132,7 +133,25 @@ public class SuperUserController {
     public ResponseEntity<UserIdDto> getHikingTrailReviewer(
             @PathVariable("id") Long trailId
     ) {
-        UserIdDto reviewerId = this.superUserService.getReviewerId(trailId);
+        UserIdDto reviewerId = this.superUserService.getReviewerIdByTrailId(trailId);
+
+        return ResponseEntity.ok(reviewerId);
+    }
+
+    @GetMapping("/images/{id}/reviewer")
+    public ResponseEntity<UserIdDto> getImageReviewer(
+            @PathVariable("id") Long imageId
+    ) {
+        UserIdDto reviewerId = this.superUserService.getReviewerIdByImageId(imageId);
+        
+        return ResponseEntity.ok(reviewerId);
+    }
+
+    @GetMapping("/gpx/{id}/reviewer")
+    public ResponseEntity<UserIdDto> getGpxReviewer(
+            @PathVariable("id") Long gpxId
+    ) {
+        UserIdDto reviewerId = this.superUserService.getReviewerIdByGpxId(gpxId);
 
         return ResponseEntity.ok(reviewerId);
     }

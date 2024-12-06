@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public record GpxBasicDto(
+        Long id,
         String gpxUrl,
         @JsonSerialize(using = StatusEnumSerializer.class)
         @JsonProperty(value = "gpxStatus")

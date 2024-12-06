@@ -36,4 +36,12 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
                                       WHERE ht.id = :hikingTrailId )
             """)
     long countNonApprovedImagesForTrailId(@Param("hikingTrailId") Long hikingTrailId);
+
+    @Query("""
+            SELECT r.id
+            FROM ImageEntity i
+            JOIN i.reviewedBy r
+            WHERE i.id = :imageId
+            """)
+    Long findReviewerIdByImageId(Long imageId);
 }

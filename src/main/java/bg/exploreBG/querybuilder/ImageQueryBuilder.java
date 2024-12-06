@@ -18,6 +18,10 @@ public class ImageQueryBuilder {
     public long getCountOfNonApprovedImagesByTrailId(Long trailId) {
         return repository.countNonApprovedImagesForTrailId(trailId);
     }
+
+    public Long getReviewerIdByImageId(Long imageId) {
+        return repository.findReviewerIdByImageId(imageId);
+    }
 }
 
 /*long countNonApprovedImagesForTrailId(@Param("hikingTrailId") Long hikingTrailId);*/
