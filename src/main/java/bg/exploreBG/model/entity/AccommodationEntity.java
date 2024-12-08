@@ -3,13 +3,16 @@ package bg.exploreBG.model.entity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.ownableEntity.OwnableEntity;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "accommodations")
-public class AccommodationEntity extends BaseEntity {
+public class AccommodationEntity extends BaseEntity implements OwnableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +22,8 @@ public class AccommodationEntity extends BaseEntity {
     private String accommodationName;
 
     @ManyToOne(optional = false)
-    private UserEntity owner;
+    @JoinColumn(name = "created_by_id", referencedColumnName = "id")
+    private UserEntity createdBy;
 
     //    private String email;
 
@@ -27,9 +31,6 @@ public class AccommodationEntity extends BaseEntity {
     private String phoneNumber;
 
     private String site;
-
-    @Column(name = "image_url")
-    private String imageUrl;
 
     @Column(name = "accommodation_info", columnDefinition = "TEXT")
     private String accommodationInfo;
@@ -55,6 +56,29 @@ public class AccommodationEntity extends BaseEntity {
     @Column(name = "accommodation_status")
     @Enumerated(EnumType.STRING)
     private SuperUserReviewStatusEnum accommodationStatus;
+
+    @OneToOne
+    private ImageEntity mainImage;
+
+    @OneToMany
+    @JoinTable(
+            name = "accommodations_images",
+            joinColumns = @JoinColumn(name = "accommodation_id"),
+            inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    private List<ImageEntity> images;
+
+    @ManyToMany
+    private Set<UserEntity> likedByUsers;
+
+    @Column(name = "max_number_of_images")
+    private int maxNumberOfImages;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
+    @Column(name = "modification_date")
+    private LocalDateTime modificationDate;
 
     @OneToMany
     @JoinTable(
@@ -83,12 +107,12 @@ public class AccommodationEntity extends BaseEntity {
         this.accommodationName = accommodationName;
     }
 
-    public UserEntity getOwner() {
-        return owner;
+    public UserEntity getCreatedBy() {
+        return createdBy;
     }
 
-    public void setOwner(UserEntity owner) {
-        this.owner = owner;
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getPhoneNumber() {
@@ -105,14 +129,6 @@ public class AccommodationEntity extends BaseEntity {
 
     public void setSite(String site) {
         this.site = site;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getAccommodationInfo() {
@@ -187,15 +203,62 @@ public class AccommodationEntity extends BaseEntity {
         this.accommodationStatus = accommodationStatus;
     }
 
+    public List<ImageEntity> getImages() {
+        return images;
+    }
+
+    public ImageEntity getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(ImageEntity mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    public void setImages(List<ImageEntity> images) {
+        this.images = images;
+    }
+
+    public Set<UserEntity> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(Set<UserEntity> likedByUsers) {
+        this.likedByUsers = likedByUsers;
+    }
+
+    public int getMaxNumberOfImages() {
+        return maxNumberOfImages;
+    }
+
+    public void setMaxNumberOfImages(int maxNumberOfImages) {
+        this.maxNumberOfImages = maxNumberOfImages;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
     @Override
     public String toString() {
         return "AccommodationEntity{" +
                 "id=" + id +
                 ", accommodationName='" + accommodationName + '\'' +
-                ", owner=" + owner +
+                ", createdBy=" + createdBy +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", site='" + site + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
                 ", accommodationInfo='" + accommodationInfo + '\'' +
                 ", bedCapacity=" + bedCapacity +
                 ", pricePerBed=" + pricePerBed +
@@ -204,6 +267,12 @@ public class AccommodationEntity extends BaseEntity {
                 ", type=" + type +
                 ", nextTo='" + nextTo + '\'' +
                 ", accommodationStatus=" + accommodationStatus +
+                ", mainImage=" + mainImage +
+                ", images=" + images +
+                ", likedByUsers=" + likedByUsers +
+                ", maxNumberOfImages=" + maxNumberOfImages +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
                 ", comments=" + comments +
                 '}';
     }

@@ -1,6 +1,7 @@
 package bg.exploreBG.model.entity;
 
 import bg.exploreBG.model.enums.*;
+import bg.exploreBG.ownableEntity.OwnableEntity;
 import bg.exploreBG.reviewable.ReviewableWithImages;
 import bg.exploreBG.updatable.UpdatableEntity;
 import jakarta.persistence.*;
@@ -11,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "hiking_trail")
-public class HikingTrailEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity {
+@Table(name = "hiking_trails")
+public class HikingTrailEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity, OwnableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,7 +55,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "hiking_trail_activity",
+            name = "hiking_trails_activity",
             joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id")
     )
     private List<SuitableForEnum> activity;
@@ -106,7 +107,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
 
     @OneToMany
     @JoinTable(
-            name = "hiking_trail_images",
+            name = "hiking_trails_images",
             joinColumns = @JoinColumn(name = "hiking_trail_id"),
             inverseJoinColumns = @JoinColumn(name = "image_id")
     )

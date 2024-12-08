@@ -83,28 +83,30 @@ VALUES (1, 1),
        (1, 4),
        (3, 4);
 
-INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, owner_id, accommodation_info,
+INSERT INTO accommodations (price_per_bad, bed_capacity, food_available, id, created_by_id, accommodation_info,
                             accommodation_name, next_to, phone_number,
-                            image_url, site, access, type, accommodation_status, status)
+                            main_image_id, site, access, type, accommodation_status, status, max_number_of_images,
+                            creation_date)
 VALUES (null, null, 1, 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa',
         null,
-        'https://picsum.photos/200', null, 'BY_CAR', 'HUT', 'APPROVED', 'APPROVED'),
+        null, null, 'BY_CAR', 'HUT', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
        (null, null, 1, 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah',
         'Zheleznitsa',
-        '+35985738923', 'https://picsum.photos/200', null, 'BY_CAR', 'SHELTER', 'APPROVED', 'APPROVED'),
+        '+35985738923', null, null, 'BY_CAR', 'SHELTER', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
        (null, 25, 1, 3, 2, 'A place where you can have some rest and get some food', 'hija Perelik', 'Smolyan', null,
-        'https://picsum.photos/200', null, 'BY_CAR', 'HUT', 'APPROVED', 'APPROVED'),
+        null, null, 'BY_CAR', 'HUT', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
        (null, 30, 1, 4, 1, 'A place where you can have some rest and get some food', 'hija Ravnets', 'Karlovo',
-        '+359 896 68 85 23', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/hizha-ravnec',
-        'ON_FOOT', 'HUT', 'APPROVED', 'APPROVED'),
+        '+359 896 68 85 23', null, 'https://www.btsbg.org/hizhi/hizha-ravnec',
+        'ON_FOOT', 'HUT', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
        (null, 35, 1, 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
-        '0878 197451', 'https://picsum.photos/200', 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER',
-        'APPROVED', 'APPROVED'),
+        '0878 197451', null, 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER',
+        'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
        (25, 22, 1, 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
-        'Karlovo, Kalofer', '0877 273 547', 'https://picsum.photos/200', 'https://botevbg.com/', 'BY_CAR', 'SHELTER',
-        'PENDING', 'PENDING');
+        'Karlovo, Kalofer', '0877 273 547', null, 'https://botevbg.com/', 'BY_CAR', 'SHELTER',
+        'PENDING', 'PENDING', 10, UTC_TIMESTAMP());
 
-INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type, destination_status, status)
+INSERT INTO destinations(id, destination_info, image_url, location, destination_name, next_to, type, destination_status,
+                         status)
 VALUES (1,
         'Mezeshka Fortress (Neuzetikon or Neutzikon[1]) is a medieval Byzantine fortification, built in the 11th - 12th centuries west of today''s Mezek village, Svilengrad municipality. It is located on an elongated terrace, formed at the foot of a steep branch of the northeastern Rhodopes, bearing the name St. Marina or the Forest. The local population calls the fortress "Kaleto". The fortress had the functions of a border guard fortress. It guarded territories between the Maritsa and Arda rivers.',
         'https://rila.ws/wp-content/uploads/2020/07/00406-Bulgaria-Mezek-fortress.jpg',
@@ -136,11 +138,12 @@ VALUES (1,
         'Perperikon is an archaeological complex located 15 km from the town of Kardzhali. It was inhabited as early as 8,000 years ago, during the Stone Age, after which it was a sacred rock city under the Thracians, and later Romans, Byzantines and Bulgarians lived there. It was destroyed by the Turks in the 14th century.',
         'https://static.pochivka.bg/sights.bgstay.com/images/00/75/resized320/5477c4ac9bdd8.jpg', 'coordinates',
         'Perperikon', 'Kardzhali', 'CULTURAL_HERITAGE', 'APPROVED', 'APPROVED'),
-       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown', 'CULTURAL_HERITAGE', 'APPROVED', 'APPROVED');
+       (8, 'Some random destination', null, 'coordinates', 'Nowhere', 'Unknown', 'CULTURAL_HERITAGE', 'APPROVED',
+        'APPROVED');
 
-INSERT INTO hiking_trail (id, start_point, end_point, total_distance, trail_info, season_visited,
-                          water_available, trail_difficulty, elevation_gained, next_to, creation_date, trail_status,
-                          max_number_of_images, created_by_id, main_image_id, status)
+INSERT INTO hiking_trails (id, start_point, end_point, total_distance, trail_info, season_visited,
+                           water_available, trail_difficulty, elevation_gained, next_to, creation_date, trail_status,
+                           max_number_of_images, created_by_id, main_image_id, status)
 VALUES (1, 'Selo Zheleznitsa', 'Cherni vrah', 9.00,
         'The route from the village of Zheleznitsa to Cherni vrah (2290 m) is interesting, somewhat varied and above all beautiful. Some say it is the most picturesque ascent of the summit of Vitosha. So far I think so, but I haven''t climbed it on the southern routes yet. Of course, before you go, you should keep in mind that this hike overcomes nearly 1,300 meters of positive elevation gain. Consider your physical strength well and keep in mind that you have to get down somehow, the closest point after that being the Aleko hut.',
         'SUMMER', 'NO_INFORMATION', 4, 1258, 'Zheleznitsa', UTC_TIMESTAMP(),
@@ -187,7 +190,7 @@ VALUES (1, 'Selo Zheleznitsa', 'Cherni vrah', 9.00,
         'The ascent of Mount Vezhen from the town of Klisura is a rather long and difficult trek from the foot of Stara Planina to one of its highest peaks. 1600 meters of elevation gain are overcome in 12 kilometers! Since we are almost all the time moving outdoors on a steep incline, this can be a very tiring endeavor during the summer months. Still, the old mountain ridge is a nice experience, and it is not easily accessible in this part.',
         'SUMMER', 'YES', 4, 1428, 'Klisura', UTC_TIMESTAMP(), 'PENDING', 10, null, null, 'PENDING');
 
-INSERT INTO hiking_trail_activity (hiking_trail_id, activity)
+INSERT INTO hiking_trails_activity (hiking_trail_id, activity)
 VALUES (1, 'HIKING'),
        (1, 'TRAIL_RUNNING'),
        (2, 'HIKING');
@@ -200,7 +203,7 @@ VALUES (1, 1),
        (5, 7),
        (6, 7);
 
-INSERT INTO hiking_trail_images(hiking_trail_id, image_id)
+INSERT INTO hiking_trails_images(hiking_trail_id, image_id)
 VALUES (1, 4),
        (1, 5),
        (1, 6),
@@ -214,7 +217,7 @@ VALUES (1, 4),
        (8, 14),
        (8, 15);
 
-INSERT INTO hiking_trail_liked_by_users(hiking_trail_entity_id, liked_by_users_id)
+INSERT INTO hiking_trails_liked_by_users(hiking_trail_entity_id, liked_by_users_id)
 VALUES (3, 4),
        (4, 4),
        (5, 4);
