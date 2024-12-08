@@ -2,7 +2,7 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.LikeBooleanDto;
-import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
@@ -25,6 +25,9 @@ import bg.exploreBG.querybuilder.CommentQueryBuilder;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
+import bg.exploreBG.utils.ImageUtils;
+import bg.exploreBG.utils.OwnershipUtils;
+import bg.exploreBG.utils.StatusValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -97,7 +100,7 @@ public class HikingTrailService {
     public HikingTrailDetailsDto getApprovedHikingTrailWithApprovedImagesById(Long id, StatusEnum status) {
         HikingTrailEntity trailById = this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus(id, status);
 
-        List<ImageEntity> approvedImages = getApprovedImages(trailById);
+        List<ImageEntity> approvedImages = ImageUtils.filterByStatus(trailById.getImages(), StatusEnum.APPROVED);
 
         if (approvedImages.size() != trailById.getImages().size()) {
             trailById.setImages(approvedImages);
@@ -111,15 +114,15 @@ public class HikingTrailService {
         HikingTrailEntity current = this.hikingTrailQueryBuilder.getHikingTrailById(id);
         String username = userDetails.getUsername();
 
-        if (isOwner(current, username)) {
+        if (OwnershipUtils.isOwner(current, username)) {
             logger.info("{} is owner of trail {}", username, current.getId());
             return (T) this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(current);
         }
 
-        ensureTrailIsApproved(current);
+        StatusValidationUtils.ensureEntityIsApproved(current.getStatus(), "Trail");
         logger.info("Trail with id {} is approved", current.getId());
 
-        List<ImageEntity> approvedImages = getApprovedImages(current);
+        List<ImageEntity> approvedImages = ImageUtils.filterByStatus(current.getImages(), StatusEnum.APPROVED);
 
         if (approvedImages.size() != current.getImages().size()) {
             current.setImages(approvedImages);
@@ -148,20 +151,6 @@ public class HikingTrailService {
         this.trailPersistence.deleteEntityWithoutReturnById(trailId);
         
         return true;
-    }
-
-    private List<ImageEntity> getApprovedImages(HikingTrailEntity current) {
-        return current.getImages().stream().filter(i -> i.getStatus().equals(StatusEnum.APPROVED)).toList();
-    }
-
-    private boolean isOwner(HikingTrailEntity trail, String username) {
-        return trail.getCreatedBy() != null && trail.getCreatedBy().getEmail().equals(username);
-    }
-
-    private void ensureTrailIsApproved(HikingTrailEntity trail) {
-        if (!trail.getStatus().equals(StatusEnum.APPROVED)) {
-            throw new AppException("Hiking trail invalid status!", HttpStatus.BAD_REQUEST);
-        }
     }
 
     public Page<HikingTrailBasicDto> getAllApprovedHikingTrails(Pageable pageable) {
@@ -360,10 +349,10 @@ public class HikingTrailService {
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
-        List<AccommodationBasicDto> availableHuts = currentTrail
+        List<AccommodationIdAndAccommodationName> availableHuts = currentTrail
                 .getAvailableHuts()
                 .stream()
-                .map(hut -> new AccommodationBasicDto(hut.getId(), hut.getAccommodationName()))
+                .map(hut -> new AccommodationIdAndAccommodationName(hut.getId(), hut.getAccommodationName()))
                 .collect(Collectors.toList());
 
         return new AccommodationWrapperDto(

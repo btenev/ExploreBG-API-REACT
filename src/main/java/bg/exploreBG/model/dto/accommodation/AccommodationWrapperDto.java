@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record AccommodationWrapperDto(
-        List<AccommodationBasicDto> availableHuts,
+        List<AccommodationIdAndAccommodationName> availableHuts,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime lastUpdateDate
 ) {

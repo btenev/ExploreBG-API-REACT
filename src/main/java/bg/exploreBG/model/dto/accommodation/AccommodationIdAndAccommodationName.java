@@ -1,6 +1,6 @@
 package bg.exploreBG.model.dto.accommodation;
 
-public record AccommodationBasicDto(
+public record AccommodationIdAndAccommodationName(
         Long id,
         String accommodationName
 ) {

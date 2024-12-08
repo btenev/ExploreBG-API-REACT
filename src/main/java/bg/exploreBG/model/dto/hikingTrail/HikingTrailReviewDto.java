@@ -1,6 +1,6 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
-import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.gpxFile.GpxBasicDto;
 import bg.exploreBG.model.dto.image.ImageBasicDto;
@@ -22,7 +22,7 @@ public record HikingTrailReviewDto(
         SeasonEnum seasonVisited,
         @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)
         WaterAvailabilityEnum waterAvailable,
-        List<AccommodationBasicDto> availableHuts,
+        List<AccommodationIdAndAccommodationName> availableHuts,
         @JsonSerialize(using = DifficultyLevelEnumSerializer.class)
         DifficultyLevelEnum trailDifficulty,
         @JsonSerialize(using = SuitableForEnumSerializer.class)

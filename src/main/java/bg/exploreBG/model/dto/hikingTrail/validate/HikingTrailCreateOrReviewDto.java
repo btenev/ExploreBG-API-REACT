@@ -54,15 +54,10 @@ public record HikingTrailCreateOrReviewDto(
         )
         String trailInfo,
 
-//      @EnumMatch(enumClass = SeasonEnum.class)
         SeasonEnum seasonVisited,
 
         WaterAvailabilityEnum waterAvailable,
 
-      /*
-        @EnumMatch(enumClass = DifficultyLevelEnum.class)
-        @NotNull(message = "Please, rate the difficulty level of the trail with a number from 1 to 6!")
-      */
         DifficultyLevelEnum trailDifficulty,
 
         @JsonDeserialize(using = SuitableForEnumDeserializer.class)

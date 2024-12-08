@@ -22,8 +22,6 @@ public record AccommodationCreateDto(
         //TODO: regex - site url
         String site,
 
-        String imageUrl,
-
         @NotNull(message = "Please enter a short description of the accommodation!")
         @Pattern(
                 regexp = "^[a-zA-Z0-9\\-.,\\s\\n()'`]*$",
@@ -40,8 +38,11 @@ public record AccommodationCreateDto(
 
         @Positive(message = "Price per bed must be greater than 0")
         Double pricePerBed,
+
         Boolean foodAvailable,
+
         AccessibilityEnum access,
+
         AccommodationTypeEnum type,
 
         @NotNull(message = "Please, enter town or city name that is close to the trail!")
