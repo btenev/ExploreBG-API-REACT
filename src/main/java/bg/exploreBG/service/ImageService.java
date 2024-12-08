@@ -5,11 +5,13 @@ import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateDto;
+import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.ImageQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
@@ -30,27 +32,33 @@ public class ImageService {
     private final CloudinaryService cloudinaryService;
     private final GenericPersistenceService<ImageEntity> imagePersistence;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
+    private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
     private final GenericPersistenceService<UserEntity> userPersistence;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
     private final ImageQueryBuilder imageQueryBuilder;
+    private final AccommodationQueryBuilder accommodationQueryBuilder;
 
     public ImageService(
             CloudinaryService cloudinaryService,
             GenericPersistenceService<ImageEntity> imagePersistence,
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
+            GenericPersistenceService<AccommodationEntity> accommodationPersistence,
             GenericPersistenceService<UserEntity> userPersistence,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             UserQueryBuilder userQueryBuilder,
-            ImageQueryBuilder imageQueryBuilder
+            ImageQueryBuilder imageQueryBuilder,
+            AccommodationQueryBuilder accommodationQueryBuilder
     ) {
         this.cloudinaryService = cloudinaryService;
         this.imagePersistence = imagePersistence;
         this.trailPersistence = trailPersistence;
+        this.accommodationPersistence = accommodationPersistence;
         this.userPersistence = userPersistence;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.userQueryBuilder = userQueryBuilder;
         this.imageQueryBuilder = imageQueryBuilder;
+        this.accommodationQueryBuilder = accommodationQueryBuilder;
     }
 
     public ImageIdPlusUrlDto saveProfileImage(
@@ -101,10 +109,10 @@ public class ImageService {
     ) {
         HikingTrailEntity currentTrail =
                 this.hikingTrailQueryBuilder.getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
-                                trailId,
-                                statuses,
-                                userDetails.getUsername()
-                        );
+                        trailId,
+                        statuses,
+                        userDetails.getUsername()
+                );
         UserEntity loggedUser = currentTrail.getCreatedBy();
         logger.info("Save trail pictures - logged user {}", loggedUser.getUsername());
         List<ImageEntity> currentTrailImages = currentTrail.getImages();
@@ -132,6 +140,52 @@ public class ImageService {
         return savedImages.stream()
                 .map(e -> {
                     boolean isMain = e.getId().equals(currentTrail.getMainImage().getId());
+                    return new ImageIdUrlIsMainDto(e.getId(), e.getImageUrl(), isMain);
+                })
+                .toList();
+    }
+
+    public List<ImageIdUrlIsMainDto> saveAccommodationPictures(
+            Long accommodationId,
+            ImageCreateDto imageCreateDto,
+            MultipartFile[] files,
+            UserDetails userDetails,
+            List<StatusEnum> statuses
+    ) {
+        AccommodationEntity currentAccommodation = this.accommodationQueryBuilder
+                .getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(
+                        accommodationId,
+                        statuses,
+                        userDetails.getUsername()
+                );
+
+        UserEntity loggedUser = currentAccommodation.getCreatedBy();
+        logger.info("Save accommodation pictures - logged user {}", loggedUser.getUsername());
+        List<ImageEntity> currentAccommodationImages = currentAccommodation.getImages();
+
+        int usedSlots = currentAccommodationImages.size();
+        int neededImageSlots = files.length;
+        int totalImages = usedSlots + neededImageSlots;
+
+        validateImageSlots(totalImages, currentAccommodation.getMaxNumberOfImages());
+
+        String folder = imageCreateDto.folder();
+        List<Map<String, String>> uploadResults = validateUploadResult(files, folder);
+        List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, loggedUser);
+
+        List<ImageEntity> savedImages = this.imagePersistence.saveEntitiesWithReturn(newImageEntities);
+
+        if (currentAccommodationImages.isEmpty()) {
+            currentAccommodation.setMainImage(savedImages.get(0));
+        }
+
+        currentAccommodationImages.addAll(newImageEntities);
+        currentAccommodation.setAccommodationStatus(SuperUserReviewStatusEnum.PENDING);
+        this.accommodationPersistence.saveEntityWithoutReturn(currentAccommodation);
+
+        return savedImages.stream()
+                .map(e -> {
+                    boolean isMain = e.getId().equals(currentAccommodation.getMainImage().getId());
                     return new ImageIdUrlIsMainDto(e.getId(), e.getImageUrl(), isMain);
                 })
                 .toList();
@@ -315,4 +369,6 @@ public class ImageService {
 
         return uploadResults;
     }
+
+
 }

@@ -82,8 +82,9 @@ public class ImageController {
         List<ImageIdUrlIsMainDto> urlDto = switch (imageCreateDto.folder().toLowerCase()) {
             case "trails-demo", "trails" -> this.imageService.saveTrailPictures(
                     id, imageCreateDto, files, userDetails, List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
-            /*       case "accommodation" -> imageService.saveAccommodationPictures(id, imageCreateDto, files, userDetails);
-            case "destination" -> imageService.saveDestinationPictures(id, imageCreateDto, files, userDetails);*/
+            case "accommodations" -> imageService.saveAccommodationPictures(id, imageCreateDto, files, userDetails,
+                    List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
+            /*case "destination" -> imageService.saveDestinationPictures(id, imageCreateDto, files, userDetails);*/
             default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
         };
 
