@@ -48,6 +48,7 @@ public interface HikingTrailMapper {
     @Mapping(target = "likedByUsers", ignore = true)
     @Mapping(target = "maxNumberOfImages", ignore = true)
     @Mapping(target = "singleComment", ignore = true)
+    @Mapping(target = "hikes", ignore = true)
     HikingTrailEntity hikingTrailCreateDtoToHikingTrailEntity(HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto);
 
     default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(

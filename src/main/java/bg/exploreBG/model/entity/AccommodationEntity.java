@@ -1,5 +1,6 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.likeable.LikeableEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -12,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "accommodations")
-public class AccommodationEntity extends BaseEntity implements OwnableEntity {
+public class AccommodationEntity extends BaseEntity implements OwnableEntity, LikeableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

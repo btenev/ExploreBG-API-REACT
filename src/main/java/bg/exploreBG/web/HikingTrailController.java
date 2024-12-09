@@ -351,7 +351,8 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean success =
-                this.hikingTrailService.likeOrUnlikeTrail(trailId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
+                this.hikingTrailService
+                        .likeOrUnlikeTrailAndSave(trailId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 

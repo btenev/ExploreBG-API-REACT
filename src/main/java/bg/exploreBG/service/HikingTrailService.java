@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -60,6 +59,7 @@ public class HikingTrailService {
     private final UserQueryBuilder userQueryBuilder;
     private final CommentQueryBuilder commentQueryBuilder;
     private final HikeQueryBuilder hikeQueryBuilder;
+    private final LikeService likeService;
 
     public HikingTrailService(
             HikingTrailMapper hikingTrailMapper,
@@ -73,7 +73,8 @@ public class HikingTrailService {
             GenericPersistenceService<CommentEntity> commentPersistence,
             UserQueryBuilder userQueryBuilder,
             CommentQueryBuilder commentQueryBuilder,
-            HikeQueryBuilder hikeQueryBuilder
+            HikeQueryBuilder hikeQueryBuilder,
+            LikeService likeService
     ) {
         this.hikingTrailMapper = hikingTrailMapper;
         this.commentMapper = commentMapper;
@@ -87,6 +88,7 @@ public class HikingTrailService {
         this.userQueryBuilder = userQueryBuilder;
         this.commentQueryBuilder = commentQueryBuilder;
         this.hikeQueryBuilder = hikeQueryBuilder;
+        this.likeService = likeService;
     }
 
     public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
@@ -510,7 +512,7 @@ public class HikingTrailService {
         return true;
     }
 
-    public boolean likeOrUnlikeTrail(
+    public boolean likeOrUnlikeTrailAndSave(
             Long trailId,
             LikeBooleanDto likeBoolean,
             UserDetails userDetails,
@@ -518,31 +520,9 @@ public class HikingTrailService {
     ) {
         HikingTrailEntity currentTrail =
                 this.hikingTrailQueryBuilder.getHikingTrailWithLikesByIdAndStatus(trailId, status);
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        Set<UserEntity> likedByUsers = currentTrail.getLikedByUsers();
-        boolean userHasLiked = likedByUsers.contains(loggedUser);
 
-        if (likeBoolean.like()) {
-            handleLike(likedByUsers, loggedUser, userHasLiked);
-        } else {
-            handleUnlike(likedByUsers, loggedUser, userHasLiked);
-        }
-
+        likeService.likeOrUnlikeEntity(currentTrail, likeBoolean, userDetails);
         this.trailPersistence.saveEntityWithoutReturn(currentTrail);
         return true;
-    }
-
-    private void handleLike(Set<UserEntity> likedByUsers, UserEntity user, boolean userHasLiked) {
-        if (userHasLiked) {
-            throw new AppException("You have already liked the item!", HttpStatus.BAD_REQUEST);
-        }
-        likedByUsers.add(user);
-    }
-
-    private void handleUnlike(Set<UserEntity> likedByUsers, UserEntity user, boolean userHasLiked) {
-        if (!userHasLiked) {
-            throw new AppException("You cannot unlike an item that you haven't liked!", HttpStatus.BAD_REQUEST);
-        }
-        likedByUsers.remove(user);
     }
 }
