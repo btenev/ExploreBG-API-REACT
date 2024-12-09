@@ -1,5 +1,6 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.LikeBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
@@ -36,17 +37,20 @@ public class AccommodationService {
     private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
     private final UserQueryBuilder userQueryBuilder;
     private final AccommodationQueryBuilder accommodationQueryBuilder;
+    private final LikeService likeService;
 
     public AccommodationService(
             AccommodationMapper mapper,
             GenericPersistenceService<AccommodationEntity> accommodationPersistence,
             UserQueryBuilder userQueryBuilder,
-            AccommodationQueryBuilder accommodationQueryBuilder
+            AccommodationQueryBuilder accommodationQueryBuilder,
+            LikeService likeService
     ) {
         this.mapper = mapper;
         this.accommodationPersistence = accommodationPersistence;
         this.userQueryBuilder = userQueryBuilder;
         this.accommodationQueryBuilder = accommodationQueryBuilder;
+        this.likeService = likeService;
     }
 
     public List<AccommodationBasicDto> getRandomNumOfAccommodations(int limit) {
@@ -126,5 +130,19 @@ public class AccommodationService {
                 .getAllAccommodationsWithLikesByStatus(
                    StatusEnum.APPROVED, StatusEnum.APPROVED, userDetails.getUsername(), pageable, sortByLikedUser
                 );
+    }
+
+    public boolean likeOrUnlikeAccommodationAndSave(
+            Long accommodationId,
+            LikeBooleanDto likeBoolean,
+            UserDetails userDetails,
+            StatusEnum status
+    ) {
+        AccommodationEntity current =
+                this.accommodationQueryBuilder.getAccommodationWithLikesByIdAndStatus(accommodationId, status);
+
+        this.likeService.likeOrUnlikeEntity(current, likeBoolean, userDetails);
+        this.accommodationPersistence.saveEntityWithoutReturn(current);
+        return true;
     }
 }

@@ -108,4 +108,7 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
             String email,
             Pageable pageable,
             Boolean sortByLikedUser);
+
+    @EntityGraph(attributePaths = {"likedByUsers"})
+    Optional<AccommodationEntity> findWithLikesByIdAndStatus(Long id, StatusEnum statusEnum);
 }

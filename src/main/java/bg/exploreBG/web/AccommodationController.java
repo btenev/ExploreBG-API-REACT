@@ -1,9 +1,11 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
+import bg.exploreBG.model.dto.LikeBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateDto;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.AccommodationService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -126,5 +128,21 @@ public class AccommodationController {
         return ResponseEntity
                 .created(URI.create("/api/accommodations/create/" + accommodationIdDto.id()))
                 .body(accommodationIdDto);
+    }
+
+    @PatchMapping("/{id}/like")
+    public ResponseEntity<ApiResponse<Boolean>> toggleAccommodationLike(
+            @PathVariable("id") Long accommodationId,
+            @RequestBody LikeBooleanDto likeBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success =
+                this.accommodationService
+                        .likeOrUnlikeAccommodationAndSave(
+                                accommodationId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
     }
 }

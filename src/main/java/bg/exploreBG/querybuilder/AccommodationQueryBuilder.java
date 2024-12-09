@@ -85,6 +85,12 @@ public class AccommodationQueryBuilder {
                 .orElseThrow(this::accommodationNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
+    public AccommodationEntity getAccommodationWithLikesByIdAndStatus(Long accommodationId, StatusEnum status) {
+        return this.repository
+                .findWithLikesByIdAndStatus(accommodationId, status)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatus);
+    }
+
     public void removeUserFromAccommodationsByUserEmailIfOwner(Long newOwnerId, String oldOwnerEmail) {
         int rows = this.repository.removeUserEntityFromAccommodationsByUserEntityEmailIfOwner(newOwnerId, oldOwnerEmail);
         if (rows == 0) {
@@ -94,6 +100,11 @@ public class AccommodationQueryBuilder {
 
     private AppException accommodationNotFoundException() {
         return new AppException("The accommodation you are looking for was not found.", HttpStatus.NOT_FOUND);
+    }
+
+    private AppException accommodationNotFoundOrInvalidStatus() {
+        return new AppException("The accommodation you are looking for was not found or has an invalid status.",
+                HttpStatus.BAD_REQUEST);
     }
 
     private AppException accommodationNotFoundOrInvalidStatusOrNotOwnerException() {
