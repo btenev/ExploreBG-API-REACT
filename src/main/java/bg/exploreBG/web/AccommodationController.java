@@ -3,8 +3,9 @@ package bg.exploreBG.web;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.LikeBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
-import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
-import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateDto;
+import bg.exploreBG.model.dto.accommodation.single.*;
+import bg.exploreBG.model.dto.accommodation.validate.*;
+import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.AccommodationService;
 import jakarta.validation.Valid;
@@ -128,6 +129,175 @@ public class AccommodationController {
         return ResponseEntity
                 .created(URI.create("/api/accommodations/create/" + accommodationIdDto.id()))
                 .body(accommodationIdDto);
+    }
+
+    @PatchMapping("/{id}/accommodation-name")
+    public ResponseEntity<ApiResponse<AccommodationNameDto>> updateAccommodationName(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdateAccommodationNameDto updateAccommodationName,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationNameDto accommodationName =
+                this.accommodationService.
+                        updateAccommodationName(accommodationId, updateAccommodationName, userDetails);
+
+        ApiResponse<AccommodationNameDto> response = new ApiResponse<>(accommodationName);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/phone-number")
+    public ResponseEntity<ApiResponse<AccommodationPhoneNumberDto>> updatePhoneNumber(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdatePhoneNumberDto updatePhoneNumber,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationPhoneNumberDto phoneNumber =
+                this.accommodationService.
+                        updateAccommodationPhoneNumber(accommodationId, updatePhoneNumber, userDetails);
+
+        ApiResponse<AccommodationPhoneNumberDto> response = new ApiResponse<>(phoneNumber);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/site")
+    public ResponseEntity<ApiResponse<AccommodationSiteDto>> updateSite(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdateSiteDto updateSite,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationSiteDto site =
+                this.accommodationService.
+                        updateAccommodationSite(accommodationId, updateSite, userDetails);
+
+        ApiResponse<AccommodationSiteDto> response = new ApiResponse<>(site);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/accommodation-info")
+    public ResponseEntity<ApiResponse<AccommodationInfoDto>> updateInfo(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdateInfoDto updateInfo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationInfoDto info =
+                this.accommodationService.
+                        updateAccommodationInfo(accommodationId, updateInfo, userDetails);
+
+        ApiResponse<AccommodationInfoDto> response = new ApiResponse<>(info);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/bed-capacity")
+    public ResponseEntity<ApiResponse<AccommodationBedCapacityDto>> updateBedCapacity(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdateBedCapacityDto updateBedCapacity,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationBedCapacityDto bedCapacity =
+                this.accommodationService
+                        .updateAccommodationBedCapacity(accommodationId, updateBedCapacity, userDetails);
+
+        ApiResponse<AccommodationBedCapacityDto> response = new ApiResponse<>(bedCapacity);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/price-per-bed")
+    public ResponseEntity<ApiResponse<AccommodationPricePerBedDto>> updatePricePerBed(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdatePricePerBed updatePricePerBed,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationPricePerBedDto pricePerBed =
+                this.accommodationService
+                        .updateAccommodationPricePerBed(accommodationId, updatePricePerBed, userDetails);
+
+        ApiResponse<AccommodationPricePerBedDto> response = new ApiResponse<>(pricePerBed);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/food-available")
+    public ResponseEntity<ApiResponse<AccommodationAvailableFoodDto>> updateFoodAvailable(
+            @PathVariable("id") Long accommodationId,
+            @RequestBody AccommodationUpdateAvailableFoodDto updateAvailableFood,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationAvailableFoodDto availableFood =
+                this.accommodationService
+                        .updateAccommodationAvailableFood(accommodationId, updateAvailableFood, userDetails);
+
+        ApiResponse<AccommodationAvailableFoodDto> response = new ApiResponse<>(availableFood);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/access")
+    public ResponseEntity<ApiResponse<AccommodationAccessibilityDto>> updateAccessibility(
+            @PathVariable("id") Long accommodationId,
+            @RequestBody AccommodationUpdateAccessibilityDto accessibility,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationAccessibilityDto access =
+                this.accommodationService
+                        .updateAccommodationAccessibility(accommodationId, accessibility, userDetails);
+
+        ApiResponse<AccommodationAccessibilityDto> response = new ApiResponse<>(access);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/type")
+    public ResponseEntity<ApiResponse<AccommodationTypeDto>> updateType(
+            @PathVariable("id") Long accommodationId,
+            @RequestBody AccommodationUpdateTypeDto type,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationTypeDto accommodationType =
+                this.accommodationService
+                        .updateAccommodationType(accommodationId, type, userDetails);
+
+        ApiResponse<AccommodationTypeDto> response = new ApiResponse<>(accommodationType);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/next-to")
+    public ResponseEntity<ApiResponse<AccommodationNextToDto>> updateNextTo(
+            @PathVariable("id") Long accommodationId,
+            @RequestBody AccommodationUpdateNextToDto nextTo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationNextToDto accommodationNextTo =
+                this.accommodationService
+                        .updateAccommodationNextTo(accommodationId, nextTo, userDetails);
+
+        ApiResponse<AccommodationNextToDto> response = new ApiResponse<>(accommodationNextTo);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/main-image")
+    public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody ImageMainUpdateDto imageMainUpdateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean updatedMainImage =
+                this.accommodationService.updateAccommodationMainImage(
+                        accommodationId,
+                        imageMainUpdateDto,
+                        userDetails,
+                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
+                );
+
+        ApiResponse<Boolean> response = new ApiResponse<>(updatedMainImage);
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/like")

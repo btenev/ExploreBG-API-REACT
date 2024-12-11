@@ -415,15 +415,7 @@ public class HikingTrailService {
                 this.hikingTrailQueryBuilder
                         .getHikingTrailWithImagesByIdAndStatusIfOwner(id, statuses, userDetails.getUsername());
 
-        ImageEntity found =
-                currentTrail
-                        .getImages()
-                        .stream()
-                        .filter(i -> i.getId().equals(imageMainUpdateDto.imageId()))
-                        .findFirst()
-                        .orElseThrow(() ->
-                                new AppException("Unable to update main image: The specified image is not part of the user's collection.",
-                                        HttpStatus.BAD_REQUEST));
+        ImageEntity found = ImageUtils.filterMainImage(currentTrail.getImages(), imageMainUpdateDto.imageId());
 
         boolean isUpdated =
                 this.entityUpdateService

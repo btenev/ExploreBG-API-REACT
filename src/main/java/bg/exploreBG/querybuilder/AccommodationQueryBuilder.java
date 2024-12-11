@@ -44,6 +44,14 @@ public class AccommodationQueryBuilder {
         return this.repository.findById(accommodationId).orElseThrow(this::accommodationNotFoundException);
     }
 
+    public AccommodationEntity getAccommodationByIdAndStatusIfOwner(Long accommodationId, String email) {
+        return this.repository.findByIdAndStatusInAndCreatedBy_Email(
+                        accommodationId,
+                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                        email)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusOrNotOwnerException);
+    }
+
     public Page<AccommodationBasicDto> getAllAccommodationsByStatus(StatusEnum statusEnum, Pageable pageable) {
         return this.repository.findAllByStatus(statusEnum, pageable);
     }
@@ -110,5 +118,14 @@ public class AccommodationQueryBuilder {
     private AppException accommodationNotFoundOrInvalidStatusOrNotOwnerException() {
         return new AppException("The accommodation you are looking for was not found, has an invalid status, or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    public AccommodationEntity getAccommodationWithImagesByIdAndStatusIfOwner(
+            Long accommodationId,
+            List<StatusEnum> statuses,
+            String email
+    ) {
+        return this.repository.findWithImagesByIdAndStatusInAndCreatedBy_Email(accommodationId, statuses, email)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusOrNotOwnerException);
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,4 +112,14 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
 
     @EntityGraph(attributePaths = {"likedByUsers"})
     Optional<AccommodationEntity> findWithLikesByIdAndStatus(Long id, StatusEnum statusEnum);
+
+    Optional<AccommodationEntity> findByIdAndStatusInAndCreatedBy_Email(
+            Long accommodationId, List <StatusEnum> detailsStatus, String email);
+
+    @EntityGraph(attributePaths = {"images"})
+    Optional<AccommodationEntity> findWithImagesByIdAndStatusInAndCreatedBy_Email(
+            Long id,
+            List<StatusEnum> status,
+            String createdBy_email);
 }
+

@@ -1,7 +1,9 @@
 package bg.exploreBG.utils;
 
+import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
+import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,5 +22,19 @@ public final class ImageUtils {
         }
 
         return images.stream().filter(image -> status.equals(image.getStatus())).toList();
+    }
+
+    public static ImageEntity filterMainImage(List<ImageEntity> images, Long newMainImageId) {
+        if (images == null) {
+            throw new AppException("Image list cannot be null.", HttpStatus.BAD_REQUEST);
+        }
+
+        return images
+                .stream()
+                .filter(i -> i.getId().equals(newMainImageId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new AppException("Unable to update main image: The specified image is not part of the user's collection.",
+                                HttpStatus.BAD_REQUEST));
     }
 }

@@ -1,7 +1,9 @@
 package bg.exploreBG.model.dto.accommodation.validate;
 
+import bg.exploreBG.deserializer.StrictBooleanDeserializer;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -39,6 +41,7 @@ public record AccommodationCreateDto(
         @Positive(message = "Price per bed must be greater than 0")
         Double pricePerBed,
 
+        @JsonDeserialize(using = StrictBooleanDeserializer.class)
         Boolean foodAvailable,
 
         AccessibilityEnum access,
