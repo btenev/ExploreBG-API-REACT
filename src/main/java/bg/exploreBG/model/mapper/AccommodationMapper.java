@@ -42,6 +42,7 @@ public interface AccommodationMapper {
     @Mapping(target = "maxNumberOfImages", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
+    @Mapping(target = "singleComment", ignore = true)
     AccommodationEntity accommodationCreateDtoToAccommodationEntity(AccommodationCreateDto accommodationCreateDto);
 
     default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(

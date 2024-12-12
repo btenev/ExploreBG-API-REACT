@@ -1,5 +1,6 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.likeable.LikeableEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "accommodations")
-public class AccommodationEntity extends BaseEntity implements OwnableEntity, LikeableEntity {
+public class AccommodationEntity extends BaseEntity implements OwnableEntity, LikeableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -250,6 +251,10 @@ public class AccommodationEntity extends BaseEntity implements OwnableEntity, Li
 
     public void setModificationDate(LocalDateTime modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public void setSingleComment(CommentEntity comment) {
+        this.comments.add(comment);
     }
 
     @Override

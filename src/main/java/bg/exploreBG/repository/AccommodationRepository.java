@@ -121,5 +121,10 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
             Long id,
             List<StatusEnum> status,
             String createdBy_email);
-}
 
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<AccommodationEntity> findWithCommentsByIdAndStatus(Long id, StatusEnum status);
+
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<AccommodationEntity> findWithCommentsById(Long id);
+}

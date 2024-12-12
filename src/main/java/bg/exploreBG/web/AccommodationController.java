@@ -5,6 +5,9 @@ import bg.exploreBG.model.dto.LikeBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
+import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.AccommodationService;
@@ -300,6 +303,37 @@ public class AccommodationController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<ApiResponse<CommentDto>> createAccommodationComment(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody CommentCreateDto commentCreateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        CommentDto comment =
+                this.accommodationService
+                        .addAccommodationComment(accommodationId, commentCreateDto, userDetails, StatusEnum.APPROVED);
+
+        ApiResponse<CommentDto> response = new ApiResponse<>(comment);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{accommodationId}/comments/{commentId}")
+    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteAccommodationComment(
+            @PathVariable Long accommodationId,
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean removed =
+                this.accommodationService.deleteAccommodationComment(accommodationId, commentId, userDetails);
+
+        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
+
+        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/{id}/like")
     public ResponseEntity<ApiResponse<Boolean>> toggleAccommodationLike(
             @PathVariable("id") Long accommodationId,
@@ -316,3 +350,17 @@ public class AccommodationController {
         return ResponseEntity.ok(response);
     }
 }
+/*    @DeleteMapping("/{trailId}/comments/{commentId}")
+    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteTrailComment(
+            @PathVariable Long trailId,
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean removed = this.hikingTrailService.deleteTrailComment(trailId, commentId, userDetails);
+
+        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
+
+        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
+
+        return ResponseEntity.ok(response);
+    }*/

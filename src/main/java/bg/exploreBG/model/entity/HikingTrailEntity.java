@@ -1,5 +1,6 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.likeable.LikeableEntity;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.ownableEntity.OwnableEntity;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "hiking_trails")
-public class HikingTrailEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity, OwnableEntity, LikeableEntity {
+public class HikingTrailEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -96,7 +96,25 @@ public class AccommodationQueryBuilder {
     public AccommodationEntity getAccommodationWithLikesByIdAndStatus(Long accommodationId, StatusEnum status) {
         return this.repository
                 .findWithLikesByIdAndStatus(accommodationId, status)
-                .orElseThrow(this::accommodationNotFoundOrInvalidStatus);
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusException);
+    }
+
+    public AccommodationEntity getAccommodationWithImagesByIdAndStatusIfOwner(
+            Long accommodationId,
+            List<StatusEnum> statuses,
+            String email
+    ) {
+        return this.repository.findWithImagesByIdAndStatusInAndCreatedBy_Email(accommodationId, statuses, email)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusOrNotOwnerException);
+    }
+
+    public AccommodationEntity getAccommodationWithCommentsByIdAndStatus(Long accommodationId, StatusEnum status) {
+        return this.repository.findWithCommentsByIdAndStatus(accommodationId, status)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusException);
+    }
+
+    public AccommodationEntity getAccommodationWithCommentsById(Long accommodationId) {
+        return this.repository.findWithCommentsById(accommodationId).orElseThrow(this::accommodationNotFoundException);
     }
 
     public void removeUserFromAccommodationsByUserEmailIfOwner(Long newOwnerId, String oldOwnerEmail) {
@@ -110,7 +128,7 @@ public class AccommodationQueryBuilder {
         return new AppException("The accommodation you are looking for was not found.", HttpStatus.NOT_FOUND);
     }
 
-    private AppException accommodationNotFoundOrInvalidStatus() {
+    private AppException accommodationNotFoundOrInvalidStatusException() {
         return new AppException("The accommodation you are looking for was not found or has an invalid status.",
                 HttpStatus.BAD_REQUEST);
     }
@@ -118,14 +136,5 @@ public class AccommodationQueryBuilder {
     private AppException accommodationNotFoundOrInvalidStatusOrNotOwnerException() {
         return new AppException("The accommodation you are looking for was not found, has an invalid status, or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
-    }
-
-    public AccommodationEntity getAccommodationWithImagesByIdAndStatusIfOwner(
-            Long accommodationId,
-            List<StatusEnum> statuses,
-            String email
-    ) {
-        return this.repository.findWithImagesByIdAndStatusInAndCreatedBy_Email(accommodationId, statuses, email)
-                .orElseThrow(this::accommodationNotFoundOrInvalidStatusOrNotOwnerException);
     }
 }

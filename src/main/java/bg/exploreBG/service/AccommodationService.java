@@ -7,14 +7,19 @@ import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
+import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
+import bg.exploreBG.querybuilder.CommentQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.ImageUtils;
 import bg.exploreBG.utils.OwnershipUtils;
@@ -43,6 +48,8 @@ public class AccommodationService {
     private final AccommodationQueryBuilder accommodationQueryBuilder;
     private final LikeService likeService;
     private final EntityUpdateService entityUpdateService;
+    private final CommentService commentService;
+    private final GenericPersistenceService<CommentEntity> commentPersistence;
 
     public AccommodationService(
             AccommodationMapper accommodationMapper,
@@ -50,7 +57,9 @@ public class AccommodationService {
             UserQueryBuilder userQueryBuilder,
             AccommodationQueryBuilder accommodationQueryBuilder,
             LikeService likeService,
-            EntityUpdateService entityUpdateService
+            EntityUpdateService entityUpdateService,
+            CommentService commentService,
+            GenericPersistenceService<CommentEntity> commentPersistence
     ) {
         this.mapper = accommodationMapper;
         this.accommodationPersistence = accommodationPersistence;
@@ -58,6 +67,8 @@ public class AccommodationService {
         this.accommodationQueryBuilder = accommodationQueryBuilder;
         this.likeService = likeService;
         this.entityUpdateService = entityUpdateService;
+        this.commentService = commentService;
+        this.commentPersistence = commentPersistence;
     }
 
     public List<AccommodationBasicDto> getRandomNumOfAccommodations(int limit) {
@@ -395,4 +406,38 @@ public class AccommodationService {
 
         return true;
     }
+
+    public CommentDto addAccommodationComment(
+            Long accommodationId,
+            CommentCreateDto commentCreateDto,
+            UserDetails userDetails,
+            StatusEnum status
+    ) {
+        return this.commentService.addComment(
+                accommodationId,
+                status,
+                commentCreateDto,
+                userDetails,
+                this.accommodationQueryBuilder::getAccommodationWithCommentsByIdAndStatus,
+                this.accommodationPersistence::saveEntityWithoutReturn
+        );
+    }
+
+    public boolean deleteAccommodationComment(
+            Long accommodationId,
+            Long commentId,
+            UserDetails userDetails
+    ) {
+        this.commentService
+                .deleteComment(
+                        accommodationId,
+                        commentId,
+                        userDetails,
+                        this.accommodationQueryBuilder::getAccommodationWithCommentsById,
+                        this.accommodationPersistence::saveEntityWithoutReturn,
+                        ignored-> this.commentPersistence.deleteEntityWithoutReturnById(commentId)
+                );
+        return true;
+    }
 }
+

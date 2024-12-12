@@ -1,6 +1,5 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.LikeBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
@@ -19,9 +18,7 @@ import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
-import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
-import bg.exploreBG.querybuilder.CommentQueryBuilder;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
@@ -32,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +44,6 @@ import java.util.stream.Collectors;
 public class HikingTrailService {
     private static final Logger logger = LoggerFactory.getLogger(HikingTrailService.class);
     private final HikingTrailMapper hikingTrailMapper;
-    private final CommentMapper commentMapper;
     private final UserService userService;
     private final CommentService commentService;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
@@ -57,13 +52,11 @@ public class HikingTrailService {
     private final GenericPersistenceService<HikeEntity> hikePersistence;
     private final GenericPersistenceService<CommentEntity> commentPersistence;
     private final UserQueryBuilder userQueryBuilder;
-    private final CommentQueryBuilder commentQueryBuilder;
     private final HikeQueryBuilder hikeQueryBuilder;
     private final LikeService likeService;
 
     public HikingTrailService(
             HikingTrailMapper hikingTrailMapper,
-            CommentMapper commentMapper,
             UserService userService,
             CommentService commentService,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
@@ -72,12 +65,10 @@ public class HikingTrailService {
             GenericPersistenceService<HikeEntity> hikePersistence,
             GenericPersistenceService<CommentEntity> commentPersistence,
             UserQueryBuilder userQueryBuilder,
-            CommentQueryBuilder commentQueryBuilder,
             HikeQueryBuilder hikeQueryBuilder,
             LikeService likeService
     ) {
         this.hikingTrailMapper = hikingTrailMapper;
-        this.commentMapper = commentMapper;
         this.userService = userService;
         this.commentService = commentService;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
@@ -86,7 +77,6 @@ public class HikingTrailService {
         this.hikePersistence = hikePersistence;
         this.commentPersistence = commentPersistence;
         this.userQueryBuilder = userQueryBuilder;
-        this.commentQueryBuilder = commentQueryBuilder;
         this.hikeQueryBuilder = hikeQueryBuilder;
         this.likeService = likeService;
     }
@@ -151,7 +141,7 @@ public class HikingTrailService {
         this.hikeQueryBuilder.removeHikingTrailFromHikesByTrailIdIfTrailOwner(trailId, userDetails.getUsername());
 
         this.trailPersistence.deleteEntityWithoutReturnById(trailId);
-        
+
         return true;
     }
 
@@ -460,17 +450,14 @@ public class HikingTrailService {
             UserDetails userDetails,
             StatusEnum status
     ) {
-        HikingTrailEntity currentTrail =
-                this.hikingTrailQueryBuilder.getHikingTrailWithCommentsByIdAndStatus(trailId, status);
-
-        UserEntity userCommenting = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-
-        CommentEntity savedComment = this.commentService.saveComment(commentDto, userCommenting);
-
-        currentTrail.setSingleComment(savedComment);
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
-
-        return this.commentMapper.commentEntityToCommentDto(savedComment);
+        return this.commentService.addComment(
+            trailId,
+                status,
+                commentDto,
+                userDetails,
+                this.hikingTrailQueryBuilder::getHikingTrailWithCommentsByIdAndStatus,
+                this.trailPersistence::saveEntityWithoutReturn
+        );
     }
 
     /*
@@ -481,26 +468,21 @@ public class HikingTrailService {
     To delete a ChildEntity, you can simply remove it from the collection in the ParentEntity and then save the ParentEntity.
     The removed ChildEntity will be deleted from the database due to the cascading delete operation.
     */
+
     public boolean deleteTrailComment(
             Long trailId,
             Long commentId,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailQueryBuilder.getHikingTrailWithCommentsById(trailId);
-
-        this.commentQueryBuilder.validateCommentOwnership(commentId, userDetails.getUsername());
-
-        boolean commentRemoved = currentTrail.getComments().removeIf(c -> c.getId().equals(commentId));
-
-        if (!commentRemoved) {
-            throw new AppException("Comment with id " + commentId + " was not found in the trail!",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
-        /*TODO: think how to handle exceptions*/
-        this.commentPersistence.deleteEntityWithoutReturnById(commentId);
-
+        this.commentService
+                .deleteComment(
+                        trailId,
+                        commentId,
+                        userDetails,
+                        this.hikingTrailQueryBuilder::getHikingTrailWithCommentsById,
+                        this.trailPersistence::saveEntityWithoutReturn,
+                        ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId)
+                );
         return true;
     }
 
