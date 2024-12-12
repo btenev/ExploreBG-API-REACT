@@ -2,6 +2,7 @@ package bg.exploreBG.repository;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -18,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -114,7 +114,7 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
     Optional<AccommodationEntity> findWithLikesByIdAndStatus(Long id, StatusEnum statusEnum);
 
     Optional<AccommodationEntity> findByIdAndStatusInAndCreatedBy_Email(
-            Long accommodationId, List <StatusEnum> detailsStatus, String email);
+            Long accommodationId, List<StatusEnum> detailsStatus, String email);
 
     @EntityGraph(attributePaths = {"images"})
     Optional<AccommodationEntity> findWithImagesByIdAndStatusInAndCreatedBy_Email(
@@ -127,4 +127,9 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
 
     @EntityGraph(attributePaths = {"comments"})
     Optional<AccommodationEntity> findWithCommentsById(Long id);
+
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy", "reviewedBy"})
+    Page<AccommodationForApprovalProjection> getAccommodationEntityByAccommodationStatus(
+            SuperUserReviewStatusEnum status,
+            Pageable pageable);
 }

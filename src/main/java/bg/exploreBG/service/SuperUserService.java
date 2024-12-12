@@ -4,6 +4,7 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.EntitiesPendingApprovalCountDto;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
@@ -92,7 +93,15 @@ public class SuperUserService {
     public Page<HikingTrailForApprovalProjection> getAllHikingTrailsForApproval(
             Pageable pageable
     ) {
-        return this.hikingTrailQueryBuilder.getAllHikingTrailsByStatus(SuperUserReviewStatusEnum.PENDING, pageable);
+        return this.hikingTrailQueryBuilder.getAllHikingTrailsByTrailStatus(SuperUserReviewStatusEnum.PENDING, pageable);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public Page<AccommodationForApprovalProjection> getAllAccommodationForApproval(
+            Pageable pageable
+    ) {
+        return this.accommodationQueryBuilder
+                .getAllAccommodationsByAccommodationStatus(SuperUserReviewStatusEnum.PENDING, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")

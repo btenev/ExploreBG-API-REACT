@@ -59,7 +59,7 @@ public class HikingTrailQueryBuilder {
         return this.repository.countHikingTrailEntitiesByTrailStatus(statusEnum);
     }
 
-    public Page<HikingTrailForApprovalProjection> getAllHikingTrailsByStatus(
+    public Page<HikingTrailForApprovalProjection> getAllHikingTrailsByTrailStatus(
             SuperUserReviewStatusEnum status,
             Pageable pageable
     ) {
