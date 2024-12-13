@@ -4,7 +4,7 @@ import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.likeable.LikeableEntity;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.ownableEntity.OwnableEntity;
-import bg.exploreBG.reviewable.ReviewableWithImages;
+import bg.exploreBG.reviewable.ReviewableWithGpx;
 import bg.exploreBG.updatable.UpdatableEntity;
 import jakarta.persistence.*;
 
@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "hiking_trails")
-public class HikingTrailEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity {
+public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,8 +86,8 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithImage
     //TODO: discuss with Ivo if one destination entity can belong to more than one hiking trail
     @ManyToMany
     @JoinTable(name = "hiking_trails_destinations",
-               joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),
-               inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
+            joinColumns = @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id")
     )
     private List<DestinationEntity> destinations;
 

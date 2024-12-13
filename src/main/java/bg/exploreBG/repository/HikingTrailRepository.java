@@ -34,11 +34,6 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     @EntityGraph(attributePaths = {"images"})
     Optional<HikingTrailEntity> findWithImagesByIdAndCreatedBy_Email(Long id, String createdBy_email);
 
-    /*review trail superusers*/
-    @EntityGraph(attributePaths = {"images"})
-    Optional<HikingTrailEntity> findWithImagesByIdAndTrailStatus(
-            Long id, SuperUserReviewStatusEnum trailStatus);
-
     Optional<HikingTrailEntity> findByIdAndStatusInAndCreatedByEmail(
             Long id, List<StatusEnum> detailsStatus, String createdBy_email);
 
@@ -268,4 +263,7 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     int removeUserEntityFromHikingTrailByEmail(
             @Param("newOwnerId") Long newOwnerId,
             @Param("oldOwnerEmail") String oldOwnerEmail);
+
+    /*review trail superusers*/
+    Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, SuperUserReviewStatusEnum trailStatus);
 }

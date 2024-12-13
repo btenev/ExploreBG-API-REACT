@@ -6,6 +6,7 @@ import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.ownableEntity.OwnableEntity;
+import bg.exploreBG.reviewable.ReviewableWithImages;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "accommodations")
-public class AccommodationEntity extends BaseEntity implements OwnableEntity, LikeableEntity, CommentableEntity {
+public class AccommodationEntity extends BaseEntity implements ReviewableWithImages, OwnableEntity, LikeableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -132,4 +132,6 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
     Page<AccommodationForApprovalProjection> getAccommodationEntityByAccommodationStatus(
             SuperUserReviewStatusEnum status,
             Pageable pageable);
+
+    Optional<AccommodationEntity> findByIdAndAccommodationStatus(Long id, SuperUserReviewStatusEnum status);
 }

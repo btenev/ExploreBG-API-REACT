@@ -125,6 +125,14 @@ public class AccommodationQueryBuilder {
         return this.repository.getAccommodationEntityByAccommodationStatus(status, pageable);
     }
 
+    public AccommodationEntity getAccommodationByIdAndAccommodationStatus(
+            Long accommodationId,
+            SuperUserReviewStatusEnum supeStatus
+    ) {
+        return this.repository.findByIdAndAccommodationStatus(accommodationId, supeStatus)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusException);
+    }
+
     public void removeUserFromAccommodationsByUserEmailIfOwner(Long newOwnerId, String oldOwnerEmail) {
         int rows = this.repository.removeUserEntityFromAccommodationsByUserEntityEmailIfOwner(newOwnerId, oldOwnerEmail);
         if (rows == 0) {

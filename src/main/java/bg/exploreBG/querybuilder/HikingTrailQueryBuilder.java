@@ -136,11 +136,6 @@ public class HikingTrailQueryBuilder {
                 .orElseThrow(this::trailNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
-    public HikingTrailEntity getHikingTrailWithImagesByIdAndTrailStatus(Long trailId, SuperUserReviewStatusEnum status) {
-        return this.repository.findWithImagesByIdAndTrailStatus(trailId, status)
-                .orElseThrow(this::trailNotFoundOrInvalidStatus);
-    }
-
     public HikingTrailEntity getHikingTrailWithCommentsByIdAndStatus(Long trailId, StatusEnum status) {
         return this.repository.findWithCommentsByIdAndStatus(trailId, status)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
@@ -153,6 +148,11 @@ public class HikingTrailQueryBuilder {
 
     public HikingTrailEntity getHikingTrailByIdAndStatus(Long trailId, StatusEnum status) {
         return this.repository.findByIdAndStatus(trailId, status)
+                .orElseThrow(this::trailNotFoundOrInvalidStatus);
+    }
+
+    public HikingTrailEntity getHikingTrailByIdAndTrailStatus(Long trailId, SuperUserReviewStatusEnum supeStatus) {
+        return this.repository.findByIdAndTrailStatus(trailId, supeStatus)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 

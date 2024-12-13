@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.EntitiesPendingApprovalCountDto;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
+import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
@@ -12,12 +13,10 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
-import bg.exploreBG.model.entity.GpxEntity;
-import bg.exploreBG.model.entity.HikingTrailEntity;
-import bg.exploreBG.model.entity.ImageEntity;
-import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.model.mapper.AccommodationMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.querybuilder.*;
@@ -31,7 +30,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class SuperUserService {
@@ -39,6 +37,7 @@ public class SuperUserService {
     private final ReviewService reviewService;
     private final ImageService imageService;
     private final HikingTrailMapper hikingTrailMapper;
+    private final AccommodationMapper accommodationMapper;
     private final GpxService gpxService;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
     private final GenericPersistenceService<GpxEntity> gpxPersistence;
@@ -53,6 +52,7 @@ public class SuperUserService {
             ReviewService reviewService,
             ImageService imageService,
             HikingTrailMapper hikingTrailMapper,
+            AccommodationMapper accommodationMapper,
             GpxService gpxService,
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
             GenericPersistenceService<GpxEntity> gpxPersistence,
@@ -66,6 +66,7 @@ public class SuperUserService {
         this.reviewService = reviewService;
         this.imageService = imageService;
         this.hikingTrailMapper = hikingTrailMapper;
+        this.accommodationMapper = accommodationMapper;
         this.gpxService = gpxService;
         this.trailPersistence = trailPersistence;
         this.gpxPersistence = gpxPersistence;
@@ -166,22 +167,30 @@ public class SuperUserService {
             SuperUserReviewStatusEnum supeStatus
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdAndTrailStatus(trailId, supeStatus);
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndTrailStatus(trailId, supeStatus);
 
-        StatusEnum status = currentTrail.getStatus();
+        return (HikingTrailReviewDto) this.reviewService
+                .reviewItem(
+                        currentTrail,
+                        this.hikingTrailMapper::hikingTrailEntityToHikingTrailReviewDto,
+                        userDetails);
+    }
 
-        if (isEligibleForReview(status, currentTrail.getReviewedBy(), userDetails)) {
-            return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
-        }
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public AccommodationReviewDto reviewAccommodation(
+            Long accommodationId,
+            ExploreBgUserDetails userDetails,
+            SuperUserReviewStatusEnum supeStatus
+    ) {
+        AccommodationEntity current =
+                this.accommodationQueryBuilder
+                        .getAccommodationByIdAndAccommodationStatus(accommodationId, supeStatus);
 
-        for (ImageEntity image : currentTrail.getImages()) {
-            logger.info("Image reviewer:{}", image.getReviewedBy());
-            if (isEligibleForReview(image.getStatus(), image.getReviewedBy(), userDetails)) {
-                return this.hikingTrailMapper.hikingTrailEntityToHikingTrailReviewDto(currentTrail);
-            }
-        }
-        /*TODO: add gpx file validation*/
-        throw new AppException("Item with invalid status for review!", HttpStatus.BAD_REQUEST);
+        return (AccommodationReviewDto) this.reviewService
+                .reviewItem(
+                        current,
+                        accommodationMapper::accommodationEntityToAccommodationReviewDto,
+                        userDetails);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -282,20 +291,5 @@ public class SuperUserService {
         HikingTrailEntity saved = this.trailPersistence.saveEntityWithReturn(currentTrail);
 
         return saved.getTrailStatus();
-    }
-
-    private boolean isEligibleForReview(
-            StatusEnum status,
-            UserEntity reviewedBy,
-            ExploreBgUserDetails userDetails
-    ) {
-        if (status == StatusEnum.PENDING) {
-            return true;
-        }
-
-        return status == StatusEnum.REVIEW &&
-                Objects.equals(reviewedBy != null
-                                ? reviewedBy.getUsername() : null,
-                        userDetails.getProfileName());
     }
 }

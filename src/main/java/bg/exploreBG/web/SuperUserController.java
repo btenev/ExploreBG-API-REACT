@@ -4,6 +4,7 @@ import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.EntitiesPendingApprovalCountDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
+import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
@@ -176,7 +177,7 @@ public class SuperUserController {
     }
 
     //Add data ???
-    @Transactional
+    @Transactional(readOnly = true)
     @GetMapping("/trails/{id}/review")
     public ResponseEntity<ApiResponse<HikingTrailReviewDto>> reviewTrail(
             @PathVariable("id") Long trailId,
@@ -186,6 +187,21 @@ public class SuperUserController {
                 this.superUserService.reviewTrail(trailId, exploreBgUserDetails, SuperUserReviewStatusEnum.PENDING);
 
         ApiResponse<HikingTrailReviewDto> response = new ApiResponse<>(toReview);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/accommodations/{id}/review")
+    public ResponseEntity<ApiResponse<?>> reviewAccommodation(
+            @PathVariable("id") Long accommodationId,
+            @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
+    ) {
+        AccommodationReviewDto toReview =
+                this.superUserService
+                        .reviewAccommodation(accommodationId, exploreBgUserDetails, SuperUserReviewStatusEnum.PENDING);
+
+        ApiResponse<AccommodationReviewDto> response = new ApiResponse<>(toReview);
 
         return ResponseEntity.ok(response);
     }

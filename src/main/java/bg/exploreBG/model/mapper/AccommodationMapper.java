@@ -2,6 +2,7 @@ package bg.exploreBG.model.mapper;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsWithLikesDto;
+import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
@@ -18,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, CommentMapper.class})
 public interface AccommodationMapper {
+
+    @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(accommodation.getImages(), accommodation))")
+    AccommodationReviewDto accommodationEntityToAccommodationReviewDto(AccommodationEntity accommodation);
 
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(accommodation.getImages(), accommodation))")
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(accommodation.getModificationDate(), accommodation.getCreationDate()))")
