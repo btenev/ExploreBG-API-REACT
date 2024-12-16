@@ -41,6 +41,7 @@ public class SuperUserService {
     private final GpxService gpxService;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
     private final GenericPersistenceService<GpxEntity> gpxPersistence;
+    private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
     private final DestinationQueryBuilder destinationQueryBuilder;
@@ -56,6 +57,7 @@ public class SuperUserService {
             GpxService gpxService,
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
             GenericPersistenceService<GpxEntity> gpxPersistence,
+            GenericPersistenceService<AccommodationEntity> accommodationPersistence,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             UserQueryBuilder userQueryBuilder,
             DestinationQueryBuilder destinationQueryBuilder,
@@ -70,6 +72,7 @@ public class SuperUserService {
         this.gpxService = gpxService;
         this.trailPersistence = trailPersistence;
         this.gpxPersistence = gpxPersistence;
+        this.accommodationPersistence = accommodationPersistence;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.userQueryBuilder = userQueryBuilder;
         this.destinationQueryBuilder = destinationQueryBuilder;
@@ -129,12 +132,31 @@ public class SuperUserService {
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailQueryBuilder.getHikingTrailById(trailId);
-        UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
+        this.reviewService
+                .toggleClaim(
+                        trailId,
+                        reviewBoolean,
+                        userDetails,
+                        this.hikingTrailQueryBuilder::getHikingTrailById,
+                        this.trailPersistence::saveEntityWithoutReturn);
 
-        this.reviewService.toggleEntityClaim(currentTrail, reviewBoolean.review(), reviewer);
+        return true;
+    }
 
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public boolean toggleAccommodationClaim(
+            Long accommodationId,
+            ReviewBooleanDto reviewBoolean,
+            UserDetails userDetails
+    ) {
+        this.reviewService
+                .toggleClaim(
+                        accommodationId,
+                        reviewBoolean,
+                        userDetails,
+                        this.accommodationQueryBuilder::getAccommodationEntityById,
+                        this.accommodationPersistence::saveEntityWithoutReturn);
+
         return true;
     }
 
@@ -152,11 +174,7 @@ public class SuperUserService {
             throw new AppException("Cannot claim a GPX file that doesn't exist!", HttpStatus.BAD_REQUEST);
         }
 
-        UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-
-        this.reviewService.toggleEntityClaim(gpxFile, reviewBoolean.review(), reviewer);
-        this.gpxPersistence.saveEntityWithoutReturn(gpxFile);
-
+        this.reviewService.toggleGpxFileClaim(gpxFile, reviewBoolean, userDetails);
         return true;
     }
 

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Service
@@ -33,6 +34,7 @@ public class ReviewService {
     private final ImageApprovalService imageApprovalService;
     private final EntityClaimService entityClaimService;
     private final GenericPersistenceService<ImageEntity> imagePersistence;
+    private final GenericPersistenceService<GpxEntity> gpxPersistence;
     private final UserQueryBuilder userQueryBuilder;
 
     public ReviewService(
@@ -41,6 +43,7 @@ public class ReviewService {
             ImageApprovalService imageApprovalService,
             EntityClaimService entityClaimService,
             GenericPersistenceService<ImageEntity> imagePersistence,
+            GenericPersistenceService<GpxEntity> gpxPersistence,
             UserQueryBuilder userQueryBuilder
     ) {
         this.entityUpdateService = entityUpdateService;
@@ -48,6 +51,7 @@ public class ReviewService {
         this.imageApprovalService = imageApprovalService;
         this.entityClaimService = entityClaimService;
         this.imagePersistence = imagePersistence;
+        this.gpxPersistence = gpxPersistence;
         this.userQueryBuilder = userQueryBuilder;
     }
 
@@ -82,12 +86,32 @@ public class ReviewService {
         throw new AppException("Item with invalid status for review!", HttpStatus.BAD_REQUEST);
     }
 
-    public <T extends ReviewableEntity> void toggleEntityClaim(
-            T entity,
-            Boolean claimEntity,
-            UserEntity reviewer
+    public <E extends ReviewableEntity> void toggleClaim(
+            Long entityId,
+            ReviewBooleanDto reviewBoolean,
+            UserDetails userDetails,
+            Function<Long, E> entityFetcher,
+            Consumer<E> entitySaver
     ) {
-        this.entityClaimService.toggleEntityClaim(entity, claimEntity, reviewer);
+        E entity = entityFetcher.apply(entityId);
+
+        UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
+
+        this.entityClaimService.toggleEntityClaim(entity, reviewBoolean.review(), reviewer);
+
+        entitySaver.accept(entity);
+    }
+
+    public <E extends ReviewableEntity> void toggleGpxFileClaim(
+            GpxEntity gpxFile,
+            ReviewBooleanDto reviewBoolean,
+            UserDetails userDetails
+    ) {
+        UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
+
+        this.entityClaimService.toggleEntityClaim(gpxFile, reviewBoolean.review(), reviewer);
+
+        this.gpxPersistence.saveEntityWithoutReturn(gpxFile);
     }
 
     public <T extends ReviewableEntity & UpdatableEntity> void validateAndApproveEntity(
