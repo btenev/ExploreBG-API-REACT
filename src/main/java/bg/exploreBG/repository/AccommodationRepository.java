@@ -122,6 +122,9 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
             List<StatusEnum> status,
             String createdBy_email);
 
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
+    Optional<AccommodationEntity> findWithImagesAndImageReviewerById(Long accommodationId);
+
     @EntityGraph(attributePaths = {"comments"})
     Optional<AccommodationEntity> findWithCommentsByIdAndStatus(Long id, StatusEnum status);
 

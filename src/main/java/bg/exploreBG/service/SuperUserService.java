@@ -13,7 +13,10 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
-import bg.exploreBG.model.entity.*;
+import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.entity.GpxEntity;
+import bg.exploreBG.model.entity.HikingTrailEntity;
+import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
@@ -270,9 +273,28 @@ public class SuperUserService {
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailQueryBuilder.getHikingTrailWithImagesById(trailId);
+        this.reviewService.toggleImageClaimAndSave(
+                trailId,
+                this.hikingTrailQueryBuilder::getHikingTrailWithImagesAndImageReviewerById,
+                reviewBoolean,
+                userDetails
+        );
 
-        this.reviewService.toggleImageClaimAndSave(currentTrail, reviewBoolean, userDetails);
+        return true;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public boolean toggleAccommodationImageClaim(
+            Long accommodationId,
+            ReviewBooleanDto reviewBoolean,
+            UserDetails userDetails
+    ) {
+        this.reviewService.toggleImageClaimAndSave(
+                accommodationId,
+                this.accommodationQueryBuilder::getAccommodationWithImagesAndImageReviewerById,
+                reviewBoolean,
+                userDetails
+        );
 
         return true;
     }

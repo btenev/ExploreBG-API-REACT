@@ -129,10 +129,13 @@ public class ReviewService {
     }
 
     public <T extends ReviewableWithImages> void toggleImageClaimAndSave(
-            T entity,
+            Long entityId,
+            Function<Long, T> entityFetcher,
             ReviewBooleanDto reviewBoolean,
             UserDetails userDetails
     ) {
+        T entity = entityFetcher.apply(entityId);
+
         UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         List<ImageEntity> claimed = this.imageClaimService.toggleImageClaim(entity, reviewBoolean.review(), reviewer);

@@ -78,7 +78,7 @@ public class HikingTrailQueryBuilder {
         return this.repository.findWithCommentsById(trailId).orElseThrow(this::trailNotFoundException);
     }
 
-    public HikingTrailEntity getHikingTrailWithImagesById(Long trailId) {
+    public HikingTrailEntity getHikingTrailWithImagesAndImageReviewerById(Long trailId) {
         return this.repository.findWithImagesById(trailId).orElseThrow(this::trailNotFoundException);
     }
 

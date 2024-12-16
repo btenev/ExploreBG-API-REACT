@@ -258,6 +258,20 @@ public class SuperUserController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/accommodations/{id}/images/claim")
+    public ResponseEntity<ApiResponse<Boolean>> toggleAccommodationImagesClaim(
+            @PathVariable("id") Long accommodationId,
+            @RequestBody ReviewBooleanDto reviewBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success =
+                this.superUserService.toggleAccommodationImageClaim(accommodationId, reviewBooleanDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/trails/{id}/images/approve")
     public ResponseEntity<HikingTrailSuperUserReviewStatusDto> approveTrailImagesClaim(
             @PathVariable("id") Long trailId,

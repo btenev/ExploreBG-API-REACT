@@ -6,6 +6,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.AccommodationRepository;
@@ -82,6 +83,11 @@ public class AccommodationQueryBuilder {
 
     public int getAccommodationCountByAccommodationStatus(SuperUserReviewStatusEnum status) {
         return this.repository.countAccommodationEntitiesByAccommodationStatus(status);
+    }
+
+    public AccommodationEntity getAccommodationWithImagesAndImageReviewerById(Long accommodationId) {
+        return this.repository.findWithImagesAndImageReviewerById(accommodationId)
+                .orElseThrow(this::accommodationNotFoundException);
     }
 
     public AccommodationEntity getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(
