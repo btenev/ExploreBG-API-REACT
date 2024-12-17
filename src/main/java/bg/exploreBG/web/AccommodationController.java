@@ -123,11 +123,11 @@ public class AccommodationController {
 
     @PostMapping
     public ResponseEntity<AccommodationIdDto> create(
-            @Valid @RequestBody AccommodationCreateDto accommodationCreateDto,
+            @Valid @RequestBody AccommodationCreateOrReviewDto accommodationCreateOrReviewDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         AccommodationIdDto accommodationIdDto =
-                this.accommodationService.createAccommodation(accommodationCreateDto, userDetails);
+                this.accommodationService.createAccommodation(accommodationCreateOrReviewDto, userDetails);
 
         return ResponseEntity
                 .created(URI.create("/api/accommodations/create/" + accommodationIdDto.id()))

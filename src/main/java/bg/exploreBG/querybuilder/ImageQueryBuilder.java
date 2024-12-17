@@ -19,6 +19,10 @@ public class ImageQueryBuilder {
         return repository.countNonApprovedImagesForTrailId(trailId);
     }
 
+    public long getCountOfApprovedImagesByAccommodationId(Long accommodationId) {
+        return repository.countNonApprovedImageForAccommodationId(accommodationId);
+    }
+
     public Long getReviewerIdByImageId(Long imageId) {
         return repository.findReviewerIdByImageId(imageId);
     }

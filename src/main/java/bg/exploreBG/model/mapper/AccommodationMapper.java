@@ -3,7 +3,7 @@ package bg.exploreBG.model.mapper;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsWithLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
-import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateDto;
+import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.ImageEntity;
@@ -47,7 +47,7 @@ public interface AccommodationMapper {
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
     @Mapping(target = "singleComment", ignore = true)
-    AccommodationEntity accommodationCreateDtoToAccommodationEntity(AccommodationCreateDto accommodationCreateDto);
+    AccommodationEntity accommodationCreateDtoToAccommodationEntity(AccommodationCreateOrReviewDto accommodationCreateOrReviewDto);
 
     default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(
             List<ImageEntity> images,

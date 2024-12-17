@@ -17,9 +17,7 @@ import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
-import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
-import bg.exploreBG.querybuilder.CommentQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.ImageUtils;
 import bg.exploreBG.utils.OwnershipUtils;
@@ -92,13 +90,13 @@ public class AccommodationService {
     }
 
     public AccommodationIdDto createAccommodation(
-            AccommodationCreateDto accommodationCreateDto,
+            AccommodationCreateOrReviewDto accommodationCreateOrReviewDto,
             UserDetails userDetails
     ) {
         UserEntity verifiedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         AccommodationEntity newAccommodation =
-                this.mapper.accommodationCreateDtoToAccommodationEntity(accommodationCreateDto);
+                this.mapper.accommodationCreateDtoToAccommodationEntity(accommodationCreateOrReviewDto);
         newAccommodation.setCreatedBy(verifiedUser);
         newAccommodation.setMaxNumberOfImages(10);
         newAccommodation.setCreationDate(LocalDateTime.now());

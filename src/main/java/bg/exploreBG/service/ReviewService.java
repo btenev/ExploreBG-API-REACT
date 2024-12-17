@@ -114,11 +114,14 @@ public class ReviewService {
         this.gpxPersistence.saveEntityWithoutReturn(gpxFile);
     }
 
-    public <T extends ReviewableEntity & UpdatableEntity> void validateAndApproveEntity(
-            T entity,
+    public <T extends ReviewableEntity & UpdatableEntity> T validateAndApproveEntity(
+            Long trailId,
+            Function<Long, T> entityFetcher,
             UpdatableEntityDto<T> dto,
             ExploreBgUserDetails reviewer
     ) {
+        T entity = entityFetcher.apply(trailId);
+
         validateItemApproval(entity, reviewer);
 
         if (dto != null) {
@@ -126,6 +129,7 @@ public class ReviewService {
         }
 
         entity.setStatus(StatusEnum.APPROVED);
+        return entity;
     }
 
     public <T extends ReviewableWithImages> void toggleImageClaimAndSave(

@@ -1,6 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
+import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
@@ -41,6 +42,40 @@ public class EntityUpdateService {
 
         if (entity instanceof HikingTrailEntity) {
             updateTrailFieldsIfDifferent((HikingTrailEntity) entity, (HikingTrailCreateOrReviewDto) dto);
+        } else if (entity instanceof AccommodationEntity) {
+            updateAccommodationFieldsIfDifferent((AccommodationEntity) entity, (AccommodationCreateOrReviewDto) dto);
+        }
+    }
+
+    private void updateAccommodationFieldsIfDifferent(
+            AccommodationEntity accommodation,
+            AccommodationCreateOrReviewDto dto
+    ) {
+        boolean isUpdated = false;
+
+        isUpdated |= updateFieldIfDifferent(accommodation::getAccommodationName, accommodation::setAccommodationName, dto.accommodationName());
+        logger.info("AccommodationName: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getPhoneNumber, accommodation::setPhoneNumber, dto.phoneNumber());
+        logger.info("PhoneNumber: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getSite, accommodation::setSite, dto.site());
+        logger.info("Site: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getAccommodationInfo, accommodation::setAccommodationInfo, dto.accommodationInfo());
+        logger.info("AccommodationInfo: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getBedCapacity, accommodation::setBedCapacity, dto.bedCapacity());
+        logger.info("BedCapacity: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getPricePerBed, accommodation::setPricePerBed, dto.pricePerBed());
+        logger.info("PricePerBed: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getFoodAvailable, accommodation::setFoodAvailable, dto.foodAvailable());
+        logger.info("FoodAvailable: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getAccess, accommodation::setAccess, dto.access());
+        logger.info("Access: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getAccess, accommodation::setAccess, dto.access());
+        logger.info("Access: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(accommodation::getNextTo, accommodation::setNextTo, dto.nextTo());
+        logger.info("NextTo: {}", isUpdated);
+
+        if (isUpdated) {
+            accommodation.setModificationDate(LocalDateTime.now());
         }
     }
 
@@ -74,7 +109,6 @@ public class EntityUpdateService {
         logger.info("AvailableHuts: {}", isUpdated);
         isUpdated |= updateDestinationList(trail, dto.destinations());
         logger.info("Destinations: {}", isUpdated);
-
 
         if (isUpdated) {
             trail.setModificationDate(LocalDateTime.now());

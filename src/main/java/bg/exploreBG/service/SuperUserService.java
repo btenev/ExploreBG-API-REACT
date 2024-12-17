@@ -6,6 +6,7 @@ import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
+import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
@@ -46,7 +47,6 @@ public class SuperUserService {
     private final GenericPersistenceService<GpxEntity> gpxPersistence;
     private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
-    private final UserQueryBuilder userQueryBuilder;
     private final DestinationQueryBuilder destinationQueryBuilder;
     private final ImageQueryBuilder imageQueryBuilder;
     private final AccommodationQueryBuilder accommodationQueryBuilder;
@@ -62,7 +62,6 @@ public class SuperUserService {
             GenericPersistenceService<GpxEntity> gpxPersistence,
             GenericPersistenceService<AccommodationEntity> accommodationPersistence,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
-            UserQueryBuilder userQueryBuilder,
             DestinationQueryBuilder destinationQueryBuilder,
             ImageQueryBuilder imageQueryBuilder,
             AccommodationQueryBuilder accommodationQueryBuilder,
@@ -77,7 +76,6 @@ public class SuperUserService {
         this.gpxPersistence = gpxPersistence;
         this.accommodationPersistence = accommodationPersistence;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
-        this.userQueryBuilder = userQueryBuilder;
         this.destinationQueryBuilder = destinationQueryBuilder;
         this.imageQueryBuilder = imageQueryBuilder;
         this.accommodationQueryBuilder = accommodationQueryBuilder;
@@ -220,20 +218,39 @@ public class SuperUserService {
             HikingTrailCreateOrReviewDto trailCreateOrReview,
             ExploreBgUserDetails userDetails
     ) {
-        HikingTrailEntity currentTrail = this.hikingTrailQueryBuilder.getHikingTrailById(trailId);
-        this.reviewService.validateAndApproveEntity(currentTrail, trailCreateOrReview, userDetails);
+        HikingTrailEntity currentTrail = this.reviewService.validateAndApproveEntity(
+                trailId,
+                this.hikingTrailQueryBuilder::getHikingTrailById,
+                trailCreateOrReview,
+                userDetails);
 
         HikingTrailImageStatusAndGpxFileStatus statuses =
                 this.hikingTrailQueryBuilder.getHikingTrailImageStatusAndGpxStatusById(trailId);
         logger.info("Hiking trail image and gpx status: {}", statuses);
-        if ((statuses.imageStatus() == null || !statuses.imageStatus().equals("NOT_APPROVED") && StatusEnum.valueOf(statuses.imageStatus()) == StatusEnum.APPROVED)
-                && statuses.gpxFileStatus() == null || statuses.gpxFileStatus() == StatusEnum.APPROVED) {
-            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
-        }
+        updateTrailStatusIfEligible(statuses, currentTrail);
 
-        HikingTrailEntity saved = this.trailPersistence.saveEntityWithReturn(currentTrail);
+        currentTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
 
-        return saved.getTrailStatus();
+        return currentTrail.getTrailStatus();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public SuperUserReviewStatusEnum approveAccommodation(
+            Long accommodationId,
+            AccommodationCreateOrReviewDto accommodationCreateOrReview,
+            ExploreBgUserDetails userDetails
+    ) {
+        AccommodationEntity accommodation = this.reviewService.validateAndApproveEntity(
+                accommodationId,
+                this.accommodationQueryBuilder::getAccommodationEntityById,
+                accommodationCreateOrReview,
+                userDetails);
+
+        updateAccommodationStatusIfEligible(accommodationId, accommodation);
+
+        accommodation = this.accommodationPersistence.saveEntityWithReturn(accommodation);
+
+        return accommodation.getAccommodationStatus();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -258,11 +275,7 @@ public class SuperUserService {
             this.gpxService.deleteGpxFileByTrailEntity(currentTrail);
         }
 
-        if (currentTrail.getStatus() == StatusEnum.APPROVED
-                && this.imageQueryBuilder.getCountOfNonApprovedImagesByTrailId(trailId) == 0) {
-            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
-            currentTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
-        }
+        currentTrail = updateTrailStatusToApprovedIfEligibleAndReturnTrail(trailId, currentTrail);
 
         return currentTrail.getTrailStatus();
     }
@@ -331,5 +344,31 @@ public class SuperUserService {
         HikingTrailEntity saved = this.trailPersistence.saveEntityWithReturn(currentTrail);
 
         return saved.getTrailStatus();
+    }
+
+    private static void updateTrailStatusIfEligible(
+            HikingTrailImageStatusAndGpxFileStatus statuses,
+            HikingTrailEntity currentTrail
+    ) {
+        if ((statuses.imageStatus() == null || !statuses.imageStatus().equals("NOT_APPROVED")
+                && StatusEnum.valueOf(statuses.imageStatus()) == StatusEnum.APPROVED)
+                && statuses.gpxFileStatus() == null || statuses.gpxFileStatus() == StatusEnum.APPROVED) {
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
+        }
+    }
+
+    private void updateAccommodationStatusIfEligible(Long accommodationId, AccommodationEntity accommodation) {
+        if (this.imageQueryBuilder.getCountOfApprovedImagesByAccommodationId(accommodationId) == 0) {
+            accommodation.setAccommodationStatus(SuperUserReviewStatusEnum.APPROVED);
+        }
+    }
+
+    private HikingTrailEntity updateTrailStatusToApprovedIfEligibleAndReturnTrail(Long trailId, HikingTrailEntity currentTrail) {
+        if (currentTrail.getStatus() == StatusEnum.APPROVED
+                && this.imageQueryBuilder.getCountOfNonApprovedImagesByTrailId(trailId) == 0) {
+            currentTrail.setTrailStatus(SuperUserReviewStatusEnum.APPROVED);
+            currentTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
+        }
+        return currentTrail;
     }
 }

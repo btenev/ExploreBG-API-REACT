@@ -29,14 +29,23 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
             SELECT COUNT(i.id)
             FROM ImageEntity i
             WHERE i.status <> 'APPROVED'
-                         AND i.id IN (
-                                      SELECT img.id
-                                      FROM HikingTrailEntity ht
-                                      JOIN ht.images img
-                                      WHERE ht.id = :hikingTrailId )
+              AND i.id IN (SELECT img.id
+                           FROM HikingTrailEntity ht
+                           JOIN ht.images img
+                           WHERE ht.id = :hikingTrailId)
             """)
     long countNonApprovedImagesForTrailId(@Param("hikingTrailId") Long hikingTrailId);
 
+    @Query("""
+            SELECT COUNT(i.id)
+            FROM ImageEntity i
+            WHERE i.status <> 'APPROVED'
+              AND i.id IN (SELECT img.id
+                           FROM AccommodationEntity a
+                           JOIN a.images img
+                           WHERE a.id = :accommodationId)
+            """)
+    long countNonApprovedImageForAccommodationId(@Param("accommodationId") Long accommodationId);
     @Query("""
             SELECT r.id
             FROM ImageEntity i
