@@ -56,14 +56,14 @@ public class HikingTrailQueryBuilder {
     }
 
     public int getTrailCountByStatus(SuperUserReviewStatusEnum statusEnum) {
-        return this.repository.countHikingTrailEntitiesByTrailStatus(statusEnum);
+        return this.repository.countHikingTrailEntitiesByEntityStatus(statusEnum);
     }
 
     public Page<HikingTrailForApprovalProjection> getAllHikingTrailsByTrailStatus(
             SuperUserReviewStatusEnum status,
             Pageable pageable
     ) {
-        return this.repository.getHikingTrailEntitiesByTrailStatus(status, pageable);
+        return this.repository.getHikingTrailEntitiesByEntityStatus(status, pageable);
     }
 
     public Long getReviewerId(Long id) {
@@ -152,7 +152,7 @@ public class HikingTrailQueryBuilder {
     }
 
     public HikingTrailEntity getHikingTrailByIdAndTrailStatus(Long trailId, SuperUserReviewStatusEnum supeStatus) {
-        return this.repository.findByIdAndTrailStatus(trailId, supeStatus)
+        return this.repository.findByIdAndEntityStatus(trailId, supeStatus)
                 .orElseThrow(this::trailNotFoundOrInvalidStatus);
     }
 

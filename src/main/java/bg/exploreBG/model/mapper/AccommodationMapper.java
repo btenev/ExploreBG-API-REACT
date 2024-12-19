@@ -39,7 +39,7 @@ public interface AccommodationMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "accommodationStatus", ignore = true)
+    @Mapping(target = "entityStatus", ignore = true)
     @Mapping(target = "mainImage", ignore = true)
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "likedByUsers", ignore = true)

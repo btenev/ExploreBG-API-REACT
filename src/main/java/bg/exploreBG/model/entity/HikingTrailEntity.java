@@ -81,7 +81,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
 
     @Column(name = "trail_status")
     @Enumerated(EnumType.STRING)
-    private SuperUserReviewStatusEnum trailStatus;
+    private SuperUserReviewStatusEnum entityStatus;
 
     //TODO: discuss with Ivo if one destination entity can belong to more than one hiking trail
     @ManyToMany
@@ -228,12 +228,12 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
         this.nextTo = nextTo;
     }
 
-    public SuperUserReviewStatusEnum getTrailStatus() {
-        return trailStatus;
+    public SuperUserReviewStatusEnum getEntityStatus() {
+        return entityStatus;
     }
 
-    public void setTrailStatus(SuperUserReviewStatusEnum trailStatus) {
-        this.trailStatus = trailStatus;
+    public void setEntityStatus(SuperUserReviewStatusEnum entityStatus) {
+        this.entityStatus = entityStatus;
     }
 
     public List<DestinationEntity> getDestinations() {
@@ -336,7 +336,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
                 ", comments=" + comments +
                 ", elevationGained=" + elevationGained +
                 ", nextTo='" + nextTo + '\'' +
-                ", trailStatus=" + trailStatus +
+                ", entityStatus=" + entityStatus +
                 ", destinations=" + destinations +
                 ", creationDate=" + creationDate +
                 ", modificationDate=" + modificationDate +

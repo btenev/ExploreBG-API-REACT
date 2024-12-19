@@ -115,12 +115,12 @@ public class ReviewService {
     }
 
     public <T extends ReviewableEntity & UpdatableEntity> T validateAndApproveEntity(
-            Long trailId,
+            Long entityId,
             Function<Long, T> entityFetcher,
             UpdatableEntityDto<T> dto,
             ExploreBgUserDetails reviewer
     ) {
-        T entity = entityFetcher.apply(trailId);
+        T entity = entityFetcher.apply(entityId);
 
         validateItemApproval(entity, reviewer);
 
@@ -148,10 +148,13 @@ public class ReviewService {
     }
 
     public <T extends ReviewableWithImages> T saveApprovedImages(
-            T entity,
+            Long entityId,
+            Function<Long, T> entityFetcher,
             ImageApproveDto approveDto,
             UserDetails userDetails
     ) {
+        T entity = entityFetcher.apply(entityId);
+
         UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         List<ImageEntity> approved =

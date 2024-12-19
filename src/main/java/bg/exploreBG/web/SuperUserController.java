@@ -38,6 +38,7 @@ import java.util.List;
 @RequestMapping("/api/super-users")
 public class SuperUserController {
     private static final String TRAIL_FOLDER = "Trails";
+    private static final String ACCOMMODATION_FOLDER = "Accommodations";
     private final UserService userService;
     private final SuperUserService superUserService;
 
@@ -296,6 +297,19 @@ public class SuperUserController {
                 this.superUserService.approveTrailImages(trailId, imageApproveDto, userDetails, TRAIL_FOLDER);
 
         return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(trailStatus));
+    }
+
+    @PatchMapping("/accommodations/{id}/images/approve")
+    public ResponseEntity<EntitySuperUserReviewStatusDto> approveAccommodationImagesClaim(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody ImageApproveDto imageApproveDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        SuperUserReviewStatusEnum accommodationStatus =
+                this.superUserService
+                        .approveAccommodationImages(accommodationId, imageApproveDto, userDetails, ACCOMMODATION_FOLDER);
+
+        return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(accommodationStatus));
     }
 
     @PatchMapping("/trails/{id}/gpx-file/claim")

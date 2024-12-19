@@ -74,19 +74,18 @@ public class ImageController {
 
     @PatchMapping("/entity/{id}")
     public ResponseEntity<ApiResponseCollection<ImageIdUrlIsMainDto>> saveImages(
-            @PathVariable Long id,
+            @PathVariable("id") Long entityId,
             @RequestPart("data") ImageCreateDto imageCreateDto,
             @RequestPart("file") MultipartFile[] files,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        List<ImageIdUrlIsMainDto> urlDto = switch (imageCreateDto.folder().toLowerCase()) {
-            case "trails-demo", "trails" -> this.imageService.saveTrailPictures(
-                    id, imageCreateDto, files, userDetails, List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
-            case "accommodations" -> imageService.saveAccommodationPictures(id, imageCreateDto, files, userDetails,
-                    List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
-            /*case "destination" -> imageService.saveDestinationPictures(id, imageCreateDto, files, userDetails);*/
-            default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
-        };
+        List<ImageIdUrlIsMainDto> urlDto = this.imageService
+                        .saveEntityPictures(
+                                entityId,
+                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                                userDetails,
+                                imageCreateDto,
+                                files);
 
         ApiResponseCollection<ImageIdUrlIsMainDto> response = new ApiResponseCollection<>(urlDto);
 
@@ -101,6 +100,7 @@ public class ImageController {
     ) {
         boolean success = switch (toDeleteDto.folder().toLowerCase()) {
             case "trails" -> this.imageService.deleteTrailPicturesById(id, toDeleteDto, userDetails);
+            case "accommodations" -> this.imageService.deleteAccommodationPicturesById(id, toDeleteDto, userDetails);
             default -> throw new IllegalStateException("Unexpected value: " + toDeleteDto.folder().toLowerCase());
         };
 

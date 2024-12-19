@@ -101,7 +101,7 @@ public class AccommodationService {
         newAccommodation.setMaxNumberOfImages(10);
         newAccommodation.setCreationDate(LocalDateTime.now());
         newAccommodation.setStatus(StatusEnum.PENDING);
-        newAccommodation.setAccommodationStatus(SuperUserReviewStatusEnum.PENDING);
+        newAccommodation.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
 
         logger.info("Create new accommodation {}", newAccommodation);
 
@@ -374,7 +374,7 @@ public class AccommodationService {
     ) {
         if (isUpdated) {
             accommodation.setStatus(StatusEnum.PENDING);
-            accommodation.setAccommodationStatus(SuperUserReviewStatusEnum.PENDING);
+            accommodation.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
             accommodation.setModificationDate(LocalDateTime.now());
             accommodation = this.accommodationPersistence.saveEntityWithReturn(accommodation);
         }

@@ -59,7 +59,7 @@ public class GpxService {
         GpxEntity saved = this.gpxPersistence.saveEntityWithReturn(newGpx);
 
         currentTrail.setGpxFile(saved);
-        currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
+        currentTrail.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
         this.trailPersistence.saveEntityWithoutReturn(currentTrail);
 
         return new GpxUrlDateDto(saved.getGpxUrl(), saved.getCreationDate());

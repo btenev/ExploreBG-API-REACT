@@ -6,7 +6,6 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.entity.AccommodationEntity;
-import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.AccommodationRepository;
@@ -82,12 +81,17 @@ public class AccommodationQueryBuilder {
     }
 
     public int getAccommodationCountByAccommodationStatus(SuperUserReviewStatusEnum status) {
-        return this.repository.countAccommodationEntitiesByAccommodationStatus(status);
+        return this.repository.countAccommodationEntitiesByEntityStatus(status);
     }
 
     public AccommodationEntity getAccommodationWithImagesAndImageReviewerById(Long accommodationId) {
         return this.repository.findWithImagesAndImageReviewerById(accommodationId)
                 .orElseThrow(this::accommodationNotFoundException);
+    }
+
+    public AccommodationEntity getAccommodationWithImagesByIdIfOwner(Long accommodationId, String email) {
+        return this.repository.findByIdAndCreatedBy_Email(accommodationId, email)
+                .orElseThrow(this::accommodationNotFoundOrNotOwnerException);
     }
 
     public AccommodationEntity getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(
@@ -128,14 +132,14 @@ public class AccommodationQueryBuilder {
             SuperUserReviewStatusEnum status,
             Pageable pageable
     ) {
-        return this.repository.getAccommodationEntityByAccommodationStatus(status, pageable);
+        return this.repository.getAccommodationEntityByEntityStatus(status, pageable);
     }
 
     public AccommodationEntity getAccommodationByIdAndAccommodationStatus(
             Long accommodationId,
             SuperUserReviewStatusEnum supeStatus
     ) {
-        return this.repository.findByIdAndAccommodationStatus(accommodationId, supeStatus)
+        return this.repository.findByIdAndEntityStatus(accommodationId, supeStatus)
                 .orElseThrow(this::accommodationNotFoundOrInvalidStatusException);
     }
 
@@ -148,6 +152,11 @@ public class AccommodationQueryBuilder {
 
     private AppException accommodationNotFoundException() {
         return new AppException("The accommodation you are looking for was not found.", HttpStatus.NOT_FOUND);
+    }
+
+    private AppException accommodationNotFoundOrNotOwnerException() {
+        return new AppException("The accommodation you are looking for was not found or does not belong to your account.",
+                HttpStatus.BAD_REQUEST);
     }
 
     private AppException accommodationNotFoundOrInvalidStatusException() {

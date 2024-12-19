@@ -4,6 +4,7 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,5 +37,12 @@ public final class ImageUtils {
                 .orElseThrow(() ->
                         new AppException("Unable to update main image: The specified image is not part of the user's collection.",
                                 HttpStatus.BAD_REQUEST));
+    }
+
+    public static List<Long> filterApprovedImageIds(List<ImageEntity> images, String email) {
+        return images.stream().filter(image -> image.getStatus() == StatusEnum.REVIEW
+                && image.getReviewedBy().getEmail().equals(email))
+                .map(ImageEntity::getId)
+                .toList();
     }
 }

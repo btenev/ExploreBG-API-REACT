@@ -164,13 +164,13 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
 //            WHERE t.trailStatus in ?1
 //            """)
     @EntityGraph(attributePaths = {"images", "images.reviewedBy", "gpxFile", "gpxFile.reviewedBy", "reviewedBy"})
-    Page<HikingTrailForApprovalProjection> getHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum status, Pageable pageable);
+    Page<HikingTrailForApprovalProjection> getHikingTrailEntitiesByEntityStatus(SuperUserReviewStatusEnum status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"images", "images.reviewedBy", "gpxFile"})
     Optional<HikingTrailEntity> findWithImageAndGpxFileById(Long id);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    int countHikingTrailEntitiesByTrailStatus(SuperUserReviewStatusEnum trailStatus);
+    int countHikingTrailEntitiesByEntityStatus(SuperUserReviewStatusEnum trailStatus);
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto(
@@ -265,5 +265,5 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
             @Param("oldOwnerEmail") String oldOwnerEmail);
 
     /*review trail superusers*/
-    Optional<HikingTrailEntity> findByIdAndTrailStatus(Long id, SuperUserReviewStatusEnum trailStatus);
+    Optional<HikingTrailEntity> findByIdAndEntityStatus(Long id, SuperUserReviewStatusEnum trailStatus);
 }

@@ -38,7 +38,7 @@ public interface HikingTrailMapper {
     @Mapping(target = "reviewedBy", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "trailStatus", ignore = true)
+    @Mapping(target = "entityStatus", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
     @Mapping(target = "createdBy", ignore = true)

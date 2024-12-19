@@ -59,7 +59,7 @@ public class AccommodationEntity extends BaseEntity implements ReviewableWithIma
 
     @Column(name = "accommodation_status")
     @Enumerated(EnumType.STRING)
-    private SuperUserReviewStatusEnum accommodationStatus;
+    private SuperUserReviewStatusEnum entityStatus;
 
     @OneToOne
     private ImageEntity mainImage;
@@ -199,12 +199,12 @@ public class AccommodationEntity extends BaseEntity implements ReviewableWithIma
         this.comments = comments;
     }
 
-    public SuperUserReviewStatusEnum getAccommodationStatus() {
-        return accommodationStatus;
+    public SuperUserReviewStatusEnum getEntityStatus() {
+        return entityStatus;
     }
 
-    public void setAccommodationStatus(SuperUserReviewStatusEnum accommodationStatus) {
-        this.accommodationStatus = accommodationStatus;
+    public void setEntityStatus(SuperUserReviewStatusEnum entityStatus) {
+        this.entityStatus = entityStatus;
     }
 
     public List<ImageEntity> getImages() {
@@ -274,7 +274,7 @@ public class AccommodationEntity extends BaseEntity implements ReviewableWithIma
                 ", access=" + access +
                 ", type=" + type +
                 ", nextTo='" + nextTo + '\'' +
-                ", accommodationStatus=" + accommodationStatus +
+                ", entityStatus=" + entityStatus +
                 ", mainImage=" + mainImage +
                 ", images=" + images +
                 ", likedByUsers=" + likedByUsers +

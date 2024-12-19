@@ -11,10 +11,12 @@ import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.ownableEntity.OwnableEntity;
 import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.ImageQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
+import bg.exploreBG.reviewable.ReviewableWithImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,143 +104,148 @@ public class ImageService {
         return this.imageQueryBuilder.getImagerUrlByEmail(userDetails.getUsername());
     }
 
-    public List<ImageIdUrlIsMainDto> saveTrailPictures(
-            Long trailId,
-            ImageCreateDto imageCreateDto,
-            MultipartFile[] files,
+    public <T extends ReviewableWithImages & OwnableEntity> List<ImageIdUrlIsMainDto> saveEntityPictures(
+            Long entityId,
+            List<StatusEnum> statuses,
             UserDetails userDetails,
-            List<StatusEnum> statuses
+            ImageCreateDto imageCreateDto,
+            MultipartFile[] files
     ) {
-        HikingTrailEntity currentTrail =
-                this.hikingTrailQueryBuilder.getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(
-                        trailId,
-                        statuses,
-                        userDetails.getUsername()
-                );
-        UserEntity loggedUser = currentTrail.getCreatedBy();
-        logger.info("Save trail pictures - logged user {}", loggedUser.getUsername());
-        List<ImageEntity> currentTrailImages = currentTrail.getImages();
+        T entity = fetchEntity(entityId, statuses, userDetails.getUsername(), imageCreateDto.folder());
+        UserEntity entityCreator = entity.getCreatedBy();
+        logger.info("Save accommodation pictures - logged user {}", entityCreator.getUsername());
+        List<ImageEntity> entityImages = entity.getImages();
 
-        int usedSlots = currentTrailImages.size();
+        int usedSlots = entityImages.size();
         int neededImageSlots = files.length;
         int totalImages = usedSlots + neededImageSlots;
 
-        validateImageSlots(totalImages, currentTrail.getMaxNumberOfImages());
+        validateImageSlots(totalImages, entity.getMaxNumberOfImages());
 
         String folder = imageCreateDto.folder();
         List<Map<String, String>> uploadResults = validateUploadResult(files, folder);
-        List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, loggedUser);
+        List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, entityCreator);
 
         List<ImageEntity> savedImages = this.imagePersistence.saveEntitiesWithReturn(newImageEntities);
 
-        if (currentTrailImages.isEmpty()) {
-            currentTrail.setMainImage(savedImages.get(0));
+        if (entityImages.isEmpty()) {
+            entity.setMainImage(savedImages.get(0));
         }
 
-        currentTrailImages.addAll(newImageEntities);
-        currentTrail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
+        entityImages.addAll(newImageEntities);
+        entity.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
+        saveEntity(entity, folder);
 
         return savedImages.stream()
                 .map(e -> {
-                    boolean isMain = e.getId().equals(currentTrail.getMainImage().getId());
-                    return new ImageIdUrlIsMainDto(e.getId(), e.getImageUrl(), isMain);
-                })
-                .toList();
-    }
-
-    public List<ImageIdUrlIsMainDto> saveAccommodationPictures(
-            Long accommodationId,
-            ImageCreateDto imageCreateDto,
-            MultipartFile[] files,
-            UserDetails userDetails,
-            List<StatusEnum> statuses
-    ) {
-        AccommodationEntity currentAccommodation = this.accommodationQueryBuilder
-                .getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(
-                        accommodationId,
-                        statuses,
-                        userDetails.getUsername()
-                );
-
-        UserEntity loggedUser = currentAccommodation.getCreatedBy();
-        logger.info("Save accommodation pictures - logged user {}", loggedUser.getUsername());
-        List<ImageEntity> currentAccommodationImages = currentAccommodation.getImages();
-
-        int usedSlots = currentAccommodationImages.size();
-        int neededImageSlots = files.length;
-        int totalImages = usedSlots + neededImageSlots;
-
-        validateImageSlots(totalImages, currentAccommodation.getMaxNumberOfImages());
-
-        String folder = imageCreateDto.folder();
-        List<Map<String, String>> uploadResults = validateUploadResult(files, folder);
-        List<ImageEntity> newImageEntities = createMultipleImageEntities(uploadResults, loggedUser);
-
-        List<ImageEntity> savedImages = this.imagePersistence.saveEntitiesWithReturn(newImageEntities);
-
-        if (currentAccommodationImages.isEmpty()) {
-            currentAccommodation.setMainImage(savedImages.get(0));
-        }
-
-        currentAccommodationImages.addAll(newImageEntities);
-        currentAccommodation.setAccommodationStatus(SuperUserReviewStatusEnum.PENDING);
-        this.accommodationPersistence.saveEntityWithoutReturn(currentAccommodation);
-
-        return savedImages.stream()
-                .map(e -> {
-                    boolean isMain = e.getId().equals(currentAccommodation.getMainImage().getId());
+                    boolean isMain = e.getId().equals(entity.getMainImage().getId());
                     return new ImageIdUrlIsMainDto(e.getId(), e.getImageUrl(), isMain);
                 })
                 .toList();
     }
 
     public boolean deleteTrailPicturesById(
-            Long id,
+            Long trailId,
             EntityIdsToDeleteDto toDeleteDto,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
-                this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdIfOwner(id, userDetails.getUsername());
-
-        deleteImagesFromTrail(currentTrail, toDeleteDto);
+                this.hikingTrailQueryBuilder.getHikingTrailWithImagesByIdIfOwner(trailId, userDetails.getUsername());
+        /*TODO: return of the entity is not needed here, think about alternative solution*/
+        deleteImagesFromEntityWithoutReturn(currentTrail, toDeleteDto, this.trailPersistence::saveEntityWithoutReturn);
 
         return true;
     }
 
-    public HikingTrailEntity deleteTrailPictureByEntity(
-            HikingTrailEntity trailEntity,
-            EntityIdsToDeleteDto toDeleteDto
+    public boolean deleteAccommodationPicturesById(
+            Long accommodationId,
+            EntityIdsToDeleteDto toDeleteDto,
+            UserDetails userDetails
     ) {
-        return deleteImagesFromTrail(trailEntity, toDeleteDto);
+        AccommodationEntity accommodation =
+                this.accommodationQueryBuilder
+                        .getAccommodationWithImagesByIdIfOwner(accommodationId, userDetails.getUsername());
+        /*TODO: return of the entity is not needed here, think about alternative solution*/
+        deleteImagesFromEntityWithoutReturn(accommodation, toDeleteDto, this.accommodationPersistence::saveEntityWithoutReturn);
+
+        return true;
     }
 
-    private HikingTrailEntity deleteImagesFromTrail(
-            HikingTrailEntity currentTrail,
-            EntityIdsToDeleteDto toDeleteDto
+    private <T extends ReviewableWithImages & OwnableEntity> void saveEntity(T entity, String folder) {
+        switch (folder.toLowerCase()) {
+            case "trails" -> this.trailPersistence.saveEntityWithoutReturn((HikingTrailEntity) entity);
+            case "accommodations" -> {
+                this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + folder.toLowerCase());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends ReviewableWithImages & OwnableEntity> T fetchEntity(
+            Long entityId,
+            List<StatusEnum> statuses,
+            String username,
+            String folder
     ) {
-        Set<ImageEntity> imagesToDelete = getImagesToDelete(toDeleteDto, currentTrail);
+        return switch (folder.toLowerCase()) {
+            case "trails" -> (T) this.hikingTrailQueryBuilder
+                    .getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
+            case "accommodations" -> (T) this.accommodationQueryBuilder
+                    .getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
+            default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
+        };
+    }
+
+    public <T extends ReviewableWithImages> T deleteImagesFromEntityWithReturn(
+            T entity,
+            EntityIdsToDeleteDto toDeleteDto,
+            Function<T, T> entitySaverWithReturn
+    ) {
+        return deleteImagesFromEntity(entity, toDeleteDto, null, entitySaverWithReturn, true);
+    }
+
+    public <T extends ReviewableWithImages> void deleteImagesFromEntityWithoutReturn(
+            T entity,
+            EntityIdsToDeleteDto toDeleteDto,
+            Consumer<T> entitySaverWithoutReturn
+    ) {
+        deleteImagesFromEntity(entity, toDeleteDto, entitySaverWithoutReturn, null, false);
+    }
+
+    private <T extends ReviewableWithImages> T deleteImagesFromEntity(
+            T entity,
+            EntityIdsToDeleteDto toDeleteDto,
+            Consumer<T> entitySaverWithoutReturn,
+            Function<T, T> entitySaverWithReturn,
+            boolean withReturn
+    ) {
+        Set<ImageEntity> imagesToDelete = getImagesToDelete(toDeleteDto, entity.getImages());
         logger.info("Images to delete: {}", imagesToDelete);
         validateDeleteResult(imagesToDelete);
 
-        currentTrail.getImages().removeAll(imagesToDelete);
-
+        entity.getImages().removeAll(imagesToDelete);
         logger.info("Images successfully removed from currentTrail.");
 
-        if (imagesToDelete.contains(currentTrail.getMainImage())) {
-            if (!currentTrail.getImages().isEmpty()) {
-                currentTrail.setMainImage(currentTrail.getImages().get(0));
-                logger.info("Main image was deleted. New main image: {}", currentTrail.getMainImage());
+        if (imagesToDelete.contains(entity.getMainImage())) {
+            if (!entity.getImages().isEmpty()) {
+                entity.setMainImage(entity.getImages().get(0));
+                logger.info("Main image was deleted. New main image: {}", entity.getMainImage());
             } else {
-                currentTrail.setMainImage(null);
+                entity.setMainImage(null);
                 logger.info("Main image was deleted and no other images exist. Main image set to null.");
             }
         }
 
-        HikingTrailEntity savedTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
+        if (withReturn) {
+            entity = entitySaverWithReturn.apply(entity);
+        } else {
+            entitySaverWithoutReturn.accept(entity);
+        }
+
         this.imagePersistence.deleteEntitiesWithoutReturn(imagesToDelete);
 
-        return savedTrail;
+        return entity;
     }
 
     private void validateDeleteResult(Set<ImageEntity> imagesToDelete) {
@@ -253,20 +262,17 @@ public class ImageService {
     }
 
     private Set<ImageEntity> getImagesToDelete(
-            EntityIdsToDeleteDto toDeleteDto,
-            HikingTrailEntity currentTrail
+            EntityIdsToDeleteDto toDelete,
+            List<ImageEntity> imageEntities
     ) {
-        List<ImageEntity> currentTrailImages = currentTrail.getImages();
-        Set<Long> currentImageIds =
-                currentTrailImages.stream()
-                        .map(ImageEntity::getId)
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Long> imageEntitiesIds =
+                imageEntities.stream().map(ImageEntity::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 
         Set<Long> validIds = new LinkedHashSet<>();
         List<Long> invalidIds = new ArrayList<>();
 
-        for (Long imageId : toDeleteDto.ids()) {
-            if (currentImageIds.contains(imageId)) {
+        for (Long imageId : toDelete.ids()) {
+            if (imageEntitiesIds.contains(imageId)) {
                 validIds.add(imageId);
             } else {
                 invalidIds.add(imageId);
@@ -274,7 +280,7 @@ public class ImageService {
         }
 
         if (!invalidIds.isEmpty()) {
-            String kind = switch (toDeleteDto.folder()) {
+            String kind = switch (toDelete.folder()) {
                 case "Trails" -> "trail";
                 case "Accommodations" -> "accommodation";
                 case "Destinations" -> "destination";
@@ -285,9 +291,9 @@ public class ImageService {
                     HttpStatus.BAD_REQUEST);
         }
 
-        return currentTrailImages
+        return imageEntities
                 .stream()
-                .filter(i -> validIds.contains(i.getId()))
+                .filter(imageEntity -> validIds.contains(imageEntity.getId()))
                 .collect(Collectors.toSet());
     }
 
@@ -369,6 +375,4 @@ public class ImageService {
 
         return uploadResults;
     }
-
-
 }

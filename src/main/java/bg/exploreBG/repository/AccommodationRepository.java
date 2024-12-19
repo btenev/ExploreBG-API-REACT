@@ -82,7 +82,7 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
             @Param("oldOwnerEmail") String oldOwnerEmail);
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    int countAccommodationEntitiesByAccommodationStatus(SuperUserReviewStatusEnum superUserReviewStatus);
+    int countAccommodationEntitiesByEntityStatus(SuperUserReviewStatusEnum superUserReviewStatus);
 
     /*
     @Query("""
@@ -117,6 +117,9 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
             Long accommodationId, List<StatusEnum> detailsStatus, String email);
 
     @EntityGraph(attributePaths = {"images"})
+    Optional<AccommodationEntity> findByIdAndCreatedBy_Email(Long accommodationId, String email);
+
+    @EntityGraph(attributePaths = {"images"})
     Optional<AccommodationEntity> findWithImagesByIdAndStatusInAndCreatedBy_Email(
             Long id,
             List<StatusEnum> status,
@@ -132,9 +135,9 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
     Optional<AccommodationEntity> findWithCommentsById(Long id);
 
     @EntityGraph(attributePaths = {"images", "images.reviewedBy", "reviewedBy"})
-    Page<AccommodationForApprovalProjection> getAccommodationEntityByAccommodationStatus(
+    Page<AccommodationForApprovalProjection> getAccommodationEntityByEntityStatus(
             SuperUserReviewStatusEnum status,
             Pageable pageable);
 
-    Optional<AccommodationEntity> findByIdAndAccommodationStatus(Long id, SuperUserReviewStatusEnum status);
+    Optional<AccommodationEntity> findByIdAndEntityStatus(Long id, SuperUserReviewStatusEnum status);
 }

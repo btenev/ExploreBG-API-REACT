@@ -187,7 +187,7 @@ public class HikingTrailService {
         }
 
         newHikingTrail.setStatus(status);
-        newHikingTrail.setTrailStatus(trailStatus);
+        newHikingTrail.setEntityStatus(trailStatus);
         newHikingTrail.setMaxNumberOfImages(10);
         newHikingTrail.setCreatedBy(validUser);
         newHikingTrail.setCreationDate(LocalDateTime.now());
@@ -437,7 +437,7 @@ public class HikingTrailService {
     ) {
         if (isUpdated) {
             trail.setStatus(StatusEnum.PENDING);
-            trail.setTrailStatus(SuperUserReviewStatusEnum.PENDING);
+            trail.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
             trail.setModificationDate(LocalDateTime.now());
             trail = this.trailPersistence.saveEntityWithReturn(trail);
         }
