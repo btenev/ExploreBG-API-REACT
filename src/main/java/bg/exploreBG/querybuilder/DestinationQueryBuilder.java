@@ -2,7 +2,8 @@ package bg.exploreBG.querybuilder;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
+import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
+import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -10,12 +11,12 @@ import bg.exploreBG.repository.DestinationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class DestinationQueryBuilder {
@@ -26,23 +27,27 @@ public class DestinationQueryBuilder {
         this.repository = repository;
     }
 
-    public long getDestinationCount() {
-        return this.repository.count();
+    public List<DestinationBasicDto> getRandomNumOfDestinations(Pageable pageable) {
+        return this.repository.findRandomApprovedDestinations(pageable);
     }
 
-    public List<DestinationBasicPlusDto> getDestinationsByIds (Set<Long> destinationIds) {
-        return this.repository.findByIdIn(destinationIds);
+    public List<DestinationBasicLikesDto> getRandomNumOfDestinationsLikes(
+            String email,
+            int limit
+    ) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return this.repository.findRandomApprovedDestinationsWithLikes(email, pageable);
     }
 
-    public DestinationEntity getDestinationById(Long destinationId) {
-        return this.repository.findById(destinationId).orElseThrow(this::destinationNotFound);
+    public DestinationEntity getDestinationEntityById(Long destinationId) {
+        return this.repository.findById(destinationId).orElseThrow(this::destinationNotFoundException);
     }
 
-    public Page<DestinationBasicPlusDto> getAllDestinations(Pageable pageable) {
-        return this.repository.findAllBy(pageable);
+    public Page<DestinationBasicDto> getAllDestinationsByStatus(Pageable pageable) {
+        return this.repository.findAllByStatus(StatusEnum.APPROVED, pageable);
     }
 
-    public List<DestinationBasicDto> selectAllApprovedDestinations() {
+    public List<DestinationIdAndDestinationNameDto> selectAllApprovedDestinations() {
         return this.repository.findByStatus(StatusEnum.APPROVED);
     }
 
@@ -51,17 +56,59 @@ public class DestinationQueryBuilder {
     }
 
     public int getDestinationCountByStatus(SuperUserReviewStatusEnum status) {
-        return this.repository.countDestinationEntitiesByDestinationStatus(status);
+        return this.repository.countDestinationEntitiesByEntityStatus(status);
+    }
+
+
+    public Page<DestinationBasicLikesDto> getAllDestinationsWithLikesByStatus(
+            StatusEnum detailsStatus,
+            StatusEnum imageStatus,
+            String username,
+            Pageable pageable,
+            Boolean sortByLikedUser
+    ) {
+        return this.repository.getDestinationsWithLikes(
+                detailsStatus,
+                imageStatus,
+                username,
+                pageable,
+                sortByLikedUser);
+    }
+
+    public DestinationEntity getDestinationWithLikesByIdAndStatus(Long destinationId, StatusEnum status) {
+        return this.repository
+                .findWithLikesByIdAndStatus(destinationId, status)
+                .orElseThrow(this::destinationNotFoundOrInvalidStatusException);
+    }
+
+    public DestinationEntity getDestinationWithImagesAndImageCreatorByIdAndStatusIfOwner(
+            Long destinationId,
+            List<StatusEnum> statuses,
+            String username
+    ) {
+        return this.repository
+                .findWithImagesAndImageCreatorByIdAndStatusInAndCreatedBy_Email(destinationId, statuses, username)
+                .orElseThrow(this::destinationNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
     public void removeUserFromDestinationsByEmail(Long newOwnerId, String oldOwnerEmail) {
         int row = this.repository.removeUserFromDestinationsByEmail(newOwnerId, oldOwnerEmail);
-        if(row == 0) {
+        if (row == 0) {
             this.logger.warn("No destination updated for owner email: {}", oldOwnerEmail);
         }
     }
 
-    private AppException destinationNotFound() {
-        return new AppException("The accommodation you are looking for was not found.", HttpStatus.NOT_FOUND);
+    private AppException destinationNotFoundException() {
+        return new AppException("The destination you are looking for was not found.", HttpStatus.NOT_FOUND);
+    }
+
+    private AppException destinationNotFoundOrInvalidStatusException() {
+        return new AppException("The destination you are looking for was not found or has an invalid status.",
+                HttpStatus.BAD_REQUEST);
+    }
+
+    private AppException destinationNotFoundOrInvalidStatusOrNotOwnerException() {
+        return new AppException("The destination you are looking for was not found, has an invalid status, or does not belong to your account.",
+                HttpStatus.BAD_REQUEST);
     }
 }

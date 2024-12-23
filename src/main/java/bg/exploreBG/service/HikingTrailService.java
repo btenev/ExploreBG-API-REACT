@@ -5,7 +5,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
-import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.destination.DestinationWrapperDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicLikesDto;
@@ -366,10 +366,10 @@ public class HikingTrailService {
 
         currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
 
-        List<DestinationBasicDto> destinations = currentTrail
+        List<DestinationIdAndDestinationNameDto> destinations = currentTrail
                 .getDestinations()
                 .stream()
-                .map(destination -> new DestinationBasicDto(destination.getId(), destination.getDestinationName()))
+                .map(destination -> new DestinationIdAndDestinationNameDto(destination.getId(), destination.getDestinationName()))
                 .collect(Collectors.toList());
 
         return new DestinationWrapperDto(

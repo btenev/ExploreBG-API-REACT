@@ -5,17 +5,11 @@ import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
 import bg.exploreBG.model.dto.image.validate.ImageCreateDto;
-import bg.exploreBG.model.entity.AccommodationEntity;
-import bg.exploreBG.model.entity.HikingTrailEntity;
-import bg.exploreBG.model.entity.ImageEntity;
-import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.ownableEntity.OwnableEntity;
-import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
-import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
-import bg.exploreBG.querybuilder.ImageQueryBuilder;
-import bg.exploreBG.querybuilder.UserQueryBuilder;
+import bg.exploreBG.querybuilder.*;
 import bg.exploreBG.reviewable.ReviewableWithImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +32,12 @@ public class ImageService {
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
     private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
     private final GenericPersistenceService<UserEntity> userPersistence;
+    private final GenericPersistenceService<DestinationEntity>destinationPersistence;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
     private final ImageQueryBuilder imageQueryBuilder;
     private final AccommodationQueryBuilder accommodationQueryBuilder;
+    private final DestinationQueryBuilder destinationQueryBuilder;
 
     public ImageService(
             CloudinaryService cloudinaryService,
@@ -49,20 +45,24 @@ public class ImageService {
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
             GenericPersistenceService<AccommodationEntity> accommodationPersistence,
             GenericPersistenceService<UserEntity> userPersistence,
+            GenericPersistenceService<DestinationEntity> destinationPersistence,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             UserQueryBuilder userQueryBuilder,
             ImageQueryBuilder imageQueryBuilder,
-            AccommodationQueryBuilder accommodationQueryBuilder
+            AccommodationQueryBuilder accommodationQueryBuilder,
+            DestinationQueryBuilder destinationQueryBuilder
     ) {
         this.cloudinaryService = cloudinaryService;
         this.imagePersistence = imagePersistence;
         this.trailPersistence = trailPersistence;
         this.accommodationPersistence = accommodationPersistence;
         this.userPersistence = userPersistence;
+        this.destinationPersistence = destinationPersistence;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.userQueryBuilder = userQueryBuilder;
         this.imageQueryBuilder = imageQueryBuilder;
         this.accommodationQueryBuilder = accommodationQueryBuilder;
+        this.destinationQueryBuilder = destinationQueryBuilder;
     }
 
     public ImageIdPlusUrlDto saveProfileImage(
@@ -174,9 +174,8 @@ public class ImageService {
     private <T extends ReviewableWithImages & OwnableEntity> void saveEntity(T entity, String folder) {
         switch (folder.toLowerCase()) {
             case "trails" -> this.trailPersistence.saveEntityWithoutReturn((HikingTrailEntity) entity);
-            case "accommodations" -> {
-                this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
-            }
+            case "accommodations" -> this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
+            case "destinations" -> this.destinationPersistence.saveEntityWithoutReturn((DestinationEntity) entity);
             default -> throw new IllegalStateException("Unexpected value: " + folder.toLowerCase());
         }
     }
@@ -193,6 +192,8 @@ public class ImageService {
                     .getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
             case "accommodations" -> (T) this.accommodationQueryBuilder
                     .getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
+            case "destinations" -> (T) this.destinationQueryBuilder
+                    .getDestinationWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
             default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
         };
     }

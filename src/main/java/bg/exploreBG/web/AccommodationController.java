@@ -350,17 +350,3 @@ public class AccommodationController {
         return ResponseEntity.ok(response);
     }
 }
-/*    @DeleteMapping("/{trailId}/comments/{commentId}")
-    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteTrailComment(
-            @PathVariable Long trailId,
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        boolean removed = this.hikingTrailService.deleteTrailComment(trailId, commentId, userDetails);
-
-        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
-
-        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
-
-        return ResponseEntity.ok(response);
-    }*/

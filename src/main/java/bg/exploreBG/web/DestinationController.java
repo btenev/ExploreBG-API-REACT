@@ -1,12 +1,12 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.destination.DestinationBasicDto;
-import bg.exploreBG.model.dto.destination.DestinationBasicPlusDto;
-import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
+import bg.exploreBG.model.dto.ApiResponse;
+import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.DestinationService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -33,45 +35,87 @@ public class DestinationController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<List<DestinationBasicPlusDto>> getRandomDestination() {
-        List<DestinationBasicPlusDto> randomNumOfDestinations =
-                this.destinationService.getRandomNumOfDestinations(4);
+    public ResponseEntity<?> getRandomDestination(
+            Authentication authentication
+    ) {
+        List<?> randomDestinations;
 
-        return ResponseEntity.ok(randomNumOfDestinations);
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails userDetails) {
+                randomDestinations = this.destinationService.getRandomNumOfDestinationsWithLikes(userDetails, 4);
+            } else {
+                return ResponseEntity.badRequest().body("Invalid principal type");
+            }
+        } else {
+            randomDestinations = this.destinationService.getRandomNumOfDestinations(4);
+        }
+
+        ApiResponse<?> response = new ApiResponse<>(randomDestinations);
+
+        return ResponseEntity.ok(response);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @GetMapping("/{id}")
-    public ResponseEntity<DestinationDetailsDto> getDestination(@PathVariable Long id) {
-        DestinationDetailsDto destination = this.destinationService.getDestinationDetailsById(id);
+    public ResponseEntity<?> getDestination(
+            @PathVariable("id") Long destinationId,
+            Authentication authentication
+    ) {
+        ApiResponse<?> response;
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails userDetails) {
+                response = new ApiResponse<>(
+                        this.destinationService.getDestinationAuthenticated(destinationId, userDetails));
+            } else {
+                return ResponseEntity.badRequest().body("Invalid principal type");
+            }
+        } else {
+            response = new ApiResponse<>(this.destinationService.getDestinationDetailsById(destinationId));
+        }
 
-        return ResponseEntity.ok(destination);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<Page<DestinationBasicPlusDto>> getAll(
+    public ResponseEntity<?> getAll(
             @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
+            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir,
+            @RequestParam(value = "sortByLikedUser", required = false) Boolean sortByLikedUser,
+            Authentication authentication
     ) {
         Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
         int currentPage = Math.max(pageNumber - 1, 0);
 
         Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+        Page<?> allDestinations;
 
-        Page<DestinationBasicPlusDto> allDestinations =
-                this.destinationService.getAllDestinations(pageable);
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails userDetails) {
+                allDestinations =
+                        this.destinationService
+                                .getAllApprovedDestinationsWithLikes(userDetails, pageable, sortByLikedUser);
+            } else {
+                return ResponseEntity.badRequest().body("Invalid principal type");
+            }
+        } else {
+            allDestinations = this.destinationService.getAllApprovedDestinations(pageable);
+        }
 
         return ResponseEntity.ok(allDestinations);
     }
 
     @GetMapping("/select")
     public ResponseEntity<?> select() {
-        List<DestinationBasicDto> select = this.destinationService.selectAll();
+        List<DestinationIdAndDestinationNameDto> select = this.destinationService.selectAll();
 
         return ResponseEntity.ok(select);
     }
+
     /*TODO: old: '/create/{id}' new: only base */
     @PostMapping
     public ResponseEntity<DestinationIdDto> create(
@@ -86,5 +130,20 @@ public class DestinationController {
         return ResponseEntity
                 .created(URI.create("/api/destinations/" + destinationId.id()))
                 .body(destinationId);
+    }
+
+    @PatchMapping("/{id}/like")
+    public ResponseEntity<ApiResponse<Boolean>> toggleDestinationLike(
+            @PathVariable("id") Long destinationId,
+            @RequestBody LikeBooleanDto likeBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success =
+                this.destinationService
+                        .likeOrUnlikeDestinationAndSave(destinationId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
     }
 }

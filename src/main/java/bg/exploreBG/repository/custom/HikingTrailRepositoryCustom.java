@@ -5,8 +5,10 @@ import bg.exploreBG.model.enums.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface HikingTrailRepositoryCustom {
-    Page<HikingTrailBasicLikesDto> getTrailsWithLikes(StatusEnum statusEnum, String email, Pageable pageable, Boolean sortByLikedUser);
+    Page<HikingTrailBasicLikesDto> getTrailsWithLikes(
+            StatusEnum statusEnum,
+            String email,
+            Pageable pageable,
+            Boolean sortByLikedUser);
 }

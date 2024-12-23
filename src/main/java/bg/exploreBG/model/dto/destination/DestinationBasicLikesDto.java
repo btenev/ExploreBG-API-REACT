@@ -1,9 +1,10 @@
 package bg.exploreBG.model.dto.destination;
 
-public record DestinationBasicDto(
+public record DestinationBasicLikesDto(
         Long id,
         String destinationName,
         String imageUrl,
-        String nextTo
+        String nextTo,
+        boolean likedByUser
 ) {
 }

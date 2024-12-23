@@ -1,7 +1,7 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
-import bg.exploreBG.model.dto.destination.DestinationBasicDto;
+import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.gpxFile.GpxBasicDto;
 import bg.exploreBG.model.dto.image.ImageBasicDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
@@ -33,7 +33,7 @@ public record HikingTrailReviewDto(
         @JsonProperty(value = "detailsStatus")
         StatusEnum status,
         UserBasicInfo reviewedBy,
-        List<DestinationBasicDto> destinations,
+        List<DestinationIdAndDestinationNameDto> destinations,
         List<ImageBasicDto> images,
         GpxBasicDto gpxFile
 ) {

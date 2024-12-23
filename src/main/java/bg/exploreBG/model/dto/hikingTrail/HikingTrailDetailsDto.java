@@ -1,9 +1,9 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
+import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.gpxFile.GpxUrlDateDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
@@ -41,6 +41,6 @@ public record HikingTrailDetailsDto(
         @JsonSerialize(using = StatusEnumSerializer.class)
         @JsonProperty(value = "detailsStatus")
         StatusEnum status,
-        List<DestinationBasicDto> destinations
+        List<DestinationIdAndDestinationNameDto> destinations
 ) {
 }

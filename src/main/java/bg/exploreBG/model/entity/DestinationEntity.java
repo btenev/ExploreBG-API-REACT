@@ -1,14 +1,19 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.likeable.LikeableEntity;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.ownableEntity.OwnableEntity;
+import bg.exploreBG.reviewable.ReviewableWithImages;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "destinations")
-public class DestinationEntity extends BaseEntity {
+public class DestinationEntity extends BaseEntity implements ReviewableWithImages, OwnableEntity, LikeableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,10 +37,33 @@ public class DestinationEntity extends BaseEntity {
 
     @Column(name = "destination_status")
     @Enumerated(EnumType.STRING)
-    private SuperUserReviewStatusEnum destinationStatus;
+    private SuperUserReviewStatusEnum entityStatus;
 
     @ManyToOne
     private UserEntity createdBy;
+
+    @OneToOne
+    private ImageEntity mainImage;
+
+    @Column(name = "max_number_of_images")
+    private int maxNumberOfImages;
+
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
+    @Column(name = "modification_date")
+    private LocalDateTime modificationDate;
+
+    @ManyToMany
+    private Set<UserEntity> likedByUsers;
+
+    @OneToMany
+    @JoinTable(
+            name = "destinations_images",
+            joinColumns = @JoinColumn(name = "destination_id"),
+            inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    private List<ImageEntity> images;
 
     @OneToMany
     @JoinTable(
@@ -112,12 +140,12 @@ public class DestinationEntity extends BaseEntity {
         this.comments = comments;
     }
 
-    public SuperUserReviewStatusEnum getDestinationStatus() {
-        return destinationStatus;
+    public SuperUserReviewStatusEnum getEntityStatus() {
+        return entityStatus;
     }
 
-    public void setDestinationStatus(SuperUserReviewStatusEnum destinationStatus) {
-        this.destinationStatus = destinationStatus;
+    public void setEntityStatus(SuperUserReviewStatusEnum entityStatus) {
+        this.entityStatus = entityStatus;
     }
 
     public UserEntity getCreatedBy() {
@@ -126,6 +154,54 @@ public class DestinationEntity extends BaseEntity {
 
     public void setCreatedBy(UserEntity createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public ImageEntity getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(ImageEntity mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    public int getMaxNumberOfImages() {
+        return maxNumberOfImages;
+    }
+
+    public void setMaxNumberOfImages(int maxNumberOfImages) {
+        this.maxNumberOfImages = maxNumberOfImages;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
+    public List<ImageEntity> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageEntity> images) {
+        this.images = images;
+    }
+
+    public Set<UserEntity> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(Set<UserEntity> likedByUsers) {
+        this.likedByUsers = likedByUsers;
     }
 
     @Override
@@ -138,7 +214,14 @@ public class DestinationEntity extends BaseEntity {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", nextTo='" + nextTo + '\'' +
                 ", type=" + type +
-                ", destinationStatus=" + destinationStatus +
+                ", entityStatus=" + entityStatus +
+                ", createdBy=" + createdBy +
+                ", mainImage=" + mainImage +
+                ", maxNumberOfImages=" + maxNumberOfImages +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", likedByUsers=" + likedByUsers +
+                ", images=" + images +
                 ", comments=" + comments +
                 '}';
     }
