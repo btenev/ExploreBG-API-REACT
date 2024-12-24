@@ -1,5 +1,6 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.likeable.LikeableEntity;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "destinations")
-public class DestinationEntity extends BaseEntity implements ReviewableWithImages, OwnableEntity, LikeableEntity {
+public class DestinationEntity extends BaseEntity implements ReviewableWithImages, OwnableEntity, LikeableEntity, CommentableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -134,6 +135,11 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
 
     public List<CommentEntity> getComments() {
         return comments;
+    }
+
+    @Override
+    public void setSingleComment(CommentEntity comment) {
+        this.comments.add(comment);
     }
 
     public void setComments(List<CommentEntity> comments) {

@@ -320,8 +320,8 @@ public class AccommodationController {
 
     @DeleteMapping("/{accommodationId}/comments/{commentId}")
     public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteAccommodationComment(
-            @PathVariable Long accommodationId,
-            @PathVariable Long commentId,
+            @PathVariable("accommodationId") Long accommodationId,
+            @PathVariable("commentId") Long commentId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean removed =

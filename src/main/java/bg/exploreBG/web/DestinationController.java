@@ -2,6 +2,9 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
+import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
@@ -143,6 +146,38 @@ public class DestinationController {
                         .likeOrUnlikeDestinationAndSave(destinationId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<ApiResponse<CommentDto>> createDestinationComment(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody CommentCreateDto commentCreateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        CommentDto comment =
+                this.destinationService
+                        .addDestinationComment(destinationId, commentCreateDto, userDetails, StatusEnum.APPROVED);
+
+        ApiResponse<CommentDto> response = new ApiResponse<>(comment);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{destinationId}/comments/{commentId}")
+    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteDestinationComment(
+            @PathVariable("destinationId") Long destinationId,
+            @PathVariable("commentId") Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean removed =
+                this.destinationService
+                        .deleteDestinationComment(destinationId, commentId, userDetails);
+
+        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
+
+        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
 
         return ResponseEntity.ok(response);
     }

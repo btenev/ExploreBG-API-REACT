@@ -1,5 +1,6 @@
 package bg.exploreBG.querybuilder;
 
+import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
@@ -89,6 +90,16 @@ public class DestinationQueryBuilder {
         return this.repository
                 .findWithImagesAndImageCreatorByIdAndStatusInAndCreatedBy_Email(destinationId, statuses, username)
                 .orElseThrow(this::destinationNotFoundOrInvalidStatusOrNotOwnerException);
+    }
+
+    public DestinationEntity getDestinationWithCommentsByIdAndStatus(Long destinationId, StatusEnum status) {
+        return this.repository.findWithCommentsByIdAndStatus(destinationId, status)
+                .orElseThrow(this::destinationNotFoundOrInvalidStatusException);
+    }
+
+    public DestinationEntity getDestinationWithCommentsById(Long destinationId) {
+        return this.repository.findWithCommentsById(destinationId)
+                .orElseThrow(this::destinationNotFoundException);
     }
 
     public void removeUserFromDestinationsByEmail(Long newOwnerId, String oldOwnerEmail) {

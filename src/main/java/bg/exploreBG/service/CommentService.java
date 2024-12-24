@@ -67,8 +67,9 @@ public class CommentService {
             CommentUpdateDto commentDto,
             UserDetails userDetails
     ) {
-        CommentEntity verifiedComment = this.commentQueryBuilder
-                .getCommentEntityByIdIfOwner(commentId, userDetails.getUsername());
+        CommentEntity verifiedComment =
+                this.commentQueryBuilder
+                        .getCommentEntityByIdIfOwner(commentId, userDetails.getUsername());
         CommentEntity updated = updateCommentValues(verifiedComment, commentDto);
 
         CommentEntity saved = this.commentPersistence.saveEntityWithReturn(updated);

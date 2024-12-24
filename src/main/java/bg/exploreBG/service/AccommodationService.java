@@ -417,8 +417,7 @@ public class AccommodationService {
                 commentCreateDto,
                 userDetails,
                 this.accommodationQueryBuilder::getAccommodationWithCommentsByIdAndStatus,
-                this.accommodationPersistence::saveEntityWithoutReturn
-        );
+                this.accommodationPersistence::saveEntityWithoutReturn);
     }
 
     public boolean deleteAccommodationComment(
@@ -433,8 +432,7 @@ public class AccommodationService {
                         userDetails,
                         this.accommodationQueryBuilder::getAccommodationWithCommentsById,
                         this.accommodationPersistence::saveEntityWithoutReturn,
-                        ignored-> this.commentPersistence.deleteEntityWithoutReturnById(commentId)
-                );
+                        ignored-> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
         return true;
     }
 }

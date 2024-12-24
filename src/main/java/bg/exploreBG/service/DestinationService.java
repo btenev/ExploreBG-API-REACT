@@ -1,12 +1,15 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
 import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -34,22 +37,29 @@ import java.util.List;
 public class DestinationService {
     private final DestinationMapper mapper;
     private final GenericPersistenceService<DestinationEntity> destinationPersistence;
+    private final GenericPersistenceService<CommentEntity> commentPersistence;
     private final UserQueryBuilder userQueryBuilder;
     private final DestinationQueryBuilder destinationQueryBuilder;
     private final LikeService likeService;
+    private final CommentService commentService;
     private static final Logger logger = LoggerFactory.getLogger(DestinationService.class);
 
     public DestinationService(
             DestinationMapper destinationMapper,
             GenericPersistenceService<DestinationEntity> destinationPersistence,
-            UserQueryBuilder userQueryBuilder, DestinationQueryBuilder destinationQueryBuilder,
-            LikeService likeService
+            GenericPersistenceService<CommentEntity> commentPersistence,
+            UserQueryBuilder userQueryBuilder,
+            DestinationQueryBuilder destinationQueryBuilder,
+            LikeService likeService,
+            CommentService commentService
     ) {
         this.mapper = destinationMapper;
         this.destinationPersistence = destinationPersistence;
+        this.commentPersistence = commentPersistence;
         this.userQueryBuilder = userQueryBuilder;
         this.destinationQueryBuilder = destinationQueryBuilder;
         this.likeService = likeService;
+        this.commentService = commentService;
     }
 
     public List<DestinationBasicDto> getRandomNumOfDestinations(int limit) {
@@ -139,6 +149,37 @@ public class DestinationService {
         this.likeService.likeOrUnlikeEntity(destination, likeBoolean, userDetails);
         this.destinationPersistence.saveEntityWithoutReturn(destination);
 
+        return true;
+    }
+
+    public CommentDto addDestinationComment(
+            Long destinationId,
+            CommentCreateDto commentCreate,
+            UserDetails userDetails,
+            StatusEnum status
+    ) {
+
+        return this.commentService.addComment(
+                destinationId,
+                status,
+                commentCreate,
+                userDetails,
+                this.destinationQueryBuilder::getDestinationWithCommentsByIdAndStatus,
+                this.destinationPersistence::saveEntityWithoutReturn);
+    }
+
+    public boolean deleteDestinationComment(
+            Long destinationId,
+            Long commentId,
+            UserDetails userDetails
+    ) {
+        this.commentService.deleteComment(
+                destinationId,
+                commentId,
+                userDetails,
+                this.destinationQueryBuilder::getDestinationWithCommentsById,
+                this.destinationPersistence::saveEntityWithoutReturn,
+                ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
         return true;
     }
 }

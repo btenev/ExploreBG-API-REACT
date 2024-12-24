@@ -123,4 +123,10 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
             List<StatusEnum> statuses,
             String username
     );
+
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<DestinationEntity> findWithCommentsByIdAndStatus(Long destinationId, StatusEnum status);
+
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<DestinationEntity> findWithCommentsById(Long destinationId);
 }
