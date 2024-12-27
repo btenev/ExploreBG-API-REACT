@@ -6,8 +6,9 @@ import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
-import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
-import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
+import bg.exploreBG.model.dto.destination.single.*;
+import bg.exploreBG.model.dto.destination.validate.*;
+import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.DestinationService;
 import jakarta.validation.Valid;
@@ -181,4 +182,100 @@ public class DestinationController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}/destination-name")
+    public ResponseEntity<ApiResponse<DestinationNameDto>> updateDestinationName(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody DestinationUpdateDestinationNameDto updateDestinationName,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        DestinationNameDto destinationName =
+                this.destinationService
+                        .updateDestinationName(destinationId, updateDestinationName, userDetails);
+
+        ApiResponse<DestinationNameDto> response = new ApiResponse<>(destinationName);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/{id}/location")
+    public ResponseEntity<ApiResponse<DestinationLocationDto>> updateDestinationLocation(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody DestinationUpdateLocationDto updateLocation,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        DestinationLocationDto location =
+                this.destinationService
+                        .updateLocation(destinationId, updateLocation, userDetails);
+
+        ApiResponse<DestinationLocationDto> response = new ApiResponse<>(location);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/{id}/destination-info")
+    public ResponseEntity<ApiResponse<DestinationInfoDto>> updateInfo(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody DestinationUpdateInfoDto destinationUpdateInfo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        DestinationInfoDto info =
+                this.destinationService
+                        .updateDestinationInfo(destinationId, destinationUpdateInfo, userDetails);
+
+        ApiResponse<DestinationInfoDto> response = new ApiResponse<>(info);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/{id}/next-to")
+    public ResponseEntity<ApiResponse<DestinationNextToDto>> updateNextTo(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody DestinationUpdateNextToDto updateNextTo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        DestinationNextToDto nextTo =
+                this.destinationService
+                        .updateNextTo(destinationId, updateNextTo, userDetails);
+
+        ApiResponse<DestinationNextToDto> response = new ApiResponse<>(nextTo);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/{id}/type")
+    public ResponseEntity<ApiResponse<DestinationTypeDto>> updateType(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody DestinationUpdateTypeDto updateType,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        DestinationTypeDto type =
+                this.destinationService
+                        .updateType(destinationId, updateType, userDetails);
+
+        ApiResponse<DestinationTypeDto> response = new ApiResponse<>(type);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/{id}/main-image")
+    public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody ImageMainUpdateDto imageMainUpdate,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean updateMainImage =
+                this.destinationService
+                        .updateDestinationMainImage(
+                                destinationId,
+                                imageMainUpdate,
+                                userDetails,
+                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
+                        );
+
+        ApiResponse<Boolean> response = new ApiResponse<>(updateMainImage);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

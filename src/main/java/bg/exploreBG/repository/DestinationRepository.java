@@ -129,4 +129,13 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
 
     @EntityGraph(attributePaths = {"comments"})
     Optional<DestinationEntity> findWithCommentsById(Long destinationId);
+
+    Optional<DestinationEntity> findByIdAndStatusInAndCreatedBy_Email(
+            Long destinationId, List<StatusEnum> detailStatus, String email);
+
+    @EntityGraph(attributePaths = {"images"})
+    Optional<DestinationEntity> findWithIMagesByIdAndStatusInAndCreatedBy_Email(
+            Long destinationId,
+            List<StatusEnum> statuses,
+            String email);
 }
