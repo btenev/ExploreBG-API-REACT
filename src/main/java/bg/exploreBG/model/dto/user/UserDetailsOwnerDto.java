@@ -1,6 +1,7 @@
 package bg.exploreBG.model.dto.user;
 
 import bg.exploreBG.model.dto.hike.HikeBasicOwnerDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.serializer.GenderEnumSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -17,6 +18,7 @@ public record UserDetailsOwnerDto(
         LocalDate birthdate,
         String imageUrl,
         String userInfo,
-        List<HikeBasicOwnerDto> createdHikes
+        List<HikeBasicOwnerDto> createdHikes,
+        List<HikingTrailBasicDto> createdTrails
 ) {
 }

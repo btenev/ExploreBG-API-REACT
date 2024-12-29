@@ -57,6 +57,9 @@ public class UserEntity {
     @OneToMany(mappedBy = "owner")
     private List<HikeEntity> createdHikes;
 
+    @OneToMany(mappedBy = "createdBy")
+    private List<HikingTrailEntity> createdTrails;
+
     public UserEntity() {
     }
 
@@ -170,5 +173,13 @@ public class UserEntity {
 
     public void setAccountNonLocked(boolean accountNonLocked) {
         this.accountNonLocked = accountNonLocked;
+    }
+
+    public List<HikingTrailEntity> getCreatedTrails() {
+        return createdTrails;
+    }
+
+    public void setCreatedTrails(List<HikingTrailEntity> createdTrails) {
+        this.createdTrails = createdTrails;
     }
 }

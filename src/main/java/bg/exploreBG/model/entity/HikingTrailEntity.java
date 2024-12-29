@@ -98,7 +98,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
     private LocalDateTime modificationDate;
 
     @ManyToOne
-    @JoinColumn(name = "created_by_id", referencedColumnName = "id")
+    @JoinColumn(name = "created_by_id")
     private UserEntity createdBy;
 
     @OneToOne

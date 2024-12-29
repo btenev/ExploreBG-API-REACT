@@ -1,9 +1,9 @@
 package bg.exploreBG.model.dto.hikingTrail;
 
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
-import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
-import bg.exploreBG.model.dto.gpxFile.GpxUrlDateDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
+import bg.exploreBG.model.dto.gpxFile.GpxUrlDateStatusDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.*;
@@ -35,7 +35,7 @@ public record HikingTrailDetailsLikeDto(
         Integer elevationGained,
         String nextTo,
         UserBasicInfo createdBy,
-        GpxUrlDateDto gpxFile,
+        GpxUrlDateStatusDto gpxFile,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime lastUpdateDate,
         boolean likedByUser,

@@ -39,7 +39,7 @@ public class HikingTrailRepositoryCustomImpl implements HikingTrailRepositoryCus
                 FROM HikingTrailEntity t
                 LEFT JOIN t.mainImage mi
                 LEFT JOIN t.likedByUsers lbu ON lbu.email = :email
-                WHERE t.detailsStatus = :detailsStatus
+                WHERE t.status = :detailsStatus
                 """);
         Sort sort = pageable.getSort();
         // Apply sorting based on sortByLikedUser or other fields
