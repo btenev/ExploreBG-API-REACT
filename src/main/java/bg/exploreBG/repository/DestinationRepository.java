@@ -2,6 +2,7 @@ package bg.exploreBG.repository;
 
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
+import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface DestinationRepository extends JpaRepository<DestinationEntity, Long>, DestinationRepositoryCustom {
@@ -32,7 +32,6 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
                   " FROM DestinationEntity d" +
                   " WHERE d.id IN ?1")
     */
-    List<DestinationBasicDto> findByIdIn(Set<Long> ids);
 
     List<DestinationIdAndDestinationNameDto> findByStatus(StatusEnum destinationStatus);
 
@@ -138,4 +137,9 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
             Long destinationId,
             List<StatusEnum> statuses,
             String email);
+
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy", "reviewedBy"})
+    Page<DestinationForApprovalProjection> getDestinationsEntitiesByEntityStatus(
+            SuperUserReviewStatusEnum status,
+            Pageable pageable);
 }

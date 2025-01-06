@@ -7,6 +7,7 @@ import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
+import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
@@ -17,16 +18,13 @@ import bg.exploreBG.model.dto.user.single.UserIdDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.GpxEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
-import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
 import bg.exploreBG.model.mapper.HikingTrailMapper;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.querybuilder.*;
-import bg.exploreBG.reviewable.ReviewableWithImages;
 import bg.exploreBG.utils.ImageUtils;
-import org.apache.commons.lang3.function.TriFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -37,9 +35,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Service
 public class SuperUserService {
@@ -342,10 +337,13 @@ public class SuperUserService {
                     this.trailPersistence::saveEntityWithReturn);
         }
 
-        if (currentTrail.getGpxFile() == null || currentTrail.getGpxFile().getStatus() == StatusEnum.APPROVED
-                && currentTrail.getStatus() == StatusEnum.APPROVED) {
+        logger.info("There are no not approved images: {}", ImageUtils.countNotApprovedImages(currentTrail.getImages()) == 0);
+        /*Todo: check pending and under review that does not belong to the user images*/
+        if ((currentTrail.getGpxFile() == null || currentTrail.getGpxFile().getStatus() == StatusEnum.APPROVED)
+                && currentTrail.getStatus() == StatusEnum.APPROVED
+                && ImageUtils.countNotApprovedImages(currentTrail.getImages()) == 0) {
             currentTrail.setEntityStatus(SuperUserReviewStatusEnum.APPROVED);
-            currentTrail= this.trailPersistence.saveEntityWithReturn(currentTrail);
+            currentTrail = this.trailPersistence.saveEntityWithReturn(currentTrail);
         }
 
         return currentTrail.getEntityStatus();
@@ -374,7 +372,8 @@ public class SuperUserService {
                     this.accommodationPersistence::saveEntityWithReturn);
         }
 
-        if (accommodation.getStatus() == StatusEnum.APPROVED) {
+        if (accommodation.getStatus() == StatusEnum.APPROVED
+                && ImageUtils.countNotApprovedImages(accommodation.getImages()) == 0) {
             accommodation.setEntityStatus(SuperUserReviewStatusEnum.APPROVED);
             accommodation = this.accommodationPersistence.saveEntityWithReturn(accommodation);
         }
@@ -408,4 +407,9 @@ public class SuperUserService {
         return currentTrail;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public Page<DestinationForApprovalProjection> getAllDestinationForApproval(Pageable pageable) {
+        return this.destinationQueryBuilder
+                .getAllDestinationsByDestinationStatus(SuperUserReviewStatusEnum.PENDING, pageable);
+    }
 }

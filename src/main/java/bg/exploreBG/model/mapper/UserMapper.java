@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "imageUrl", source = "userImage.imageUrl")
-    UserBasicInfo userEntityToUserBasicInfo(UserEntity userEntity);
+    @Mapping(target = "imageUrl", source = "user.userImage.imageUrl")
+    UserBasicInfo userEntityToUserBasicInfo(UserEntity user);
 
-    @Mapping(source = "userImage.imageUrl", target = "imageUrl")
+    @Mapping(source = "user.userImage.imageUrl", target = "imageUrl")
     @Mapping(source = "user.createdHikes", target = "createdHikes", qualifiedByName = "mapToHikeBasicDto")
     UserDetailsDto userEntityToUserDetailsDto(UserEntity user);
 
-    @Mapping(source = "userImage.imageUrl", target = "imageUrl")
+    @Mapping(source = "user.userImage.imageUrl", target = "imageUrl")
     @Mapping(source = "user.createdHikes", target = "createdHikes", qualifiedByName = "mapToHikeBasicOwnerDto")
     @Mapping(source = "user.createdTrails", target = "createdTrails", qualifiedByName = "mapToHikingTrailBasicDto")
     UserDetailsOwnerDto userEntityToUserDetailsOwnerDto(UserEntity user);
@@ -63,7 +63,7 @@ public interface UserMapper {
                         t.getId(),
                         String.format("%s - %s", t.getStartPoint(), t.getEndPoint()),
                         t.getTrailInfo(),
-                        t.getMainImage().getImageUrl()
+                        t.getMainImage() != null ? t.getMainImage().getImageUrl() : null
                 )).collect(Collectors.toList());
     }
 }

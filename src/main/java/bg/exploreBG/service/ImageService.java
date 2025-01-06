@@ -173,9 +173,9 @@ public class ImageService {
 
     private <T extends ReviewableWithImages & OwnableEntity> void saveEntity(T entity, String folder) {
         switch (folder.toLowerCase()) {
-            case "trails" -> this.trailPersistence.saveEntityWithoutReturn((HikingTrailEntity) entity);
-            case "accommodations" -> this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
-            case "destinations" -> this.destinationPersistence.saveEntityWithoutReturn((DestinationEntity) entity);
+            case "trails", "trails-demo" -> this.trailPersistence.saveEntityWithoutReturn((HikingTrailEntity) entity);
+            case "accommodations", "accommodations-demo" -> this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
+            case "destinations", "destinations-demo" -> this.destinationPersistence.saveEntityWithoutReturn((DestinationEntity) entity);
             default -> throw new IllegalStateException("Unexpected value: " + folder.toLowerCase());
         }
     }
@@ -188,11 +188,11 @@ public class ImageService {
             String folder
     ) {
         return switch (folder.toLowerCase()) {
-            case "trails" -> (T) this.hikingTrailQueryBuilder
+            case "trails", "trails-demo" -> (T) this.hikingTrailQueryBuilder
                     .getHikingTrailWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
-            case "accommodations" -> (T) this.accommodationQueryBuilder
+            case "accommodations", "accommodations-demo" -> (T) this.accommodationQueryBuilder
                     .getAccommodationWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
-            case "destinations" -> (T) this.destinationQueryBuilder
+            case "destinations", "destinations-demo" -> (T) this.destinationQueryBuilder
                     .getDestinationWithImagesAndImageCreatorByIdAndStatusIfOwner(entityId, statuses, username);
             default -> throw new AppException("Something went wrong", HttpStatus.BAD_REQUEST);
         };

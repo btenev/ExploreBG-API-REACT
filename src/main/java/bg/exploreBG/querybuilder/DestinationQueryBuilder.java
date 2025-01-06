@@ -3,6 +3,7 @@ package bg.exploreBG.querybuilder;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
+import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -138,5 +139,12 @@ public class DestinationQueryBuilder {
     private AppException destinationNotFoundOrInvalidStatusOrNotOwnerException() {
         return new AppException("The destination you are looking for was not found, has an invalid status, or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    public Page<DestinationForApprovalProjection> getAllDestinationsByDestinationStatus(
+            SuperUserReviewStatusEnum status,
+            Pageable pageable
+    ) {
+        return this.repository.getDestinationsEntitiesByEntityStatus(status, pageable);
     }
 }

@@ -27,9 +27,6 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
     @Column(name = "destination_info", columnDefinition = "TEXT")
     private String destinationInfo;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column(name = "next_to")
     private String nextTo;
 
@@ -107,14 +104,6 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
 
     public void setDestinationInfo(String destinationInfo) {
         this.destinationInfo = destinationInfo;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getNextTo() {
@@ -217,7 +206,6 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
                 ", destinationName='" + destinationName + '\'' +
                 ", location='" + location + '\'' +
                 ", destinationInfo='" + destinationInfo + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
                 ", nextTo='" + nextTo + '\'' +
                 ", type=" + type +
                 ", entityStatus=" + entityStatus +

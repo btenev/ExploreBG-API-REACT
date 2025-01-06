@@ -45,4 +45,10 @@ public final class ImageUtils {
                 .map(ImageEntity::getId)
                 .toList();
     }
+
+    public static long countNotApprovedImages(List<ImageEntity> images) {
+        return images.stream()
+                .filter(i -> i.getStatus() == StatusEnum.PENDING || i.getStatus() == StatusEnum.REVIEW)
+                .count();
+    }
 }

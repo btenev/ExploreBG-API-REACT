@@ -40,6 +40,7 @@ public interface DestinationMapper {
     @Mapping(target = "maxNumberOfImages", ignore = true)
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
+    @Mapping(target = "singleComment", ignore = true)
     DestinationEntity destinationCreateDtoToDestinationEntity(DestinationCreateDto destinationCreateDto);
 
     default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(

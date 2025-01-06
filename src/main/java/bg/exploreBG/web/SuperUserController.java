@@ -6,6 +6,7 @@ import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
+import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
@@ -147,6 +148,24 @@ public class SuperUserController {
 
         Page<AccommodationForApprovalProjection> forApproval =
                 this.superUserService.getAllAccommodationForApproval(pageable);
+
+        return ResponseEntity.ok(forApproval);
+    }
+
+    @GetMapping("/destinations/waiting-approval")
+    public ResponseEntity<Page<DestinationForApprovalProjection>> waitingForApprovalDestinations(
+            @RequestParam(value = "pageNumber", defaultValue = "1", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "ASC", required = false) String sortDir
+    ) {
+        Sort parameters = Sort.by(Sort.Direction.valueOf(sortDir), sortBy);
+        int currentPage = Math.max(pageNumber - 1, 0);
+
+        Pageable pageable = PageRequest.of(currentPage, pageSize, parameters);
+
+        Page<DestinationForApprovalProjection> forApproval =
+                this.superUserService.getAllDestinationForApproval(pageable);
 
         return ResponseEntity.ok(forApproval);
     }
