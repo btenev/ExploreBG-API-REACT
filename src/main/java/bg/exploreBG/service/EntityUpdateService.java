@@ -3,6 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
+import bg.exploreBG.model.dto.destination.validate.DestinationCreateOrReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
@@ -44,6 +45,33 @@ public class EntityUpdateService {
             updateTrailFieldsIfDifferent((HikingTrailEntity) entity, (HikingTrailCreateOrReviewDto) dto);
         } else if (entity instanceof AccommodationEntity) {
             updateAccommodationFieldsIfDifferent((AccommodationEntity) entity, (AccommodationCreateOrReviewDto) dto);
+        } else if (entity instanceof DestinationEntity) {
+            updateDestinationFieldsIfDifferent((DestinationEntity) entity, (DestinationCreateOrReviewDto) dto);
+        }
+    }
+
+
+    private void updateDestinationFieldsIfDifferent(
+            DestinationEntity destination,
+            DestinationCreateOrReviewDto dto
+    ) {
+        boolean isUpdated = false;
+
+        isUpdated |= updateFieldIfDifferent(
+                destination::getDestinationName, destination::setDestinationName, dto.destinationName());
+        logger.info("DestinationName: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(destination::getLocation, destination::setLocation, dto.location());
+        logger.info("Location: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(
+                destination::getDestinationInfo, destination::setDestinationInfo, dto.destinationInfo());
+        logger.info("DestinationInfo: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(destination::getNextTo, destination::setNextTo, dto.nextTo());
+        logger.info("NextTo: {}", isUpdated);
+        isUpdated |= updateFieldIfDifferent(destination::getType, destination::setType, dto.type());
+        logger.info("Type: {}", isUpdated);
+
+        if (isUpdated) {
+            destination.setModificationDate(LocalDateTime.now());
         }
     }
 

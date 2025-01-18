@@ -9,6 +9,7 @@ import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.DestinationRepository;
+import bg.exploreBG.reviewable.ReviewableWithImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -120,6 +121,26 @@ public class DestinationQueryBuilder {
                 .orElseThrow(this::destinationNotFoundOrInvalidStatusOrNotOwnerException);
     }
 
+    public Page<DestinationForApprovalProjection> getAllDestinationsByDestinationStatus(
+            SuperUserReviewStatusEnum status,
+            Pageable pageable
+    ) {
+        return this.repository.getDestinationsEntitiesByEntityStatus(status, pageable);
+    }
+
+    public DestinationEntity getDestinationByIdAndDestinationStatus(
+            Long destinationId,
+            SuperUserReviewStatusEnum supeStatus
+    ) {
+        return this.repository.findByIdAndEntityStatus(destinationId, supeStatus)
+                .orElseThrow(this::destinationNotFoundOrInvalidStatusException);
+    }
+
+    public DestinationEntity getDestinationWithImagesAndImageReviewerById(Long destinationId) {
+        return this.repository.findWithImagesAndImageReviewerById(destinationId)
+                .orElseThrow(this::destinationNotFoundException);
+    }
+
     public void removeUserFromDestinationsByEmail(Long newOwnerId, String oldOwnerEmail) {
         int row = this.repository.removeUserFromDestinationsByEmail(newOwnerId, oldOwnerEmail);
         if (row == 0) {
@@ -139,12 +160,5 @@ public class DestinationQueryBuilder {
     private AppException destinationNotFoundOrInvalidStatusOrNotOwnerException() {
         return new AppException("The destination you are looking for was not found, has an invalid status, or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
-    }
-
-    public Page<DestinationForApprovalProjection> getAllDestinationsByDestinationStatus(
-            SuperUserReviewStatusEnum status,
-            Pageable pageable
-    ) {
-        return this.repository.getDestinationsEntitiesByEntityStatus(status, pageable);
     }
 }

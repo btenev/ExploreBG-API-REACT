@@ -19,7 +19,6 @@ public record DestinationDetailsDto(
         String destinationName,
         String location,
         String destinationInfo,
-        String imageUrl,
         String nextTo,
         UserBasicInfo createdBy,
         @JsonSerialize(using = DestinationTypeEnumSerializer.class)

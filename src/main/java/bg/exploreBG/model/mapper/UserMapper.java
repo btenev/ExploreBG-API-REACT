@@ -31,7 +31,8 @@ public interface UserMapper {
     @Mapping(source = "user.createdTrails", target = "createdTrails", qualifiedByName = "mapToHikingTrailBasicDto")
     UserDetailsOwnerDto userEntityToUserDetailsOwnerDto(UserEntity user);
 
-    UserDataDto userEntityToUserDataDto(UserEntity userEntity);
+    @Mapping(source = "user.userImage.imageUrl", target = "imageUrl")
+    UserDataDto userEntityToUserDataDto(UserEntity user);
 
     @Named("mapToHikeBasicDto")
     default List<HikeBasicDto> mapToHikeBasicDto(List<HikeEntity> createdHikes) {

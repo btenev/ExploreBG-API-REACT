@@ -7,6 +7,8 @@ import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationReviewDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
 import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
+import bg.exploreBG.model.dto.destination.DestinationReviewDto;
+import bg.exploreBG.model.dto.destination.validate.DestinationCreateOrReviewDto;
 import bg.exploreBG.model.dto.gpxFile.validate.GpxApproveDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailForApprovalProjection;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
@@ -40,6 +42,7 @@ import java.util.List;
 public class SuperUserController {
     private static final String TRAIL_FOLDER = "Trails";
     private static final String ACCOMMODATION_FOLDER = "Accommodations";
+    private static final String DESTINATION_FOLDER = "Destinations";
     private final UserService userService;
     private final SuperUserService superUserService;
 
@@ -214,7 +217,7 @@ public class SuperUserController {
 
     @Transactional(readOnly = true)
     @GetMapping("/accommodations/{id}/review")
-    public ResponseEntity<ApiResponse<?>> reviewAccommodation(
+    public ResponseEntity<ApiResponse<AccommodationReviewDto>> reviewAccommodation(
             @PathVariable("id") Long accommodationId,
             @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
     ) {
@@ -223,6 +226,21 @@ public class SuperUserController {
                         .reviewAccommodation(accommodationId, exploreBgUserDetails, SuperUserReviewStatusEnum.PENDING);
 
         ApiResponse<AccommodationReviewDto> response = new ApiResponse<>(toReview);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/destinations/{id}/review")
+    public ResponseEntity<ApiResponse<DestinationReviewDto>> reviewDestination(
+            @PathVariable("id") Long destinationId,
+            @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
+    ) {
+        DestinationReviewDto toReview =
+                this.superUserService
+                        .reviewDestination(destinationId, exploreBgUserDetails, SuperUserReviewStatusEnum.PENDING);
+
+        ApiResponse<DestinationReviewDto> response = new ApiResponse<>(toReview);
 
         return ResponseEntity.ok(response);
     }
@@ -246,7 +264,21 @@ public class SuperUserController {
             @RequestBody ReviewBooleanDto reviewBooleanDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.superUserService.toggleAccommodationClaim(accommodationId, reviewBooleanDto, userDetails);
+        boolean success =
+                this.superUserService.toggleAccommodationClaim(accommodationId, reviewBooleanDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/destinations/{id}/claim")
+    public ResponseEntity<ApiResponse<Boolean>> toggleDestinationClaim(
+            @PathVariable("id") Long destinationId,
+            @RequestBody ReviewBooleanDto reviewBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success = this.superUserService.toggleDestinationClaim(destinationId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 
@@ -279,6 +311,19 @@ public class SuperUserController {
         return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(accommodationStatus));
     }
 
+    @PatchMapping("/destinations/{id}/approve")
+    public ResponseEntity<EntitySuperUserReviewStatusDto> approveDestination(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody DestinationCreateOrReviewDto destinationCreateOrReviewDto,
+            @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
+    ) {
+      SuperUserReviewStatusEnum destinationStatus =
+              this.superUserService
+                      .approveDestination(destinationId, destinationCreateOrReviewDto, exploreBgUserDetails);
+
+      return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(destinationStatus));
+    }
+
     @PatchMapping("/trails/{id}/images/claim")
     public ResponseEntity<ApiResponse<Boolean>> toggleTrailImagesClaim(
             @PathVariable("id") Long trailId,
@@ -300,6 +345,20 @@ public class SuperUserController {
     ) {
         boolean success =
                 this.superUserService.toggleAccommodationImageClaim(accommodationId, reviewBooleanDto, userDetails);
+
+        ApiResponse<Boolean> response = new ApiResponse<>(success);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/destinations/{id}/images/claim")
+    public ResponseEntity<ApiResponse<Boolean>> toggleDestinationImagesClaim(
+            @PathVariable("id") Long destinationId,
+            @RequestBody ReviewBooleanDto reviewBooleanDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boolean success =
+                this.superUserService.toggleDestinationImageClaim(destinationId, reviewBooleanDto, userDetails);
 
         ApiResponse<Boolean> response = new ApiResponse<>(success);
 
@@ -329,6 +388,19 @@ public class SuperUserController {
                         .approveAccommodationImages(accommodationId, imageApproveDto, userDetails, ACCOMMODATION_FOLDER);
 
         return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(accommodationStatus));
+    }
+
+    @PatchMapping("/destinations/{id}/images/approve")
+    public ResponseEntity<EntitySuperUserReviewStatusDto> approveDestinationImagesClaim(
+            @PathVariable("id") Long destinationId,
+            @Valid @RequestBody ImageApproveDto imageApproveDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        SuperUserReviewStatusEnum destinationStatus =
+                this.superUserService
+                        .approveDestinationImages(destinationId, imageApproveDto, userDetails, DESTINATION_FOLDER);
+
+        return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(destinationStatus));
     }
 
     @PatchMapping("/trails/{id}/gpx-file/claim")

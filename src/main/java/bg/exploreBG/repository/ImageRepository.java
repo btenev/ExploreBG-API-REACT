@@ -19,12 +19,6 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
             """)
     Optional<String> findImageUrlByOwnerEmail(@Param("email") String owner_email);
 
-   /* @Query("""
-            SELECT COUNT(i.id)
-            FROM ImageEntity i
-            JOIN HikingTrailEntity ht
-            WHERE i MEMBER of ht.images AND ht.id = :hikingTrailId AND i.status <> 'APPROVED'
-            """)*/
     @Query("""
             SELECT COUNT(i.id)
             FROM ImageEntity i
@@ -46,6 +40,18 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
                            WHERE a.id = :accommodationId)
             """)
     long countNonApprovedImageForAccommodationId(@Param("accommodationId") Long accommodationId);
+
+    @Query("""
+            SELECT COUNT(i.id)
+            FROM ImageEntity i
+            WHERE i.status <> 'APPROVED'
+              AND i.id IN (SELECT img.id
+                           FROM DestinationEntity d
+                           JOIN d.images img
+                           WHERE d.id = :destinationId)
+            """)
+    long countNonApprovedImagesForDestinationsId(@Param("destinationId") Long destinationsId);
+
     @Query("""
             SELECT r.id
             FROM ImageEntity i

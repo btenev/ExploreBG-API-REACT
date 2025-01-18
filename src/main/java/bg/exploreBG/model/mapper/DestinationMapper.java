@@ -2,7 +2,8 @@ package bg.exploreBG.model.mapper;
 
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsLikeDto;
-import bg.exploreBG.model.dto.destination.validate.DestinationCreateDto;
+import bg.exploreBG.model.dto.destination.DestinationReviewDto;
+import bg.exploreBG.model.dto.destination.validate.DestinationCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.ImageEntity;
@@ -28,6 +29,9 @@ public interface DestinationMapper {
     @Mapping(target = "likedByUser", expression = "java(destinationIsLikedByUser(destination.getLikedByUsers(), user))")
     DestinationDetailsLikeDto destinationEntityToDestinationDetailsLikeDto(DestinationEntity destination, UserEntity user);
 
+    @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(destination.getImages(), destination))")
+    DestinationReviewDto destinationEntityToDestinationReviewDto(DestinationEntity destination);
+
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "reviewedBy", ignore = true)
     @Mapping(target = "id", ignore = true)
@@ -41,7 +45,7 @@ public interface DestinationMapper {
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
     @Mapping(target = "singleComment", ignore = true)
-    DestinationEntity destinationCreateDtoToDestinationEntity(DestinationCreateDto destinationCreateDto);
+    DestinationEntity destinationCreateDtoToDestinationEntity(DestinationCreateOrReviewDto destinationCreateOrReviewDto);
 
     default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(
             List<ImageEntity> images,

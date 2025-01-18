@@ -49,7 +49,6 @@ public class HikingTrailService {
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final EntityUpdateService entityUpdateService;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
-    private final GenericPersistenceService<HikeEntity> hikePersistence;
     private final GenericPersistenceService<CommentEntity> commentPersistence;
     private final UserQueryBuilder userQueryBuilder;
     private final HikeQueryBuilder hikeQueryBuilder;
@@ -62,7 +61,6 @@ public class HikingTrailService {
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             EntityUpdateService entityUpdateService,
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
-            GenericPersistenceService<HikeEntity> hikePersistence,
             GenericPersistenceService<CommentEntity> commentPersistence,
             UserQueryBuilder userQueryBuilder,
             HikeQueryBuilder hikeQueryBuilder,
@@ -74,7 +72,6 @@ public class HikingTrailService {
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.entityUpdateService = entityUpdateService;
         this.trailPersistence = trailPersistence;
-        this.hikePersistence = hikePersistence;
         this.commentPersistence = commentPersistence;
         this.userQueryBuilder = userQueryBuilder;
         this.hikeQueryBuilder = hikeQueryBuilder;
@@ -203,7 +200,9 @@ public class HikingTrailService {
                     this.entityUpdateService.mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
-        return this.trailPersistence.saveEntityWithReturn(newHikingTrail).getId();
+        newHikingTrail = this.trailPersistence.saveEntityWithReturn(newHikingTrail);
+        logger.info("Hiking trail with id {} is created", newHikingTrail.getId());
+        return newHikingTrail.getId();
     }
 
     public HikingTrailStartPointDto updateHikingTrailStartPoint(

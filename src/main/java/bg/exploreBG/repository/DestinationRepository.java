@@ -142,4 +142,9 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
     Page<DestinationForApprovalProjection> getDestinationsEntitiesByEntityStatus(
             SuperUserReviewStatusEnum status,
             Pageable pageable);
+
+    Optional<DestinationEntity> findByIdAndEntityStatus(Long destinationId, SuperUserReviewStatusEnum supeStatus);
+
+    @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
+    Optional<DestinationEntity> findWithImagesAndImageReviewerById(Long destinationId);
 }

@@ -42,7 +42,12 @@ public class HikeQueryBuilder {
     public void removeHikingTrailFromHikesByTrailIdIfTrailOwner(Long trailId, String email) {
         int rows = this.repository.removeHikingTrailFromHikesByHikingTrailIdIfTrailOwner(trailId, email);
         if (rows == 0) {
-            this.logger.warn("No hiking trails updated for user email: {}", email);
+            this.logger.info(
+                    "Query executed successfully, but no hikes were updated. This likely means the trail (ID: {}) is not associated with any hikes or the user (email: {}) is not the owner.",
+                    trailId, email
+            );
+        } else {
+            this.logger.info("Successfully removed trail (ID: {}) from {} hike(s) for user (email: {}).", trailId, rows, email);
         }
     }
 

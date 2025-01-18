@@ -17,5 +17,6 @@ public interface ReviewableWithImages extends ReviewableEntity {
     int getMaxNumberOfImages();
 
     SuperUserReviewStatusEnum getEntityStatus();
+
     void setEntityStatus(SuperUserReviewStatusEnum status);
 }

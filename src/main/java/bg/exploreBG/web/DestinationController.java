@@ -123,13 +123,13 @@ public class DestinationController {
     /*TODO: old: '/create/{id}' new: only base */
     @PostMapping
     public ResponseEntity<DestinationIdDto> create(
-            @Valid @RequestBody DestinationCreateDto destinationCreateDto,
+            @Valid @RequestBody DestinationCreateOrReviewDto destinationCreateOrReviewDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        logger.debug("{}", destinationCreateDto);
+        logger.debug("{}", destinationCreateOrReviewDto);
 
         DestinationIdDto destinationId =
-                this.destinationService.createDestination(destinationCreateDto, userDetails);
+                this.destinationService.createDestination(destinationCreateOrReviewDto, userDetails);
 
         return ResponseEntity
                 .created(URI.create("/api/destinations/" + destinationId.id()))

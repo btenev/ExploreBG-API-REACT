@@ -23,9 +23,11 @@ public class ImageQueryBuilder {
         return repository.countNonApprovedImageForAccommodationId(accommodationId);
     }
 
+    public long getCountOfApprovedImagesByDestinationId(Long destinationId) {
+        return repository.countNonApprovedImagesForDestinationsId(destinationId);
+    }
+
     public Long getReviewerIdByImageId(Long imageId) {
         return repository.findReviewerIdByImageId(imageId);
     }
 }
-
-/*long countNonApprovedImagesForTrailId(@Param("hikingTrailId") Long hikingTrailId);*/

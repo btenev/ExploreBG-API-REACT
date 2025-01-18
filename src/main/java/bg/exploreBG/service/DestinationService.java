@@ -111,13 +111,13 @@ public class DestinationService {
     }
 
     public DestinationIdDto createDestination(
-            DestinationCreateDto destinationCreateDto,
+            DestinationCreateOrReviewDto destinationCreateOrReviewDto,
             UserDetails userDetails
     ) {
         UserEntity validUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         DestinationEntity newDestination =
-                this.mapper.destinationCreateDtoToDestinationEntity(destinationCreateDto);
+                this.mapper.destinationCreateDtoToDestinationEntity(destinationCreateOrReviewDto);
         newDestination.setStatus(StatusEnum.PENDING);
         newDestination.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
         newDestination.setCreationDate(LocalDateTime.now());
