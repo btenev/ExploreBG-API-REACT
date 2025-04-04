@@ -24,3 +24,6 @@ aws:
  secretKey: ${PROD_AWS_SECRET_KEY}
  region: ${PROD_AWS_REGION}
 
+app:
+  cookie:
+    secure: true
