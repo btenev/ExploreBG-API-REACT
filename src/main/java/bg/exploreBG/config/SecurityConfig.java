@@ -62,7 +62,8 @@ public class SecurityConfig {
                             "/api/trails/{id:[1-9]+}",
                             "/api/trails",
                             "/api/utility/**",
-                            "/api/users/{id:[1-9]+}"
+                            "/api/users/{id:[1-9]+}",
+                            "/auth/token/refresh"
                     ).permitAll();
 
                     req.requestMatchers(HttpMethod.GET, "/api/super-users/users").hasAnyRole("ADMIN", "MODERATOR");
@@ -80,8 +81,8 @@ public class SecurityConfig {
 
                     req.requestMatchers(
                                     HttpMethod.POST,
-                                    "/api/users/register",
-                                    "/api/users/login"
+                                    "/auth/register",
+                                    "/auth/login"
                             ).permitAll()
                             .anyRequest().authenticated();
                 })
@@ -96,7 +97,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
+                "http://localhost:3001",
                 "https://explorebg-production.up.railway.app"));
         config.setAllowCredentials(true);
         config.setExposedHeaders(Arrays.asList(

@@ -15,24 +15,21 @@ import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
 import bg.exploreBG.querybuilder.*;
+import bg.exploreBG.utils.RoleUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
     private final UserMapper userMapper;
     private final GenericPersistenceService<UserEntity> userPersistence;
     private final UserQueryBuilder userQueryBuilder;
@@ -45,7 +42,6 @@ public class UserService {
 
     public UserService(
             PasswordEncoder passwordEncoder,
-            UserDetailsService userDetailsService,
             UserMapper userMapper,
             GenericPersistenceService<UserEntity> userPersistence,
             UserQueryBuilder userQueryBuilder,
@@ -57,7 +53,6 @@ public class UserService {
             DestinationQueryBuilder destinationQueryBuilder
     ) {
         this.passwordEncoder = passwordEncoder;
-        this.userDetailsService = userDetailsService;
         this.userMapper = userMapper;
         this.userPersistence = userPersistence;
         this.userQueryBuilder = userQueryBuilder;
@@ -69,41 +64,6 @@ public class UserService {
         this.destinationQueryBuilder = destinationQueryBuilder;
     }
 
-    public UserIdNameEmailRolesDto register(UserRegisterDto userRegisterDto) {
-        this.userQueryBuilder.ensureUserEmailAbsent(userRegisterDto.email());
-
-        RoleEntity roleExist = this.roleQueryBuilder.getRoleEntityByRoleEnum(UserRoleEnum.MEMBER);
-
-        UserEntity newUser = mapDtoToUserEntity(userRegisterDto, roleExist);
-        newUser.setCreationDate(LocalDateTime.now());
-        newUser.setAccountNonLocked(true);
-
-        UserEntity persistedUser = this.userPersistence.saveEntityWithReturn(newUser);
-
-        return new UserIdNameEmailRolesDto(
-                persistedUser.getId(),
-                persistedUser.getEmail(),
-                persistedUser.getUsername(),
-                getRoles(persistedUser)
-        );
-    }
-
-    public UserIdNameEmailRolesDto login(UserLoginDto userLoginDto) {
-        UserDetails foundUser = this.userDetailsService.loadUserByUsername(userLoginDto.email());
-        boolean matches = this.passwordEncoder.matches(userLoginDto.password(), foundUser.getPassword());
-
-        if (!matches) {
-            throw new AppException("Invalid password!", HttpStatus.UNAUTHORIZED);
-        }
-
-        UserEntity currentUser = this.userQueryBuilder.getUserEntityByEmailWithRoles(foundUser.getUsername());
-
-        return new UserIdNameEmailRolesDto(
-                currentUser.getId(),
-                currentUser.getEmail(),
-                currentUser.getUsername(),
-                getRoles(currentUser));
-    }
 
     public UserDetailsOwnerDto findMyProfile(UserDetails userDetails) {
         UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
@@ -125,7 +85,7 @@ public class UserService {
         loggedUser.setEmail(userUpdateEmailDto.email());
         UserEntity updatedEmail = this.userPersistence.saveEntityWithReturn(loggedUser);
 
-        return new UserEmailRolesDto(updatedEmail.getEmail(), getRoles(updatedEmail));
+        return new UserEmailRolesDto(updatedEmail.getEmail(), RoleUtils.getRoleNames(updatedEmail));
     }
 
     public UserUsernameDto updateUsername(
@@ -188,23 +148,6 @@ public class UserService {
 
         UserEntity updatedUserInfo = this.userPersistence.saveEntityWithReturn(loggedUser);
         return new UserInfoDto(updatedUserInfo.getUserInfo());
-    }
-
-    private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, RoleEntity role) {
-        UserEntity newUser = new UserEntity();
-        newUser.setEmail(userRegisterDto.email());
-        newUser.setUsername(userRegisterDto.username());
-        newUser.setRoles(Arrays.asList(role));
-        newUser.setPassword(passwordEncoder.encode(userRegisterDto.password()));
-        return newUser;
-    }
-
-    private List<String> getRoles(UserEntity currentUser) {
-        return currentUser
-                .getRoles()
-                .stream()
-                .map(r -> r.getRole().name())
-                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")

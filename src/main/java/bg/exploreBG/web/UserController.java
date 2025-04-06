@@ -3,20 +3,20 @@ package bg.exploreBG.web;
 import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.SuccessStringDto;
-import bg.exploreBG.model.dto.user.*;
+import bg.exploreBG.model.dto.user.UserDetailsDto;
+import bg.exploreBG.model.dto.user.UserDetailsOwnerDto;
+import bg.exploreBG.model.dto.user.UserEmailRolesDto;
 import bg.exploreBG.model.dto.user.single.*;
-import bg.exploreBG.model.dto.user.UserIdNameDto;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,50 +32,11 @@ public class UserController {
         this.userAuthProvider = userAuthProvider;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserIdNameDto> register(
-            @Valid @RequestBody UserRegisterDto userRegisterDto
-    ) {
-        UserIdNameEmailRolesDto createdUser =
-                this.userService.register(userRegisterDto);
-
-        String token =
-                this.userAuthProvider.createToken(createdUser.email(), createdUser.roles());
-
-        UserIdNameDto userIdNameDto =
-                new UserIdNameDto(createdUser.id(), createdUser.username());
-
-        return ResponseEntity
-                .created(URI.create("/api/users/" + createdUser.id() + "/my-profile"))
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .body(userIdNameDto);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<UserIdNameDto> login(
-            @RequestBody UserLoginDto userLoginDto
-    ) {
-        UserIdNameEmailRolesDto loggedUser =
-                this.userService.login(userLoginDto);
-
-        String token =
-                this.userAuthProvider.createToken(loggedUser.email(), loggedUser.roles());
-
-        UserIdNameDto userIdNameDto =
-                new UserIdNameDto(loggedUser.id(), loggedUser.username());
-
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .body(userIdNameDto);
-    }
     @Transactional(readOnly = true)
     @GetMapping("/my-profile")
     public ResponseEntity<ApiResponse<UserDetailsOwnerDto>> myProfile(
-//            @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-
         UserDetailsOwnerDto byId =
                 this.userService.findMyProfile(userDetails);
 
@@ -105,8 +66,7 @@ public class UserController {
         UserEmailRolesDto newEmail =
                 this.userService.updateEmail(userUpdateEmailDto, userDetails);
 
-        String token =
-                this.userAuthProvider.createToken(newEmail.email(), newEmail.roles());
+        ResponseCookie accessCookie = this.userAuthProvider.getAccessCookie(newEmail.email());
 
         UserEmailDto userEmailDto = new UserEmailDto(newEmail.email());
 
@@ -114,7 +74,7 @@ public class UserController {
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .body(response);
     }
 

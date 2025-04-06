@@ -50,4 +50,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Override
     Stream<Tuple> getAllUsers();
+
+    @Query("SELECT u.email FROM UserEntity u WHERE u.id = :id")
+    Optional<String> getEmailByUserId(Long id);
 }

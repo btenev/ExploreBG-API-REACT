@@ -44,6 +44,10 @@ public class UserQueryBuilder {
         return this.repository.findUserIdByEmail(email).orElseThrow(this::userNotFound);
     }
 
+    public String getEmailByUserId(Long id) {
+        return this.repository.getEmailByUserId(id).orElseThrow(this::userNotFound);
+    }
+
     private AppException userNotFound() {
         return new AppException("User not found.", HttpStatus.NOT_FOUND);
     }
