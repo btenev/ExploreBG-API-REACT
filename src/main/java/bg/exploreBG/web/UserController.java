@@ -2,12 +2,13 @@ package bg.exploreBG.web;
 
 import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.SuccessStringDto;
+import bg.exploreBG.model.dto.MessageDto;
 import bg.exploreBG.model.dto.user.UserDetailsDto;
 import bg.exploreBG.model.dto.user.UserDetailsOwnerDto;
 import bg.exploreBG.model.dto.user.UserEmailRolesDto;
 import bg.exploreBG.model.dto.user.single.*;
 import bg.exploreBG.model.dto.user.validate.*;
+import bg.exploreBG.service.AuthService;
 import bg.exploreBG.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -23,26 +24,28 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final UserAuthProvider userAuthProvider;
+    private final AuthService authService;
 
     public UserController(
             UserService userService,
-            UserAuthProvider userAuthProvider
+            UserAuthProvider userAuthProvider,
+            AuthService authService
     ) {
         this.userService = userService;
         this.userAuthProvider = userAuthProvider;
+        this.authService = authService;
     }
 
+    /*TODO: change name of dto to UserProfileData*/
     @Transactional(readOnly = true)
     @GetMapping("/my-profile")
-    public ResponseEntity<ApiResponse<UserDetailsOwnerDto>> myProfile(
+    public ResponseEntity<UserDetailsOwnerDto> getMyProfile(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserDetailsOwnerDto byId =
                 this.userService.findMyProfile(userDetails);
 
-        ApiResponse<UserDetailsOwnerDto> response = new ApiResponse<>(byId);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(byId);
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +62,7 @@ public class UserController {
     }
 
     @PatchMapping("/email")
-    public ResponseEntity<ApiResponse<UserEmailDto>> updateEmail(
+    public ResponseEntity<UserEmailDto> updateEmail(
             @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
@@ -70,77 +73,72 @@ public class UserController {
 
         UserEmailDto userEmailDto = new UserEmailDto(newEmail.email());
 
-        ApiResponse<UserEmailDto> response = new ApiResponse<>(userEmailDto);
-
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .body(response);
+                .body(userEmailDto);
     }
 
     @PatchMapping("/username")
-    public ResponseEntity<ApiResponse<UserUsernameDto>> updateUsername(
+    public ResponseEntity<UserUsernameDto> updateUsername(
             @Valid @RequestBody UserUpdateUsernameDto userUpdateUsernameDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        UserUsernameDto userUsernameDto =
+        UserUsernameDto username =
                 this.userService.updateUsername(userUpdateUsernameDto, userDetails);
 
-        ApiResponse<UserUsernameDto> response = new ApiResponse<>(userUsernameDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(username);
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<ApiResponse<SuccessStringDto>> updatePassword(
+    public ResponseEntity<MessageDto> updatePassword(
             @Valid @RequestBody UserUpdatePasswordDto updatePassword,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        SuccessStringDto successes =
+        Long userId =
                 this.userService.updatePassword(updatePassword, userDetails);
 
-        ApiResponse<SuccessStringDto> response = new ApiResponse<>(successes);
+        this.authService.revokeExistingRefreshToken(userId);
 
-        return ResponseEntity.ok(response);
+        HttpHeaders headers = this.authService.generateEmptyCookies();
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new MessageDto("Your password has been updated successfully."));
     }
 
     @PatchMapping("/gender")
-    public ResponseEntity<ApiResponse<UserGenderDto>> updateGender(
+    public ResponseEntity<UserGenderDto> updateGender(
             @RequestBody UserUpdateGenderDto userUpdateGenderDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserGenderDto userGenderDto =
                 this.userService.updateGender(userUpdateGenderDto, userDetails);
 
-        ApiResponse<UserGenderDto> response = new ApiResponse<>(userGenderDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userGenderDto);
     }
 
     @PatchMapping("/birthdate")
-    public ResponseEntity<ApiResponse<UserBirthdateDto>> updateBirthdate(
+    public ResponseEntity<UserBirthdateDto> updateBirthdate(
             @Valid @RequestBody UserUpdateBirthdate userUpdateBirthdate,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserBirthdateDto userBirthdateDto =
                 this.userService.updateBirthdate(userUpdateBirthdate, userDetails);
 
-        ApiResponse<UserBirthdateDto> response = new ApiResponse<>(userBirthdateDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userBirthdateDto);
     }
 
     @PatchMapping("/user-info")
-    public ResponseEntity<ApiResponse<UserInfoDto>> updateUserInfo(
+    public ResponseEntity<UserInfoDto> updateUserInfo(
             @Valid @RequestBody UserUpdateInfo userUpdateInfo,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         UserInfoDto userInfoDto =
                 this.userService.updateUserInfo(userUpdateInfo, userDetails);
 
-        ApiResponse<UserInfoDto> response = new ApiResponse<>(userInfoDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userInfoDto);
     }
 
     /*TODO: not added to frontend*/

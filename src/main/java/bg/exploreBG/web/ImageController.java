@@ -1,6 +1,5 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.ApiResponseCollection;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
@@ -14,7 +13,6 @@ import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.ImageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,9 +32,9 @@ public class ImageController {
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
-
+    /*TODO: Think about delete user image, id is currently send but not used. The user have the option to "overwrite" the existing image but not delete it. */
     @PatchMapping("/user")
-    public ResponseEntity<ApiResponse<ImageIdPlusUrlDto>> saveImage(
+    public ResponseEntity<ImageIdPlusUrlDto> updateProfileImage(
 //            @PathVariable Long id,
             @Valid @RequestPart("data") ImageCreateDto imageCreateDto,
             @NotNull(message = "A file must be provided. Please choose a file to upload.")
@@ -56,11 +54,9 @@ public class ImageController {
                                 userDetails
                         );
 
-        ApiResponse<ImageIdPlusUrlDto> response = new ApiResponse<>(imageIdPlusUrlDto);
-
         return ResponseEntity
                 .created(URI.create("/api/images/" + imageIdPlusUrlDto.id()))
-                .body(response);
+                .body(imageIdPlusUrlDto);
     }
 
     @GetMapping("/user")
@@ -80,12 +76,12 @@ public class ImageController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         List<ImageIdUrlIsMainDto> urlDto = this.imageService
-                        .saveEntityPictures(
-                                entityId,
-                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
-                                userDetails,
-                                imageCreateDto,
-                                files);
+                .saveEntityPictures(
+                        entityId,
+                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED),
+                        userDetails,
+                        imageCreateDto,
+                        files);
 
         ApiResponseCollection<ImageIdUrlIsMainDto> response = new ApiResponseCollection<>(urlDto);
 

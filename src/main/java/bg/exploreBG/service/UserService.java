@@ -100,7 +100,7 @@ public class UserService {
         return new UserUsernameDto(updatedUsername.getUsername());
     }
 
-    public SuccessStringDto updatePassword(
+    public Long updatePassword(
             UserUpdatePasswordDto updatePassword,
             UserDetails userDetails
     ) {
@@ -113,7 +113,7 @@ public class UserService {
 
         loggedUser.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
         this.userPersistence.saveEntityWithReturn(loggedUser);
-        return new SuccessStringDto("Password updated successfully!");
+        return loggedUser.getId() ;
     }
 
     public UserGenderDto updateGender(
