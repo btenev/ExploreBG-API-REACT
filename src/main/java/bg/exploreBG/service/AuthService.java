@@ -3,7 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.config.UserAuthProvider;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.user.UserAuthDto;
-import bg.exploreBG.model.dto.user.UserLoginDto;
+import bg.exploreBG.model.dto.user.validate.UserLoginDto;
 import bg.exploreBG.model.dto.user.validate.UserRegisterDto;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -56,7 +56,7 @@ public class AuthService {
         boolean matches = this.passwordEncoder.matches(userLoginDto.password(), foundUser.getPassword());
 
         if (!matches) {
-            throw new AppException("Invalid password!", HttpStatus.UNAUTHORIZED);
+            throw new AppException("The password you entered is incorrect.", HttpStatus.UNAUTHORIZED);
         }
 
         UserEntity currentUser = this.userQueryBuilder.getUserEntityByEmailWithRoles(foundUser.getUsername());
@@ -95,11 +95,26 @@ public class AuthService {
         ResponseCookie refreshCookie = this.userAuthProvider.getRefreshTokenCookie();
         String refreshToken = refreshCookie.getValue();
 
-        refreshTokenService.storeToken(refreshToken, userId, Duration.ofDays(7));
+        refreshTokenService.storeTokenUserIdPair(refreshToken, userId, Duration.ofDays(7));
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return headers;
+    }
+
+    public void revokeExistingRefreshToken(Long userId) {
+        this.refreshTokenService.revokeExistingRefreshTokenAtomic(userId);
+    }
+
+    public HttpHeaders generateEmptyCookies() {
+        ResponseCookie emptyAccessCookie = this.userAuthProvider.getEmptyAccessCookie();
+        ResponseCookie emptyRefreshCookie = this.userAuthProvider.getEmptyRefreshTokenCookie();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, emptyAccessCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, emptyRefreshCookie.toString());
 
         return headers;
     }
