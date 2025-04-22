@@ -10,14 +10,16 @@ import jakarta.validation.constraints.Size;
         message = "Passwords do no match!"
 )
 public record UserUpdatePasswordDto(
-        @NotBlank(message = "Password field cannot be empty!")
-        @Size(min = 5, max = 24, message = "Password must be between 5 and 24 characters!")
+        @NotBlank(message = "Please enter your password.")
+        @Size(min = 5, max = 24, message = "Your password must be between 5 and 24 characters.")
         @Pattern(
                 regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\\W)(?!.* ).{4,23}$",
-                message = "Password must contain one or more digit from 0 to 9, one or more lowercase letter, one or more uppercase letter, one or more special character, no space."
+                message = "Your password must contain at least one digit, one lowercase letter, one uppercase letter, one special character, and no spaces."
         )
         String newPassword,
         String confirmNewPassword,
+
+        @NotBlank(message = "Please enter your current password.")
         String currentPassword
 ) {
 }

@@ -61,7 +61,7 @@ public class SecurityConfig {
                             "/api/trails/random",
                             "/api/trails/{id:[1-9]+}",
                             "/api/trails",
-                            "/api/utility/**",
+                            "/api/utilities/**",
                             "/api/users/{id:[1-9]+}",
                             "/auth/token/refresh"
                     ).permitAll();

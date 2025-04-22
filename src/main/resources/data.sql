@@ -83,17 +83,17 @@ VALUES (1, '707325df-b536-47e2-b511-d106296ad5ec', 'Users-demo',
 
 INSERT INTO users (id, email, username, password, gender, birthdate, user_info, creation_date, account_non_locked,
                    user_image_id)
-VALUES (1, 'member@explore.bg', 'member', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
+VALUES (1, 'member@explore.bg', 'member', '$2a$10$HG8ZKzRo7XTAvOZGa9Kx/e.RIGyr3HufztnjuwBOaVSdlvGnUFWuG', 'MALE',
         '1983-05-10',
         'some very interesting info', UTC_TIMESTAMP(), true, 2),
-       (2, 'moderator@explore.bg', 'moderator', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.',
+       (2, 'moderator@explore.bg', 'moderator', '$2a$10$HG8ZKzRo7XTAvOZGa9Kx/e.RIGyr3HufztnjuwBOaVSdlvGnUFWuG',
         'FEMALE',
         '1979-02-01',
         'not so interesting info', UTC_TIMESTAMP(), true, 3),
-       (3, 'member_two@explore.bg', 'memberTwo', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
+       (3, 'member_two@explore.bg', 'memberTwo', '$2a$10$HG8ZKzRo7XTAvOZGa9Kx/e.RIGyr3HufztnjuwBOaVSdlvGnUFWuG', 'MALE',
         '1965-03-08',
         'i like like travelling, hiking, exploring the world', UTC_TIMESTAMP(), true, null),
-       (4, 'admin@explore.bg', 'admin', '$2a$10$bgvwbCduGgR.p//vjBuBnuC9cgkSxg4P1aRGvdtY3EWy9dr12qoo.', 'MALE',
+       (4, 'admin@explore.bg', 'admin', '$2a$10$HG8ZKzRo7XTAvOZGa9Kx/e.RIGyr3HufztnjuwBOaVSdlvGnUFWuG', 'MALE',
         '1983-05-15', 'I like watching discovery chanel', UTC_TIMESTAMP(), true, 1);
 
 INSERT INTO user_role (role_id, user_id)

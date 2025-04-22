@@ -23,6 +23,7 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -37,7 +38,7 @@ public class UserEntity {
     @Column(name = "user_info", columnDefinition = "TEXT")
     private String userInfo;
 
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
     @Column(name = "account_non_locked")

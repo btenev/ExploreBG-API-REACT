@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import org.springframework.http.HttpStatus;
 
 public enum GenderEnum {
+    NOT_SPECIFIED("......"),
     OTHER("Other"),
     MALE("Male"),
     FEMALE("Female");

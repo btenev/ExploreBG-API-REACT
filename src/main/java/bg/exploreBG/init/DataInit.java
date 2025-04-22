@@ -6,7 +6,6 @@ import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.querybuilder.RoleQueryBuilder;
 import bg.exploreBG.service.GenericPersistenceService;
-import bg.exploreBG.service.SuperUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -15,9 +14,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 @Component
