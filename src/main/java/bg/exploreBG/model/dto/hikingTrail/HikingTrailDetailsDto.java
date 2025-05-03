@@ -25,7 +25,7 @@ public record HikingTrailDetailsDto(
         @JsonSerialize(using = SeasonEnumSerializer.class)
         SeasonEnum seasonVisited,
         @JsonSerialize(using = WaterAvailabilityEnumSerializer.class)
-        WaterAvailabilityEnum waterAvailable,
+        WaterAvailabilityEnum waterAvailability,
         List<AccommodationIdAndAccommodationName> availableHuts,
         @JsonSerialize(using = DifficultyLevelEnumSerializer.class)
         DifficultyLevelEnum trailDifficulty,

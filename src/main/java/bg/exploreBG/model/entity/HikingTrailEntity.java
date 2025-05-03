@@ -1,7 +1,7 @@
 package bg.exploreBG.model.entity;
 
 import bg.exploreBG.commentableEntity.CommentableEntity;
-import bg.exploreBG.likeable.LikeableEntity;
+import bg.exploreBG.interfaces.LikeableEntity;
 import bg.exploreBG.model.enums.*;
 import bg.exploreBG.ownableEntity.OwnableEntity;
 import bg.exploreBG.reviewable.ReviewableWithGpx;
@@ -39,7 +39,8 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
 
     @Column(name = "water_available")
     @Enumerated(EnumType.STRING)
-    private WaterAvailabilityEnum waterAvailable;
+    private WaterAvailabilityEnum waterAvailability
+            ;
 
     //TODO: discuss with Ivo if one accommodation entity can belong to more than one hiking trail
     @ManyToMany
@@ -172,12 +173,12 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
         this.seasonVisited = seasonVisited;
     }
 
-    public WaterAvailabilityEnum getWaterAvailable() {
-        return waterAvailable;
+    public WaterAvailabilityEnum getWaterAvailability() {
+        return waterAvailability;
     }
 
-    public void setWaterAvailable(WaterAvailabilityEnum waterAvailable) {
-        this.waterAvailable = waterAvailable;
+    public void setWaterAvailability(WaterAvailabilityEnum waterAvailability) {
+        this.waterAvailability = waterAvailability;
     }
 
     public List<AccommodationEntity> getAvailableHuts() {
@@ -329,7 +330,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
                 ", totalDistance=" + totalDistance +
                 ", trailInfo='" + trailInfo + '\'' +
                 ", seasonVisited=" + seasonVisited +
-                ", waterAvailable=" + waterAvailable +
+                ", waterAvailability=" + waterAvailability+
                 ", availableHuts=" + availableHuts +
                 ", trailDifficulty=" + trailDifficulty +
                 ", activity=" + activity +

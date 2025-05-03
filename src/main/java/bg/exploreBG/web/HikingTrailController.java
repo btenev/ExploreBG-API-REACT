@@ -1,7 +1,8 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.LikeRequestDto;
+import bg.exploreBG.model.dto.LikeResponseDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
@@ -59,9 +60,9 @@ public class HikingTrailController {
             randomTrails = this.hikingTrailService.getRandomNumOfHikingTrails(4);
         }
 
-        ApiResponse<?> response = new ApiResponse<>(randomTrails);
+//        ApiResponse<?> response = new ApiResponse<>(randomTrails);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(randomTrails);
     }
 
     /*
@@ -74,33 +75,34 @@ public class HikingTrailController {
             @PathVariable("id") Long trailId,
             Authentication authentication
     ) {
-        ApiResponse<?> response;
+        Object response;
+
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetails userDetails) {
-                response = new ApiResponse<>(this.hikingTrailService.getHikingTrailAuthenticated(trailId, userDetails));
+                response = this.hikingTrailService.getHikingTrailAuthenticated(trailId, userDetails);
             } else {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            response = new ApiResponse<>(
+            response =
                     this.hikingTrailService
-                            .getApprovedHikingTrailWithApprovedImagesById(trailId, StatusEnum.APPROVED));
+                            .getApprovedHikingTrailWithApprovedImagesById(trailId, StatusEnum.APPROVED);
             logger.info("No token response");
         }
 
         return ResponseEntity.ok(response);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteHikingTrail(
+    public ResponseEntity<Void> deleteOwnedHikingTrail(
             @PathVariable("id") Long trailId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.hikingTrailService.deleteOwnedTrailById(trailId, userDetails);
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
+       this.hikingTrailService.deleteOwnedTrailById(trailId, userDetails);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     /*
@@ -139,7 +141,7 @@ public class HikingTrailController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<HikingTrailIdDto>> createHikingTrail(
+    public ResponseEntity<HikingTrailIdDto> createHikingTrail(
             @Valid @RequestBody HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
@@ -150,11 +152,9 @@ public class HikingTrailController {
 
         HikingTrailIdDto hikingTrailIdDto = new HikingTrailIdDto(newHikingTrailId);
 
-        ApiResponse<HikingTrailIdDto> response = new ApiResponse<>(hikingTrailIdDto);
-
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
-                .body(response);
+                .body(hikingTrailIdDto);
     }
 
 //    @DeleteMapping("/{id}")
@@ -345,16 +345,15 @@ public class HikingTrailController {
 
     /*TODO: returns only messages, no errors*/
     @PatchMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<Boolean>> toggleHikingTrailLike(
+    public ResponseEntity<LikeResponseDto> toggleTrailLikeStatus(
             @PathVariable("id") Long trailId,
-            @RequestBody LikeBooleanDto likeBooleanDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody LikeRequestDto likeRequestDto
     ) {
-        boolean success =
+        boolean like =
                 this.hikingTrailService
-                        .likeOrUnlikeTrailAndSave(trailId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
+                        .likeOrUnlikeTrailAndSave(trailId, likeRequestDto, StatusEnum.APPROVED);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
+        LikeResponseDto response = new LikeResponseDto(like);
 
         return ResponseEntity.ok(response);
     }

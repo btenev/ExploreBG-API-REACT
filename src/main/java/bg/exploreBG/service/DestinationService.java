@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
@@ -146,17 +146,16 @@ public class DestinationService {
 
     public boolean likeOrUnlikeDestinationAndSave(
             Long destinationId,
-            LikeBooleanDto likeBoolean,
-            UserDetails userDetails,
+            LikeRequestDto dto,
             StatusEnum status
     ) {
         DestinationEntity destination =
                 this.destinationQueryBuilder.getDestinationWithLikesByIdAndStatus(destinationId, status);
 
-        this.likeService.likeOrUnlikeEntity(destination, likeBoolean, userDetails);
+        this.likeService.likeOrUnlikeEntity(destination, dto);
         this.destinationPersistence.saveEntityWithoutReturn(destination);
 
-        return true;
+        return dto.like();
     }
 
     public CommentDto addDestinationComment(
@@ -334,4 +333,33 @@ public class DestinationService {
         }
         return destination;
     }
+
+//    public boolean deleteOwnedDestinationById(
+//            Long destinationId,
+//            UserDetails userDetails
+//    ) {
+//       /* DestinationEntity currentDestination = this.destinationQueryBuilder*/
+//
+//        return false;
+//    }
 }
+/*    public boolean deleteOwnedTrailById(
+            Long trailId,
+            UserDetails userDetails
+    ) {
+        HikingTrailEntity currentTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailWithHikesByIdIfOwner(trailId, userDetails.getUsername());
+
+        if (!currentTrail.getHikes().isEmpty()) {
+            for (HikeEntity hike : currentTrail.getHikes()) {
+                hike.setHikingTrail(null);
+            }
+
+            this.hikePersistence.saveEntitiesWithoutReturn(currentTrail.getHikes());
+        }
+
+
+        this.trailPersistence.deleteEntityWithoutReturnById(trailId);
+
+        return true;
+                }*/

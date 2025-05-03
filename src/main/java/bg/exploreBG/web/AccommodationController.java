@@ -1,7 +1,8 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.LikeRequestDto;
+import bg.exploreBG.model.dto.LikeResponseDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
@@ -55,9 +56,7 @@ public class AccommodationController {
                     this.accommodationService.getRandomNumOfAccommodations(4);
         }
 
-        ApiResponse<?> response = new ApiResponse<>(randomAccommodations);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(randomAccommodations);
     }
 
     @Transactional(readOnly = true)
@@ -335,17 +334,16 @@ public class AccommodationController {
     }
 
     @PatchMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<Boolean>> toggleAccommodationLike(
+    public ResponseEntity<LikeResponseDto> toggleAccommodationLikeStatus(
             @PathVariable("id") Long accommodationId,
-            @RequestBody LikeBooleanDto likeBooleanDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody LikeRequestDto likeRequestDto
     ) {
-        boolean success =
+        boolean like =
                 this.accommodationService
                         .likeOrUnlikeAccommodationAndSave(
-                                accommodationId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
+                                accommodationId, likeRequestDto, StatusEnum.APPROVED);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
+        LikeResponseDto response = new LikeResponseDto(like);
 
         return ResponseEntity.ok(response);
     }

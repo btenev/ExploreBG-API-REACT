@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationDetailsDto;
@@ -150,16 +150,16 @@ public class AccommodationService {
 
     public boolean likeOrUnlikeAccommodationAndSave(
             Long accommodationId,
-            LikeBooleanDto likeBoolean,
-            UserDetails userDetails,
+            LikeRequestDto dto,
             StatusEnum status
     ) {
-        AccommodationEntity current =
+        AccommodationEntity accommodation =
                 this.accommodationQueryBuilder.getAccommodationWithLikesByIdAndStatus(accommodationId, status);
 
-        this.likeService.likeOrUnlikeEntity(current, likeBoolean, userDetails);
-        this.accommodationPersistence.saveEntityWithoutReturn(current);
-        return true;
+        this.likeService.likeOrUnlikeEntity(accommodation, dto);
+        this.accommodationPersistence.saveEntityWithoutReturn(accommodation);
+
+        return dto.like();
     }
 
     public AccommodationNameDto updateAccommodationName(

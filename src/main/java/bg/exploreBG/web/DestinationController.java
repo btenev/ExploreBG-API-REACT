@@ -1,7 +1,8 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.LikeRequestDto;
+import bg.exploreBG.model.dto.LikeResponseDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
 import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
@@ -55,9 +56,7 @@ public class DestinationController {
             randomDestinations = this.destinationService.getRandomNumOfDestinations(4);
         }
 
-        ApiResponse<?> response = new ApiResponse<>(randomDestinations);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(randomDestinations);
     }
 
     @Transactional(readOnly = true)
@@ -113,6 +112,18 @@ public class DestinationController {
         return ResponseEntity.ok(allDestinations);
     }
 
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<ApiResponse<Boolean>> deleteDestination(
+//            @PathVariable("id") Long destinationId,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) {
+//        boolean success = this.destinationService.deleteOwnedDestinationById(destinationId, userDetails);
+//
+//        ApiResponse<Boolean> response = new ApiResponse<>(success);
+//
+//        return ResponseEntity.ok(response);
+//    }
+
     @GetMapping("/select")
     public ResponseEntity<?> select() {
         List<DestinationIdAndDestinationNameDto> select = this.destinationService.selectAll();
@@ -137,16 +148,15 @@ public class DestinationController {
     }
 
     @PatchMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<Boolean>> toggleDestinationLike(
+    public ResponseEntity<LikeResponseDto> toggleDestinationLikeStatus(
             @PathVariable("id") Long destinationId,
-            @RequestBody LikeBooleanDto likeBooleanDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody LikeRequestDto likeRequestDto
     ) {
-        boolean success =
+        boolean like =
                 this.destinationService
-                        .likeOrUnlikeDestinationAndSave(destinationId, likeBooleanDto, userDetails, StatusEnum.APPROVED);
+                        .likeOrUnlikeDestinationAndSave(destinationId, likeRequestDto, StatusEnum.APPROVED);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
+        LikeResponseDto response = new LikeResponseDto(like);
 
         return ResponseEntity.ok(response);
     }

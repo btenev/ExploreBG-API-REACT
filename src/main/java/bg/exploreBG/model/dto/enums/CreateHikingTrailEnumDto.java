@@ -12,24 +12,24 @@ import java.util.stream.Collectors;
 
 public class CreateHikingTrailEnumDto {
     private final Set<String> seasonVisited;
-    private final Set<String> waterAvailable;
+    private final Set<String> waterAvailability;
     private final int[] trailDifficulty;
     private final Set<String> activity;
 
     public CreateHikingTrailEnumDto() {
-        this.seasonVisited = setSeason();
-        this.waterAvailable = setWaterAvailable();
+        this.seasonVisited = setSeasonVisited();
+        this.waterAvailability = setWaterAvailability();
         this.trailDifficulty = setTrailDifficulty();
         this.activity = setSuitableFor();
     }
 
-    private Set<String> setSeason() {
+    private Set<String> setSeasonVisited() {
         return Arrays.stream(SeasonEnum.values())
                 .map(SeasonEnum::getValue)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Set<String> setWaterAvailable() {
+    private Set<String> setWaterAvailability() {
         return Arrays.stream(WaterAvailabilityEnum.values())
                 .map(WaterAvailabilityEnum::getValue)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -52,8 +52,8 @@ public class CreateHikingTrailEnumDto {
         return seasonVisited;
     }
 
-    public Set<String> getWaterAvailable() {
-        return waterAvailable;
+    public Set<String> getWaterAvailability() {
+        return waterAvailability;
     }
 
     public int[] getTrailDifficulty() {

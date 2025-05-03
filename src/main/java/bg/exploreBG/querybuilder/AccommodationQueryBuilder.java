@@ -161,7 +161,7 @@ public class AccommodationQueryBuilder {
 
     private AppException accommodationNotFoundOrInvalidStatusException() {
         return new AppException("The accommodation you are looking for was not found or has an invalid status.",
-                HttpStatus.BAD_REQUEST);
+                HttpStatus.NOT_FOUND);
     }
 
     private AppException accommodationNotFoundOrInvalidStatusOrNotOwnerException() {

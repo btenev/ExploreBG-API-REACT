@@ -1,52 +1,29 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.exception.AppException;
-import bg.exploreBG.likeable.LikeableEntity;
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.config.CurrentUserProvider;
+import bg.exploreBG.interfaces.LikeableEntity;
+import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.entity.UserEntity;
-import bg.exploreBG.querybuilder.UserQueryBuilder;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Service
 public class LikeService {
-    private final UserQueryBuilder userQueryBuilder;
+    private final CurrentUserProvider currentUserProvider;
 
-    public LikeService(UserQueryBuilder userQueryBuilder) {
-        this.userQueryBuilder = userQueryBuilder;
+    public LikeService(CurrentUserProvider currentUserProvider) {
+        this.currentUserProvider = currentUserProvider;
     }
 
     public void likeOrUnlikeEntity(
-            LikeableEntity likeableEntity,
-            LikeBooleanDto likeBoolean,
-            UserDetails userDetails
+            LikeableEntity entity,
+            LikeRequestDto dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        Set<UserEntity> likedByUsers = likeableEntity.getLikedByUsers();
+        UserEntity user = currentUserProvider.getCurrentUser();
 
-        boolean userHasLiked = likedByUsers.contains(loggedUser);
-
-        if (likeBoolean.like()) {
-            handleLike(likedByUsers, loggedUser, userHasLiked);
+        if (dto.like()) {
+            entity.likeOrThrow(user);
         } else {
-            handleUnlike(likedByUsers, loggedUser, userHasLiked);
+            entity.unlikeOrThrow(user);
         }
-    }
-
-    private void handleLike(Set<UserEntity> likedByUsers, UserEntity user, boolean userHasLiked) {
-        if (userHasLiked) {
-            throw new AppException("You have already liked the item!", HttpStatus.BAD_REQUEST);
-        }
-        likedByUsers.add(user);
-    }
-
-    private void handleUnlike(Set<UserEntity> likedByUsers, UserEntity user, boolean userHasLiked) {
-        if (!userHasLiked) {
-            throw new AppException("You cannot unlike an item that you haven't liked!", HttpStatus.BAD_REQUEST);
-        }
-        likedByUsers.remove(user);
     }
 }

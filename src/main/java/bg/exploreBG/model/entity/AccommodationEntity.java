@@ -1,7 +1,7 @@
 package bg.exploreBG.model.entity;
 
 import bg.exploreBG.commentableEntity.CommentableEntity;
-import bg.exploreBG.likeable.LikeableEntity;
+import bg.exploreBG.interfaces.LikeableEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;

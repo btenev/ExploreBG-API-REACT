@@ -189,7 +189,7 @@ public class HikingTrailQueryBuilder {
 
     private AppException trailNotFoundOrInvalidStatus() {
         return new AppException("The hiking trail you are looking for was not found or has an invalid status.",
-                HttpStatus.BAD_REQUEST);
+                HttpStatus.NOT_FOUND);
     }
 
     private AppException trailNotFoundOrNotOwnerException() {

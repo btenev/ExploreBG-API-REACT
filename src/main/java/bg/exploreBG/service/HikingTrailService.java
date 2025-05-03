@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.model.dto.LikeBooleanDto;
+import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
@@ -50,9 +50,11 @@ public class HikingTrailService {
     private final EntityUpdateService entityUpdateService;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
     private final GenericPersistenceService<CommentEntity> commentPersistence;
+    private final GenericPersistenceService<HikeEntity> hikePersistence;
     private final UserQueryBuilder userQueryBuilder;
     private final HikeQueryBuilder hikeQueryBuilder;
     private final LikeService likeService;
+    private final EntityDeleteService deleteService;
 
     public HikingTrailService(
             HikingTrailMapper hikingTrailMapper,
@@ -62,9 +64,11 @@ public class HikingTrailService {
             EntityUpdateService entityUpdateService,
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
             GenericPersistenceService<CommentEntity> commentPersistence,
+            GenericPersistenceService<HikeEntity> hikePersistence,
             UserQueryBuilder userQueryBuilder,
             HikeQueryBuilder hikeQueryBuilder,
-            LikeService likeService
+            LikeService likeService,
+            EntityDeleteService deleteService
     ) {
         this.hikingTrailMapper = hikingTrailMapper;
         this.userService = userService;
@@ -73,9 +77,11 @@ public class HikingTrailService {
         this.entityUpdateService = entityUpdateService;
         this.trailPersistence = trailPersistence;
         this.commentPersistence = commentPersistence;
+        this.hikePersistence = hikePersistence;
         this.userQueryBuilder = userQueryBuilder;
         this.hikeQueryBuilder = hikeQueryBuilder;
         this.likeService = likeService;
+        this.deleteService = deleteService;
     }
 
     public List<HikingTrailBasicDto> getRandomNumOfHikingTrails(int limit) {
@@ -121,25 +127,27 @@ public class HikingTrailService {
         return (T) this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsLikeDto(current, loggedUser);
     }
 
-    public boolean deleteOwnedTrailById(
+    public void deleteOwnedTrailById(
             Long trailId,
             UserDetails userDetails
     ) {
-/*        HikingTrailEntity currentTrail =
+        HikingTrailEntity currentTrail =
                 this.hikingTrailQueryBuilder.getHikingTrailWithHikesByIdIfOwner(trailId, userDetails.getUsername());
 
-        for (HikeEntity hike : currentTrail.getHikes()) {
-            hike.setHikingTrail(null);
+        if (!currentTrail.getHikes().isEmpty()) {
+            for (HikeEntity hike : currentTrail.getHikes()) {
+                hike.setHikingTrail(null);
+            }
+
+            this.hikePersistence.saveEntitiesWithoutReturn(currentTrail.getHikes());
         }
 
-        this.hikePersistence.saveEntitiesWithoutReturn(currentTrail.getHikes());*/
+        this.deleteService.deleteEntity(trailId, userDetails, this.hikingTrailQueryBuilder::getHikingTrailByIdIfOwner);
 
-        /*Alternative of the code above without fetching any entities, but directly updating the database*/
-        this.hikeQueryBuilder.removeHikingTrailFromHikesByTrailIdIfTrailOwner(trailId, userDetails.getUsername());
+        /*Alternative of the code above without fetching any entities, but directly updating the database*//*
+        this.hikeQueryBuilder.removeHikingTrailFromHikesByTrailIdIfTrailOwner(trailId, userDetails.getUsername());*/
 
         this.trailPersistence.deleteEntityWithoutReturnById(trailId);
-
-        return true;
     }
 
     public Page<HikingTrailBasicDto> getAllApprovedHikingTrails(Pageable pageable) {
@@ -283,11 +291,11 @@ public class HikingTrailService {
                 this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
         return updateHikingTrailField(
                 currentTrail,
-                currentTrail::getWaterAvailable,
-                currentTrail::setWaterAvailable,
+                currentTrail::getWaterAvailability,
+                currentTrail::setWaterAvailability,
                 newWaterAvailable.waterAvailable(),
                 (trail, isUpdated) -> new HikingTrailWaterAvailableDto(
-                        trail.getWaterAvailable().getValue(),
+                        trail.getWaterAvailability().getValue(),
                         isUpdated ? trail.getModificationDate() : null));
     }
 
@@ -450,7 +458,7 @@ public class HikingTrailService {
             StatusEnum status
     ) {
         return this.commentService.addComment(
-            trailId,
+                trailId,
                 status,
                 commentDto,
                 userDetails,
@@ -487,15 +495,14 @@ public class HikingTrailService {
 
     public boolean likeOrUnlikeTrailAndSave(
             Long trailId,
-            LikeBooleanDto likeBoolean,
-            UserDetails userDetails,
+            LikeRequestDto likeBoolean,
             StatusEnum status
     ) {
-        HikingTrailEntity currentTrail =
+        HikingTrailEntity trail =
                 this.hikingTrailQueryBuilder.getHikingTrailWithLikesByIdAndStatus(trailId, status);
 
-        likeService.likeOrUnlikeEntity(currentTrail, likeBoolean, userDetails);
-        this.trailPersistence.saveEntityWithoutReturn(currentTrail);
-        return true;
+        likeService.likeOrUnlikeEntity(trail, likeBoolean);
+        this.trailPersistence.saveEntityWithoutReturn(trail);
+        return likeBoolean.like();
     }
 }
