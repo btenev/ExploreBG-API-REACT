@@ -58,13 +58,21 @@ public class UserAuthProvider {
         String jwtToken = createToken(userEmail, now);
 
         int maxAge = (int) ACCESS_TOKEN_DURATION.getSeconds();
-        return createCookie("access_token", jwtToken, maxAge, "/api");
+        return createCookie("access_token", jwtToken, maxAge, "/");
     }
 
     public ResponseCookie getRefreshTokenCookie() {
         int maxAge = (int) Duration.ofDays(7).toSeconds();
         String refreshToken = generateSecureRefreshToken();
         return createCookie("refresh_token", refreshToken, maxAge, "/auth/refresh-token");
+    }
+
+    public ResponseCookie getEmptyAccessCookie() {
+        return createCookie("access_token", "", 0, "/");
+    }
+
+    public ResponseCookie getEmptyRefreshTokenCookie() {
+        return createCookie("refresh_token", "", 0, "/auth/refresh-token");
     }
 
     private ResponseCookie createCookie(String cookieName, String value, int maxAge, String path) {

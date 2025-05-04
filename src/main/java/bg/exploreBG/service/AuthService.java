@@ -7,6 +7,7 @@ import bg.exploreBG.model.dto.user.validate.UserLoginDto;
 import bg.exploreBG.model.dto.user.validate.UserRegisterDto;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.querybuilder.RoleQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
@@ -123,10 +124,15 @@ public class AuthService {
         return this.userQueryBuilder.getEmailByUserId(id);
     }
 
+    public Long findUserIdByEmail(String email) {
+        return this.userQueryBuilder.getUserIdByEmail(email);
+    }
+
     private UserEntity mapDtoToUserEntity(UserRegisterDto userRegisterDto, RoleEntity role) {
         UserEntity newUser = new UserEntity();
         newUser.setEmail(userRegisterDto.email());
         newUser.setUsername(userRegisterDto.username());
+        newUser.setGender(GenderEnum.NOT_SPECIFIED);
         newUser.setRoles(Collections.singletonList(role));
         newUser.setPassword(passwordEncoder.encode(userRegisterDto.password()));
         return newUser;
