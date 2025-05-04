@@ -30,6 +30,13 @@ public class CurrentUserProvider {
         return cachedUser;
     }
 
+    public UserEntity getCurrentUserWithRoles() {
+        if (cachedUser == null) {
+            cachedUser = userQueryBuilder.getUserEntityByEmailWithRoles(extractEmailFromPrincipal());
+        }
+        return cachedUser;
+    }
+
     private String extractEmailFromPrincipal() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {

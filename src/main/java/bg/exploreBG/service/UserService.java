@@ -1,7 +1,7 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.config.CurrentUserProvider;
 import bg.exploreBG.exception.AppException;
-import bg.exploreBG.model.dto.SuccessStringDto;
 import bg.exploreBG.model.dto.role.RoleDto;
 import bg.exploreBG.model.dto.user.*;
 import bg.exploreBG.model.dto.user.single.UserBirthdateDto;
@@ -11,7 +11,6 @@ import bg.exploreBG.model.dto.user.single.UserUsernameDto;
 import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
-import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.enums.UserRoleEnum;
 import bg.exploreBG.model.mapper.UserMapper;
 import bg.exploreBG.querybuilder.*;
@@ -26,6 +25,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 @Service
 public class UserService {
@@ -39,6 +40,7 @@ public class UserService {
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final HikeQueryBuilder hikeQueryBuilder;
     private final DestinationQueryBuilder destinationQueryBuilder;
+    private final CurrentUserProvider currentUserProvider;
 
     public UserService(
             PasswordEncoder passwordEncoder,
@@ -50,7 +52,8 @@ public class UserService {
             CommentQueryBuilder commentQueryBuilder,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             HikeQueryBuilder hikeQueryBuilder,
-            DestinationQueryBuilder destinationQueryBuilder
+            DestinationQueryBuilder destinationQueryBuilder,
+            CurrentUserProvider currentUserProvider
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
@@ -62,92 +65,87 @@ public class UserService {
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.hikeQueryBuilder = hikeQueryBuilder;
         this.destinationQueryBuilder = destinationQueryBuilder;
+        this.currentUserProvider = currentUserProvider;
     }
 
-
-    public UserDetailsOwnerDto findMyProfile(UserDetails userDetails) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        return this.userMapper.userEntityToUserDetailsOwnerDto(loggedUser);
+    public UserDetailsOwnerDto findMyProfile() {
+        UserEntity user = currentUserProvider.getCurrentUser();
+        return this.userMapper.userEntityToUserDetailsOwnerDto(user);
     }
 
     public UserDetailsDto findProfileById(Long id) {
         UserEntity userExist = this.userQueryBuilder.getUserEntityById(id);
-
         return this.userMapper.userEntityToUserDetailsDto(userExist);
     }
 
     public UserEmailRolesDto updateEmail(
-            UserUpdateEmailDto userUpdateEmailDto,
-            UserDetails userDetails
+            UserUpdateEmailDto dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmailWithRoles(userDetails.getUsername());
-
-        loggedUser.setEmail(userUpdateEmailDto.email());
-        UserEntity updatedEmail = this.userPersistence.saveEntityWithReturn(loggedUser);
-
-        return new UserEmailRolesDto(updatedEmail.getEmail(), RoleUtils.getRoleNames(updatedEmail));
+        return updateUserField(
+                dto,
+                (user, d) -> user.setEmail(d.email()),
+                updated -> new UserEmailRolesDto(updated.getEmail(), RoleUtils.getRoleNames(updated)),
+                true
+        );
     }
 
     public UserUsernameDto updateUsername(
-            UserUpdateUsernameDto userUpdateUsernameDto,
-            UserDetails userDetails
+            UserUpdateUsernameDto dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-
-        loggedUser.setUsername(userUpdateUsernameDto.username());
-        UserEntity updatedUsername = this.userPersistence.saveEntityWithReturn(loggedUser);
-
-        return new UserUsernameDto(updatedUsername.getUsername());
+        return updateUserField(
+                dto,
+                (user, d) -> user.setUsername(d.username()),
+                (updated -> new UserUsernameDto(updated.getUsername())),
+                false
+        );
     }
 
     public Long updatePassword(
-            UserUpdatePasswordDto updatePassword,
-            UserDetails userDetails
+            UserUpdatePasswordDto dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        boolean matches = this.passwordEncoder.matches(updatePassword.currentPassword(), userDetails.getPassword());
+        UserEntity user = currentUserProvider.getCurrentUser();
+        boolean matches = this.passwordEncoder.matches(dto.currentPassword(), user.getPassword());
 
         if (!matches) {
             throw new AppException("Password do not match!", HttpStatus.FORBIDDEN);
         }
 
-        loggedUser.setPassword(this.passwordEncoder.encode(updatePassword.newPassword()));
-        this.userPersistence.saveEntityWithReturn(loggedUser);
-        return loggedUser.getId() ;
+        user.setPassword(this.passwordEncoder.encode(dto.newPassword()));
+        this.userPersistence.saveEntityWithReturn(user);
+        return user.getId();
     }
 
     public UserGenderDto updateGender(
-            UserUpdateGenderDto userUpdateGenderDto,
-            UserDetails userDetails
+            UserUpdateGenderDto dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        GenderEnum setGender = userUpdateGenderDto.gender();
-        loggedUser.setGender(setGender);
-
-        UserEntity updatedGenderEnum = this.userPersistence.saveEntityWithReturn(loggedUser);
-        return new UserGenderDto(updatedGenderEnum.getGender().getValue());
+        return updateUserField(
+                dto,
+                (user, d) -> user.setGender(dto.gender()),
+                updated -> new UserGenderDto(updated.getGender().getValue()),
+                false
+        );
     }
 
     public UserBirthdateDto updateBirthdate(
-            UserUpdateBirthdate userBirthdate,
-            UserDetails userDetails
+            UserUpdateBirthdate dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        loggedUser.setBirthdate(userBirthdate.birthdate());
-
-        UserEntity updatedBirthDate = this.userPersistence.saveEntityWithReturn(loggedUser);
-        return new UserBirthdateDto(updatedBirthDate.getBirthdate());
+        return updateUserField(
+                dto,
+                (user, d) -> user.setBirthdate(d.birthdate()),
+                updated -> new UserBirthdateDto(updated.getBirthdate()),
+                false
+        );
     }
 
     public UserInfoDto updateUserInfo(
-            UserUpdateInfo userUpdateInfo,
-            UserDetails userDetails
+            UserUpdateInfo dto
     ) {
-        UserEntity loggedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
-        loggedUser.setUserInfo(userUpdateInfo.userInfo());
-
-        UserEntity updatedUserInfo = this.userPersistence.saveEntityWithReturn(loggedUser);
-        return new UserInfoDto(updatedUserInfo.getUserInfo());
+        return updateUserField(
+                dto,
+                (user, d) -> user.setUserInfo(dto.userInfo()),
+                updated -> new UserInfoDto(updated.getUserInfo()),
+                false
+        );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -254,5 +252,17 @@ public class UserService {
 
         this.userPersistence.deleteEntityWithoutReturnById(currentUserId);
         return true;
+    }
+
+    private <T, R> R updateUserField(
+            T dto,
+            BiConsumer<UserEntity, T> updateAction,
+            Function<UserEntity, R> resultMapper,
+            boolean includeRoles
+    ) {
+        UserEntity user = includeRoles ? currentUserProvider.getCurrentUserWithRoles() : currentUserProvider.getCurrentUser();
+        updateAction.accept(user, dto);
+        UserEntity updatedUser = userPersistence.saveEntityWithReturn(user);
+        return resultMapper.apply(updatedUser);
     }
 }

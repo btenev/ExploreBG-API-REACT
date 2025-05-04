@@ -39,11 +39,9 @@ public class UserController {
     /*TODO: change name of dto to UserProfileData*/
     @Transactional(readOnly = true)
     @GetMapping("/my-profile")
-    public ResponseEntity<UserDetailsOwnerDto> getMyProfile(
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
+    public ResponseEntity<UserDetailsOwnerDto> getMyProfile() {
         UserDetailsOwnerDto byId =
-                this.userService.findMyProfile(userDetails);
+                this.userService.findMyProfile();
 
         return ResponseEntity.ok(byId);
     }
@@ -63,11 +61,10 @@ public class UserController {
 
     @PatchMapping("/email")
     public ResponseEntity<UserEmailDto> updateEmail(
-            @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody UserUpdateEmailDto userUpdateEmailDto
     ) {
         UserEmailRolesDto newEmail =
-                this.userService.updateEmail(userUpdateEmailDto, userDetails);
+                this.userService.updateEmail(userUpdateEmailDto);
 
         ResponseCookie accessCookie = this.userAuthProvider.getAccessCookie(newEmail.email());
 
@@ -81,22 +78,20 @@ public class UserController {
 
     @PatchMapping("/username")
     public ResponseEntity<UserUsernameDto> updateUsername(
-            @Valid @RequestBody UserUpdateUsernameDto userUpdateUsernameDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody UserUpdateUsernameDto userUpdateUsernameDto
     ) {
         UserUsernameDto username =
-                this.userService.updateUsername(userUpdateUsernameDto, userDetails);
+                this.userService.updateUsername(userUpdateUsernameDto);
 
         return ResponseEntity.ok(username);
     }
 
     @PatchMapping("/password")
     public ResponseEntity<MessageDto> updatePassword(
-            @Valid @RequestBody UserUpdatePasswordDto updatePassword,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody UserUpdatePasswordDto updatePassword
     ) {
         Long userId =
-                this.userService.updatePassword(updatePassword, userDetails);
+                this.userService.updatePassword(updatePassword);
 
         this.authService.revokeExistingRefreshToken(userId);
 
@@ -110,33 +105,30 @@ public class UserController {
 
     @PatchMapping("/gender")
     public ResponseEntity<UserGenderDto> updateGender(
-            @RequestBody UserUpdateGenderDto userUpdateGenderDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @RequestBody UserUpdateGenderDto userUpdateGenderDto
     ) {
         UserGenderDto userGenderDto =
-                this.userService.updateGender(userUpdateGenderDto, userDetails);
+                this.userService.updateGender(userUpdateGenderDto);
 
         return ResponseEntity.ok(userGenderDto);
     }
 
     @PatchMapping("/birthdate")
     public ResponseEntity<UserBirthdateDto> updateBirthdate(
-            @Valid @RequestBody UserUpdateBirthdate userUpdateBirthdate,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody UserUpdateBirthdate userUpdateBirthdate
     ) {
         UserBirthdateDto userBirthdateDto =
-                this.userService.updateBirthdate(userUpdateBirthdate, userDetails);
+                this.userService.updateBirthdate(userUpdateBirthdate);
 
         return ResponseEntity.ok(userBirthdateDto);
     }
 
     @PatchMapping("/user-info")
     public ResponseEntity<UserInfoDto> updateUserInfo(
-            @Valid @RequestBody UserUpdateInfo userUpdateInfo,
-            @AuthenticationPrincipal UserDetails userDetails
+            @Valid @RequestBody UserUpdateInfo userUpdateInfo
     ) {
         UserInfoDto userInfoDto =
-                this.userService.updateUserInfo(userUpdateInfo, userDetails);
+                this.userService.updateUserInfo(userUpdateInfo);
 
         return ResponseEntity.ok(userInfoDto);
     }
