@@ -6,9 +6,9 @@ import org.springframework.http.HttpStatus;
 
 public enum WaterAvailabilityEnum {
 
-    NO_INFORMATION("no-information"),
-    YES("yes"),
-    NO("no");
+    NO_INFORMATION("No information"),
+    YES("Yes"),
+    NO("No");
 
     private final String value;
 

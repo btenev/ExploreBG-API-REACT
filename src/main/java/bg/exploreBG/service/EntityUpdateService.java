@@ -123,7 +123,7 @@ public class EntityUpdateService {
         logger.info("TrailInfo: {}", isUpdated);
         isUpdated |= updateFieldIfDifferent(trail::getSeasonVisited, trail::setSeasonVisited, dto.seasonVisited());
         logger.info("SeasonVisited: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getWaterAvailable, trail::setWaterAvailable, dto.waterAvailable());
+        isUpdated |= updateFieldIfDifferent(trail::getWaterAvailability, trail::setWaterAvailability, dto.waterAvailability());
         logger.info("WaterAvailable: {}", isUpdated);
         isUpdated |= updateFieldIfDifferent(trail::getTrailDifficulty, trail::setTrailDifficulty, dto.trailDifficulty());
         logger.info("TrailDifficulty: {}", isUpdated);
