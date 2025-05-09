@@ -1,19 +1,14 @@
 package bg.exploreBG.model.dto.hikingTrail.validate;
 
+import bg.exploreBG.model.validation.ValidPlaceName;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public record HikingTrailUpdateStartPointDto(
-        @NotNull(message = "err-start-point-required")
-        @Pattern(
-                regexp = "^[A-Za-z]+(\\s?[A-Za-z]+)*$",
-                message = "err-place-regex"
-        )
-        @Size(
+        @NotNull(message = "Please enter the start point.")
+        @ValidPlaceName(
                 max = 30,
                 min = 3,
-                message = "err-place-length"
+                fieldName = "The start point"
         )
         String startPoint
 ) {

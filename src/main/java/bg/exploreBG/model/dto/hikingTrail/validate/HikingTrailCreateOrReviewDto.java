@@ -8,37 +8,31 @@ import bg.exploreBG.model.enums.DifficultyLevelEnum;
 import bg.exploreBG.model.enums.SeasonEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.enums.WaterAvailabilityEnum;
+import bg.exploreBG.model.validation.ValidPlaceName;
 import bg.exploreBG.updatable.UpdatableEntityDto;
-import bg.exploreBG.utils.RegexUtils;
-import bg.exploreBG.utils.ValidationMessages;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Set;
 
 public record HikingTrailCreateOrReviewDto(
         @NotNull(message = "Please enter the start point.")
-        @Pattern(
-                regexp = RegexUtils.PLACE_REGEX,
-                message = ValidationMessages.TEXT_PATTERN_GENERIC
-        )
-        @Size(
+        @ValidPlaceName(
                 max = 30,
                 min = 3,
-                message =  "The start point must be between {min} and {max} characters long."
+                fieldName = "The start point"
         )
         String startPoint,
 
         @NotNull(message = "Please enter the end point.")
-        @Pattern(
-                regexp = RegexUtils.PLACE_REGEX,
-                message = ValidationMessages.TEXT_PATTERN_GENERIC
-        )
-        @Size(
+        @ValidPlaceName(
                 max = 30,
                 min = 3,
-                message = "The end point must be between {min} and {max} characters long."
+                fieldName = "The end point"
         )
         String endPoint,
 
@@ -56,10 +50,13 @@ public record HikingTrailCreateOrReviewDto(
         )
         String trailInfo,
 
+        @NotNull(message = "Please specify the season you visited.")
         SeasonEnum seasonVisited,
 
+        @NotNull(message = "Please specify whether there is an available water source.")
         WaterAvailabilityEnum waterAvailability,
 
+        @NotNull(message = "Please specify the trail difficulty level.")
         DifficultyLevelEnum trailDifficulty,
 
         @JsonDeserialize(using = SuitableForEnumDeserializer.class)
@@ -69,14 +66,11 @@ public record HikingTrailCreateOrReviewDto(
         Integer elevationGained,
 
         @NotNull(message = "Please enter the village/town/city name near the trail.")
-        @Pattern(
-                regexp = RegexUtils.PLACE_REGEX,
-                message = ValidationMessages.TEXT_PATTERN_GENERIC
-        )
-        @Size(
+        @ValidPlaceName(
                 max = 30,
                 min = 3,
-                message = "The village/town/city name must be between {min} and {max} characters long.")
+                fieldName = "The village/town/city name"
+        )
         String nextTo,
 
         Set<DestinationIdDto> destinations,
