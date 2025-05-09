@@ -21,8 +21,8 @@ public class SuitableForEnumDeserializer extends JsonDeserializer<List<SuitableF
         ObjectCodec codec = p.getCodec();
         JsonNode tree = codec.readTree(p);
 
-        if (tree == null || tree.isEmpty()) {
-            throw new AppException("Invalid enum season value", HttpStatus.BAD_REQUEST);
+        if (tree == null || tree.isNull()  || tree.isEmpty()) {
+            throw new AppException("Please enter at least one activity.", HttpStatus.BAD_REQUEST);
         }
 
         List<SuitableForEnum> result = new ArrayList<>();
@@ -32,5 +32,10 @@ public class SuitableForEnumDeserializer extends JsonDeserializer<List<SuitableF
         }
 
         return result;
+    }
+
+    @Override
+    public List<SuitableForEnum> getNullValue(DeserializationContext ctxt) {
+        throw new AppException("Please enter at least one activity.", HttpStatus.BAD_REQUEST);
     }
 }
