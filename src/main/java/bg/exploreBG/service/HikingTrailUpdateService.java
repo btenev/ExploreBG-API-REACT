@@ -104,18 +104,18 @@ public class HikingTrailUpdateService {
                         getModificationDateIfUpdated(trail, isUpdated)));
     }
 
-    public HikingTrailWaterAvailableDto updateHikingTrailWaterAvailable(
+    public HikingTrailWaterAvailabilityDto updateHikingTrailWaterAvailable(
             Long trailId,
-            HikingTrailUpdateWaterAvailableDto dto,
+            HikingTrailUpdateWaterAvailabilityDto dto,
             UserDetails userDetails
     ) {
         return updateSimpleField(
                 trailId,
                 userDetails,
-                dto.waterAvailable(),
+                dto.waterAvailability(),
                 HikingTrailEntity::getWaterAvailability,
                 HikingTrailEntity::setWaterAvailability,
-                (trail, isUpdated) -> new HikingTrailWaterAvailableDto(
+                (trail, isUpdated) -> new HikingTrailWaterAvailabilityDto(
                         trail.getWaterAvailability().getValue(),
                         getModificationDateIfUpdated(trail, isUpdated)));
     }

@@ -14,6 +14,7 @@ import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.HikingTrailService;
+import bg.exploreBG.service.HikingTrailUpdateService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +37,14 @@ import java.util.List;
 public class HikingTrailController {
     private static final Logger logger = LoggerFactory.getLogger(HikingTrailController.class);
     private final HikingTrailService hikingTrailService;
+    private final HikingTrailUpdateService hikingTrailUpdateService;
 
-    public HikingTrailController(HikingTrailService hikingTrailService) {
+    public HikingTrailController(
+            HikingTrailService hikingTrailService,
+            HikingTrailUpdateService hikingTrailUpdateService
+    ) {
         this.hikingTrailService = hikingTrailService;
+        this.hikingTrailUpdateService = hikingTrailUpdateService;
     }
 
     /*
@@ -100,7 +106,7 @@ public class HikingTrailController {
             @PathVariable("id") Long trailId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-       this.hikingTrailService.deleteOwnedTrailById(trailId, userDetails);
+        this.hikingTrailService.deleteOwnedHikingTrailById(trailId, userDetails);
 
         return ResponseEntity.noContent().build();
     }
@@ -142,19 +148,19 @@ public class HikingTrailController {
 
     @PostMapping
     public ResponseEntity<HikingTrailIdDto> createHikingTrail(
-            @Valid @RequestBody HikingTrailCreateOrReviewDto hikingTrailCreateOrReviewDto,
+            @Valid @RequestBody HikingTrailCreateOrReviewDto createOrReviewDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
 //        logger.debug("Display create hiking trail request {}", hikingTrailCreateOrReviewDto);
 
         Long newHikingTrailId =
-                this.hikingTrailService.createHikingTrail(hikingTrailCreateOrReviewDto, userDetails);
+                this.hikingTrailService.createHikingTrail(createOrReviewDto, userDetails);
 
-        HikingTrailIdDto hikingTrailIdDto = new HikingTrailIdDto(newHikingTrailId);
+        HikingTrailIdDto responseDto = new HikingTrailIdDto(newHikingTrailId);
 
         return ResponseEntity
                 .created(URI.create("api/trails/" + newHikingTrailId))
-                .body(hikingTrailIdDto);
+                .body(responseDto);
     }
 
 //    @DeleteMapping("/{id}")
@@ -165,162 +171,143 @@ public class HikingTrailController {
     /*TODO: /api/trails/{id}/reviewer moved to superuser controller*/
 
     @PatchMapping("/{id}/start-point")
-    public ResponseEntity<ApiResponse<HikingTrailStartPointDto>> updateStartPoint(
+    public ResponseEntity<HikingTrailStartPointDto> updateStartPoint(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateStartPointDto hikingTrailUpdateStartPointDto,
+            @Valid @RequestBody HikingTrailUpdateStartPointDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailStartPointDto hikingTrailStartPointDto =
-                this.hikingTrailService
-                        .updateHikingTrailStartPoint(trailId, hikingTrailUpdateStartPointDto, userDetails);
+        HikingTrailStartPointDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailStartPoint(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailStartPointDto> response = new ApiResponse<>(hikingTrailStartPointDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/end-point")
-    public ResponseEntity<ApiResponse<HikingTrailEndPointDto>> updateEndPoint(
+    public ResponseEntity<HikingTrailEndPointDto> updateEndPoint(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateEndPointDto hikingTrailUpdateEndPointDto,
+            @Valid @RequestBody HikingTrailUpdateEndPointDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailEndPointDto hikingTrailEndPointDto =
-                this.hikingTrailService
-                        .updateHikingTrailEndPoint(trailId, hikingTrailUpdateEndPointDto, userDetails);
+        HikingTrailEndPointDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailEndPoint(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailEndPointDto> response = new ApiResponse<>(hikingTrailEndPointDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/total-distance")
-    public ResponseEntity<ApiResponse<HikingTrailTotalDistanceDto>> updateTotalDistance(
+    public ResponseEntity<HikingTrailTotalDistanceDto> updateTotalDistance(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateTotalDistanceDto hikingTrailUpdateTotalDistanceDto,
+            @Valid @RequestBody HikingTrailUpdateTotalDistanceDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
 //        logger.debug("Display hikingTrailUpdateTotalDistance {}", hikingTrailUpdateTotalDistanceDto);
 
-        HikingTrailTotalDistanceDto hikingTrailTotalDistanceDto =
-                this.hikingTrailService
-                        .updateHikingTrailTotalDistance(trailId, hikingTrailUpdateTotalDistanceDto, userDetails);
+        HikingTrailTotalDistanceDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailTotalDistance(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailTotalDistanceDto> response = new ApiResponse<>(hikingTrailTotalDistanceDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @PatchMapping("/{id}/water-available")
-    public ResponseEntity<ApiResponse<HikingTrailWaterAvailableDto>> updateWaterAvailable(
+    @PatchMapping("/{id}/water-availability")
+    public ResponseEntity<HikingTrailWaterAvailabilityDto> updateWaterAvailable(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateWaterAvailableDto hikingTrailUpdateWaterAvailableDto,
+            @Valid @RequestBody HikingTrailUpdateWaterAvailabilityDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailWaterAvailableDto hikingTrailWaterAvailableDto =
-                this.hikingTrailService
-                        .updateHikingTrailWaterAvailable(trailId, hikingTrailUpdateWaterAvailableDto, userDetails);
+        HikingTrailWaterAvailabilityDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailWaterAvailable(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailWaterAvailableDto> response = new ApiResponse<>(hikingTrailWaterAvailableDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/activity")
-    public ResponseEntity<ApiResponse<HikingTrailActivityDto>> updateHikingTrailActivity(
+    public ResponseEntity<HikingTrailActivityDto> updateHikingTrailActivity(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateActivityDto hikingTrailUpdateActivityDto,
+            @RequestBody HikingTrailUpdateActivityDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailActivityDto hikingTrailActivityDto =
-                this.hikingTrailService.updateHikingTrailActivity(trailId, hikingTrailUpdateActivityDto, userDetails);
+        HikingTrailActivityDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailActivity(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailActivityDto> response = new ApiResponse<>(hikingTrailActivityDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/trail-info")
-    public ResponseEntity<ApiResponse<HikingTrailTrailInfoDto>> updateTrailInfo(
+    public ResponseEntity<HikingTrailTrailInfoDto> updateTrailInfo(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateTrailInfoDto hikingTrailUpdateTrailInfoDto,
+            @Valid @RequestBody HikingTrailUpdateTrailInfoDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailTrailInfoDto hikingTrailTrailInfoDto =
-                this.hikingTrailService
-                        .updateHikingTrailTrailInfo(trailId, hikingTrailUpdateTrailInfoDto, userDetails);
+        HikingTrailTrailInfoDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailTrailInfo(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailTrailInfoDto> response = new ApiResponse<>(hikingTrailTrailInfoDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/elevation-gained")
-    public ResponseEntity<ApiResponse<HikingTrailElevationGainedDto>> updateElevationGained(
+    public ResponseEntity<HikingTrailElevationGainedDto> updateElevationGained(
             @PathVariable("id") Long trailId,
-            @Valid @RequestBody HikingTrailUpdateElevationGainedDto hikingTrailUpdateElevationGainedDto,
+            @Valid @RequestBody HikingTrailUpdateElevationGainedDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailElevationGainedDto hikingTrailElevationGainedDto =
-                this.hikingTrailService
-                        .updateHikingTrailElevationGained(trailId, hikingTrailUpdateElevationGainedDto, userDetails);
+        HikingTrailElevationGainedDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailElevationGained(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailElevationGainedDto> response = new ApiResponse<>(hikingTrailElevationGainedDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/trail-difficulty")
-    public ResponseEntity<ApiResponse<HikingTrailDifficultyDto>> updateTrailDifficulty(
+    public ResponseEntity<HikingTrailDifficultyDto> updateTrailDifficulty(
             @PathVariable("id") Long trailId,
-            @RequestBody HikingTrailUpdateTrailDifficultyDto hikingTrailUpdateTrailDifficultyDto,
+            @Valid @RequestBody HikingTrailUpdateTrailDifficultyDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        HikingTrailDifficultyDto trailDifficultyDto =
-                this.hikingTrailService
-                        .updateHikingTrailDifficulty(trailId, hikingTrailUpdateTrailDifficultyDto, userDetails);
+        HikingTrailDifficultyDto responseDto =
+                this.hikingTrailUpdateService
+                        .updateHikingTrailDifficulty(trailId, updateDto, userDetails);
 
-        ApiResponse<HikingTrailDifficultyDto> response = new ApiResponse<>(trailDifficultyDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/available-huts")
-    public ResponseEntity<ApiResponse<AccommodationWrapperDto>> updateAvailableHuts(
+    public ResponseEntity<AccommodationWrapperDto> updateAvailableHuts(
             @PathVariable("id") Long trailId,
-            @RequestBody HikingTrailUpdateAvailableHutsDto hikingTrailUpdateAvailableHutsDto,
+            @RequestBody HikingTrailUpdateAvailableHutsDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        AccommodationWrapperDto accommodationBasicDto =
-                this.hikingTrailService
+        AccommodationWrapperDto responseDto =
+                this.hikingTrailUpdateService
                         .updateHikingTrailAvailableHuts(
                                 trailId,
-                                hikingTrailUpdateAvailableHutsDto,
+                                updateDto,
                                 userDetails,
                                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
 
-        ApiResponse<AccommodationWrapperDto> response = new ApiResponse<>(accommodationBasicDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}/destinations")
-    public ResponseEntity<ApiResponse<DestinationWrapperDto>> updateDestinations(
+    public ResponseEntity<DestinationWrapperDto> updateDestinations(
             @PathVariable("id") Long trailId,
-            @RequestBody HikingTrailUpdateDestinationsDto hikingTrailUpdateDestinationsDto,
+            @RequestBody HikingTrailUpdateDestinationsDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        DestinationWrapperDto destinations =
-                this.hikingTrailService
+        DestinationWrapperDto responseDto =
+                this.hikingTrailUpdateService
                         .updateHikingTrailDestinations(
                                 trailId,
-                                hikingTrailUpdateDestinationsDto,
+                                updateDto,
                                 userDetails,
                                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED));
 
-        ApiResponse<DestinationWrapperDto> response = new ApiResponse<>(destinations);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responseDto);
     }
 
     /*TODO: Discuss validation message with Ivo*/
@@ -331,12 +318,13 @@ public class HikingTrailController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         boolean updatedMainImage =
-                this.hikingTrailService.updateHikingTrailMainImage(
-                        trailId,
-                        imageMainUpdateDto,
-                        userDetails,
-                        List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
-                );
+                this.hikingTrailUpdateService
+                        .updateHikingTrailMainImage(
+                                trailId,
+                                imageMainUpdateDto,
+                                userDetails,
+                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
+                        );
 
         ApiResponse<Boolean> response = new ApiResponse<>(updatedMainImage);
 

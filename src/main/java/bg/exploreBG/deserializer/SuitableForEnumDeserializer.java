@@ -21,14 +21,18 @@ public class SuitableForEnumDeserializer extends JsonDeserializer<List<SuitableF
         ObjectCodec codec = p.getCodec();
         JsonNode tree = codec.readTree(p);
 
-        if (tree == null || tree.isNull()  || tree.isEmpty()) {
+        if (tree == null || tree.isNull() || !tree.isArray() || tree.isEmpty()) {
             throw new AppException("Please enter at least one activity.", HttpStatus.BAD_REQUEST);
         }
 
         List<SuitableForEnum> result = new ArrayList<>();
         for (JsonNode jsonNode : tree) {
             String activity = jsonNode.asText();
-            result.add(SuitableForEnum.stringToSuitableForEnum(activity));
+            try {
+                result.add(SuitableForEnum.stringToSuitableForEnum(activity));
+            } catch (IllegalArgumentException e) {
+                throw new AppException("Invalid activity: " + activity, HttpStatus.BAD_REQUEST);
+            }
         }
 
         return result;

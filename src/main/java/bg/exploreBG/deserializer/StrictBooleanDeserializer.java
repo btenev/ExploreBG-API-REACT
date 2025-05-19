@@ -13,7 +13,7 @@ public class StrictBooleanDeserializer extends JsonDeserializer<Boolean> {
 
     @Override
     public Boolean deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-        String value = jsonParser.getText();
+        String value = jsonParser.getValueAsString();
 
         if ("true".equalsIgnoreCase(value)) {
             return true;
