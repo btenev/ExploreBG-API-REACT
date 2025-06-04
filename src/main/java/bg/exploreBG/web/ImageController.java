@@ -69,9 +69,9 @@ public class ImageController {
     }
 
     @PatchMapping("/entity/{id}")
-    public ResponseEntity<ApiResponseCollection<ImageIdUrlIsMainDto>> saveImages(
+    public ResponseEntity<List<ImageIdUrlIsMainDto>> saveImages(
             @PathVariable("id") Long entityId,
-            @RequestPart("data") ImageCreateDto imageCreateDto,
+            @Valid @RequestPart("data") ImageCreateDto imageCreateDto,
             @RequestPart("file") MultipartFile[] files,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
@@ -83,26 +83,22 @@ public class ImageController {
                         imageCreateDto,
                         files);
 
-        ApiResponseCollection<ImageIdUrlIsMainDto> response = new ApiResponseCollection<>(urlDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(urlDto);
     }
 
     @DeleteMapping("/entity/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteImages(
+    public ResponseEntity<Void> deleteImages(
             @PathVariable Long id,
             @RequestBody EntityIdsToDeleteDto toDeleteDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = switch (toDeleteDto.folder().toLowerCase()) {
+        switch (toDeleteDto.folder().toLowerCase()) {
             case "trails" -> this.imageService.deleteTrailPicturesById(id, toDeleteDto, userDetails);
             case "accommodations" -> this.imageService.deleteAccommodationPicturesById(id, toDeleteDto, userDetails);
             default -> throw new IllegalStateException("Unexpected value: " + toDeleteDto.folder().toLowerCase());
         };
 
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 /*
 POST /api/images/user - Creates or updates a single image entity for a user.

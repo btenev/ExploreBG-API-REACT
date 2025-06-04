@@ -10,7 +10,10 @@ import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -22,12 +25,14 @@ public interface HikingTrailMapper {
 
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(trail.getModificationDate(), trail.getCreationDate()))")
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(trail.getImages(), trail))")
+    @Mapping(target = "totalDistance", qualifiedByName = "formatDistance")
     HikingTrailDetailsDto hikingTrailEntityToHikingTrailDetailsDto(HikingTrailEntity trail);
 
     @Mapping(target = "id", source = "trail.id")
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(trail.getModificationDate(), trail.getCreationDate()))")
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(trail.getImages(), trail))")
     @Mapping(target = "likedByUser", expression = "java(trailIsLikedByUser(trail.getLikedByUsers(), user))")
+    @Mapping(target = "totalDistance", qualifiedByName = "formatDistance")
     HikingTrailDetailsLikeDto hikingTrailEntityToHikingTrailDetailsLikeDto(HikingTrailEntity trail, UserEntity user);
 
     HikingTrailReviewDto hikingTrailEntityToHikingTrailReviewDto(HikingTrailEntity trail);
@@ -76,4 +81,13 @@ public interface HikingTrailMapper {
         }
         return modificationDate.isAfter(creationDate) ? modificationDate : creationDate;
     }
+
+    @Named("formatDistance")
+    default Double formatDistance(Double value) {
+        if (value == null) return null;
+        return BigDecimal.valueOf(value)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
 }

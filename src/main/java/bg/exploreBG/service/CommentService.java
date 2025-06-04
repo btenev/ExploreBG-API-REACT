@@ -3,8 +3,7 @@ package bg.exploreBG.service;
 import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
-import bg.exploreBG.model.dto.comment.validate.CommentUpdateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -45,7 +44,7 @@ public class CommentService {
     public <E extends CommentableEntity> CommentDto addComment(
             Long entityId,
             StatusEnum status,
-            CommentCreateDto commentDto,
+            CommentRequestDto requestDto,
             UserDetails userDetails,
             BiFunction<Long, StatusEnum, E> fetchEntityWithComments,
             Consumer<E> saveEntity
@@ -54,7 +53,7 @@ public class CommentService {
 
         UserEntity userCommenting = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
-        CommentEntity savedComment = saveComment(commentDto, userCommenting);
+        CommentEntity savedComment = saveComment(requestDto, userCommenting);
 
         currentEntity.setSingleComment(savedComment);
         saveEntity.accept(currentEntity);
@@ -64,7 +63,7 @@ public class CommentService {
 
     public CommentDto updateComment(
             Long commentId,
-            CommentUpdateDto commentDto,
+            CommentRequestDto commentDto,
             UserDetails userDetails
     ) {
         CommentEntity verifiedComment =
@@ -102,14 +101,14 @@ public class CommentService {
         deleteComment.accept(currentEntity);
     }
 
-    private CommentEntity saveComment(CommentCreateDto commentDto, UserEntity commentUser) {
+    private CommentEntity saveComment(CommentRequestDto commentDto, UserEntity commentUser) {
         CommentEntity newComment = createNewComment(commentDto, commentUser);
         return this.commentPersistence.saveEntityWithReturn(newComment);
     }
 
     private CommentEntity updateCommentValues(
             CommentEntity verifiedComment,
-            CommentUpdateDto commentDto
+            CommentRequestDto commentDto
     ) {
         verifiedComment.setMessage(commentDto.message());
         verifiedComment.setModificationDate(LocalDateTime.now());
@@ -118,7 +117,7 @@ public class CommentService {
     }
 
     private CommentEntity createNewComment(
-            CommentCreateDto commentDto,
+            CommentRequestDto commentDto,
             UserEntity verifiedUser
     ) {
         CommentEntity newComment = new CommentEntity();

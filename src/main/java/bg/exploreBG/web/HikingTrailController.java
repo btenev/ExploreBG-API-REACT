@@ -1,16 +1,15 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.dto.LikeResponseDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationWrapperDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
-import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.destination.DestinationWrapperDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailIdTrailNameDto;
 import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
+import bg.exploreBG.model.dto.image.single.ImageIdDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.HikingTrailService;
@@ -65,8 +64,6 @@ public class HikingTrailController {
         } else {
             randomTrails = this.hikingTrailService.getRandomNumOfHikingTrails(4);
         }
-
-//        ApiResponse<?> response = new ApiResponse<>(randomTrails);
 
         return ResponseEntity.ok(randomTrails);
     }
@@ -141,9 +138,7 @@ public class HikingTrailController {
             allHikingTrails = this.hikingTrailService.getAllApprovedHikingTrails(pageable);
         }
 
-        ApiResponse<Page<?>> response = new ApiResponse<>(allHikingTrails);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(allHikingTrails);
     }
 
     @PostMapping
@@ -310,14 +305,13 @@ public class HikingTrailController {
         return ResponseEntity.ok(responseDto);
     }
 
-    /*TODO: Discuss validation message with Ivo*/
     @PatchMapping("/{id}/main-image")
-    public ResponseEntity<ApiResponse<Boolean>> changeMainImage(
+    public ResponseEntity<ImageIdDto> changeMainImage(
             @PathVariable("id") Long trailId,
             @Valid @RequestBody ImageMainUpdateDto imageMainUpdateDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean updatedMainImage =
+        Long updatedMainImage =
                 this.hikingTrailUpdateService
                         .updateHikingTrailMainImage(
                                 trailId,
@@ -326,9 +320,7 @@ public class HikingTrailController {
                                 List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
                         );
 
-        ApiResponse<Boolean> response = new ApiResponse<>(updatedMainImage);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ImageIdDto(updatedMainImage));
     }
 
     /*TODO: returns only messages, no errors*/
@@ -356,32 +348,35 @@ public class HikingTrailController {
         return ResponseEntity.ok(selected);
     }
 
-    @PostMapping("/{trailId}/comments")
-    public ResponseEntity<ApiResponse<CommentDto>> createTrailComment(
-            @PathVariable Long trailId,
-            @Valid @RequestBody CommentCreateDto commentCreateDto,
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentDto>> getTrailComments(@PathVariable("id") Long trailId) {
+        List<CommentDto> comments =
+                this.hikingTrailService.getHikingTrailComments(trailId);
+
+        return ResponseEntity.ok(comments);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentDto> createTrailComment(
+            @PathVariable("id") Long trailId,
+            @Valid @RequestBody CommentRequestDto createDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        CommentDto commentDto = this.hikingTrailService
-                .addNewTrailComment(trailId, commentCreateDto, userDetails, StatusEnum.APPROVED);
+        CommentDto dto =
+                this.hikingTrailService
+                        .addNewTrailComment(trailId, createDto, userDetails, StatusEnum.APPROVED);
 
-        ApiResponse<CommentDto> response = new ApiResponse<>(commentDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{trailId}/comments/{commentId}")
-    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteTrailComment(
+    public ResponseEntity<Void> deleteTrailComment(
             @PathVariable Long trailId,
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean removed = this.hikingTrailService.deleteTrailComment(trailId, commentId, userDetails);
+        this.hikingTrailService.deleteTrailComment(trailId, commentId, userDetails);
 
-        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
-
-        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }

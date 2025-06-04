@@ -6,9 +6,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface CommentMapper {
+
+    @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(comment.getModificationDate(), comment.getCreationDate()))")
+    List<CommentDto> commentEntityListToCommentDtoList(List<CommentEntity> comments);
 
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(comment.getModificationDate(), comment.getCreationDate()))")
     CommentDto commentEntityToCommentDto(CommentEntity comment);

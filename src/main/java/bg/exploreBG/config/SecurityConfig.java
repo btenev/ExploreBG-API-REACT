@@ -61,6 +61,7 @@ public class SecurityConfig {
                             "/api/trails/random",
                             "/api/trails/{id:[1-9][0-9]*}",
                             "/api/trails",
+                            "/api/trails/{id:[1-9][0-9]*}/comments",
                             "/api/utilities/**",
                             "/api/users/{id:[1-9]+}",
                             "/auth/token/refresh"

@@ -31,7 +31,6 @@ public record HikingTrailDetailsLikeDto(
         DifficultyLevelEnum trailDifficulty,
         @JsonSerialize(using = SuitableForEnumSerializer.class)
         List<SuitableForEnum> activity,
-        List<CommentDto> comments,
         Integer elevationGained,
         String nextTo,
         UserBasicInfo createdBy,

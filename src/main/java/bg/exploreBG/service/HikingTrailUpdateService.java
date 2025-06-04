@@ -220,7 +220,7 @@ public class HikingTrailUpdateService {
                         getModificationDateIfUpdated(trail, isUpdated)));
     }
 
-    public boolean updateHikingTrailMainImage(
+    public long updateHikingTrailMainImage(
             Long trailId,
             ImageMainUpdateDto dto,
             UserDetails userDetails,
@@ -241,7 +241,7 @@ public class HikingTrailUpdateService {
             this.trailPersistence.saveEntityWithoutReturn(currentTrail);
         }
 
-        return true;
+        return found.getId();
     }
 
     private <T, R> R updateSimpleField(

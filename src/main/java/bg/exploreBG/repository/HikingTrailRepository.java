@@ -1,6 +1,8 @@
 package bg.exploreBG.repository;
 
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.hikingTrail.*;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -21,6 +23,13 @@ import java.util.Optional;
 
 @Repository
 public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, Long>, HikingTrailRepositoryCustom {
+
+    @Query("""
+            SELECT t.comments
+            FROM HikingTrailEntity t
+                        WHERE t.id = :trailId
+            """)
+    List<CommentEntity> findAllCommentsByTrailId(@Param("trailId")Long trailId);
 
     @EntityGraph(attributePaths = {"likedByUsers"})
     Optional<HikingTrailEntity> findWithLikesByIdAndStatus(Long id, StatusEnum detailsStatus);

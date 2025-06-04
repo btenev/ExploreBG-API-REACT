@@ -1,7 +1,9 @@
 package bg.exploreBG.querybuilder;
 
 import bg.exploreBG.exception.AppException;
+import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.hikingTrail.*;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -200,5 +202,9 @@ public class HikingTrailQueryBuilder {
     private AppException trailNotFoundOrInvalidStatusOrNotOwnerException() {
         return new AppException("The hiking trail you are looking for was not found, has an invalid status, or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    public List<CommentEntity> getHikingTrailCommentsById(Long trailId) {
+        return this.repository.findAllCommentsByTrailId(trailId);
     }
 }

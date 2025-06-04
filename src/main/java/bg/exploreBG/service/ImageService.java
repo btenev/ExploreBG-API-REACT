@@ -32,7 +32,7 @@ public class ImageService {
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
     private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
     private final GenericPersistenceService<UserEntity> userPersistence;
-    private final GenericPersistenceService<DestinationEntity>destinationPersistence;
+    private final GenericPersistenceService<DestinationEntity> destinationPersistence;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
     private final ImageQueryBuilder imageQueryBuilder;
@@ -144,7 +144,7 @@ public class ImageService {
                 .toList();
     }
 
-    public boolean deleteTrailPicturesById(
+    public void deleteTrailPicturesById(
             Long trailId,
             EntityIdsToDeleteDto toDeleteDto,
             UserDetails userDetails
@@ -154,10 +154,9 @@ public class ImageService {
         /*TODO: return of the entity is not needed here, think about alternative solution*/
         deleteImagesFromEntityWithoutReturn(currentTrail, toDeleteDto, this.trailPersistence::saveEntityWithoutReturn);
 
-        return true;
     }
 
-    public boolean deleteAccommodationPicturesById(
+    public void deleteAccommodationPicturesById(
             Long accommodationId,
             EntityIdsToDeleteDto toDeleteDto,
             UserDetails userDetails
@@ -168,14 +167,15 @@ public class ImageService {
         /*TODO: return of the entity is not needed here, think about alternative solution*/
         deleteImagesFromEntityWithoutReturn(accommodation, toDeleteDto, this.accommodationPersistence::saveEntityWithoutReturn);
 
-        return true;
     }
 
     private <T extends ReviewableWithImages & OwnableEntity> void saveEntity(T entity, String folder) {
         switch (folder.toLowerCase()) {
             case "trails", "trails-demo" -> this.trailPersistence.saveEntityWithoutReturn((HikingTrailEntity) entity);
-            case "accommodations", "accommodations-demo" -> this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
-            case "destinations", "destinations-demo" -> this.destinationPersistence.saveEntityWithoutReturn((DestinationEntity) entity);
+            case "accommodations", "accommodations-demo" ->
+                    this.accommodationPersistence.saveEntityWithoutReturn((AccommodationEntity) entity);
+            case "destinations", "destinations-demo" ->
+                    this.destinationPersistence.saveEntityWithoutReturn((DestinationEntity) entity);
             default -> throw new IllegalStateException("Unexpected value: " + folder.toLowerCase());
         }
     }
@@ -212,6 +212,24 @@ public class ImageService {
             Consumer<T> entitySaverWithoutReturn
     ) {
         deleteImagesFromEntity(entity, toDeleteDto, entitySaverWithoutReturn, null, false);
+    }
+
+    public <T extends ReviewableWithImages> void deleteAllImagesFromEntityWithoutReturn(
+            T entity,
+            Consumer<T> entitySaverWithoutReturn
+    ) {
+        List<ImageEntity> allEntityImageToDelete = new ArrayList<>( entity.getImages());
+        logger.info("Images to delete: {}", allEntityImageToDelete);
+        validateDeleteResult(new LinkedHashSet<>(allEntityImageToDelete));
+
+        entity.getImages().removeAll(allEntityImageToDelete);
+        logger.info("All images successfully removed from currentTrail.");
+        entity.setMainImage(null);
+        logger.info("Main image was deleted and no other images exist. Main image set to null.");
+
+        entitySaverWithoutReturn.accept(entity);
+
+        this.imagePersistence.deleteEntitiesWithoutReturn(allEntityImageToDelete);
     }
 
     private <T extends ReviewableWithImages> T deleteImagesFromEntity(
