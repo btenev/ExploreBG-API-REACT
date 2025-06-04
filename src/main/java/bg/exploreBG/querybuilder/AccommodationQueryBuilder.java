@@ -6,6 +6,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.AccommodationRepository;
@@ -141,6 +142,10 @@ public class AccommodationQueryBuilder {
     ) {
         return this.repository.findByIdAndEntityStatus(accommodationId, supeStatus)
                 .orElseThrow(this::accommodationNotFoundOrInvalidStatusException);
+    }
+
+    public List<CommentEntity> getAccommodationCommentsById(Long accommodationId) {
+        return this.repository.findAllCommentsByAccommodationId(accommodationId);
     }
 
     public void removeUserFromAccommodationsByUserEmailIfOwner(Long newOwnerId, String oldOwnerEmail) {

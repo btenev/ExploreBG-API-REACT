@@ -185,6 +185,10 @@ public class HikingTrailQueryBuilder {
         }
     }
 
+    public List<CommentEntity> getHikingTrailCommentsById(Long trailId) {
+        return this.repository.findAllCommentsByTrailId(trailId);
+    }
+
     private AppException trailNotFoundException() {
         return new AppException("The hiking trail you are looking for was not found.", HttpStatus.NOT_FOUND);
     }
@@ -202,9 +206,5 @@ public class HikingTrailQueryBuilder {
     private AppException trailNotFoundOrInvalidStatusOrNotOwnerException() {
         return new AppException("The hiking trail you are looking for was not found, has an invalid status, or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
-    }
-
-    public List<CommentEntity> getHikingTrailCommentsById(Long trailId) {
-        return this.repository.findAllCommentsByTrailId(trailId);
     }
 }

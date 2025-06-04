@@ -32,7 +32,6 @@ public record AccommodationDetailsWithLikesDto(
         AccommodationTypeEnum type,
         String nextTo,
         List<ImageIdUrlIsMainStatusDto> images,
-        List<CommentDto> comments,
         boolean likedByUser,
         @JsonSerialize(using = StatusEnumSerializer.class)
         @JsonProperty(value = "detailsStatus")

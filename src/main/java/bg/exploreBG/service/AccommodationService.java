@@ -8,7 +8,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
@@ -17,6 +17,7 @@ import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
+import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.ImageUtils;
@@ -48,6 +49,7 @@ public class AccommodationService {
     private final EntityUpdateService entityUpdateService;
     private final CommentService commentService;
     private final GenericPersistenceService<CommentEntity> commentPersistence;
+    private final CommentMapper commentMapper;
 
     public AccommodationService(
             AccommodationMapper accommodationMapper,
@@ -57,7 +59,8 @@ public class AccommodationService {
             LikeService likeService,
             EntityUpdateService entityUpdateService,
             CommentService commentService,
-            GenericPersistenceService<CommentEntity> commentPersistence
+            GenericPersistenceService<CommentEntity> commentPersistence,
+            CommentMapper commentMapper
     ) {
         this.mapper = accommodationMapper;
         this.accommodationPersistence = accommodationPersistence;
@@ -67,6 +70,7 @@ public class AccommodationService {
         this.entityUpdateService = entityUpdateService;
         this.commentService = commentService;
         this.commentPersistence = commentPersistence;
+        this.commentMapper = commentMapper;
     }
 
     public List<AccommodationBasicDto> getRandomNumOfAccommodations(int limit) {
@@ -405,22 +409,27 @@ public class AccommodationService {
         return true;
     }
 
+    public List<CommentDto> getAccommodationComments(Long accommodationId) {
+        List<CommentEntity> comments = this.accommodationQueryBuilder.getAccommodationCommentsById(accommodationId);
+        return this.commentMapper.commentEntityListToCommentDtoList(comments);
+    }
+
     public CommentDto addAccommodationComment(
             Long accommodationId,
-            CommentCreateDto commentCreateDto,
+            CommentRequestDto requestDto,
             UserDetails userDetails,
             StatusEnum status
     ) {
         return this.commentService.addComment(
                 accommodationId,
                 status,
-                commentCreateDto,
+                requestDto,
                 userDetails,
                 this.accommodationQueryBuilder::getAccommodationWithCommentsByIdAndStatus,
                 this.accommodationPersistence::saveEntityWithoutReturn);
     }
 
-    public boolean deleteAccommodationComment(
+    public void deleteAccommodationComment(
             Long accommodationId,
             Long commentId,
             UserDetails userDetails
@@ -432,8 +441,7 @@ public class AccommodationService {
                         userDetails,
                         this.accommodationQueryBuilder::getAccommodationWithCommentsById,
                         this.accommodationPersistence::saveEntityWithoutReturn,
-                        ignored-> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
-        return true;
+                        ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
     }
 }
 

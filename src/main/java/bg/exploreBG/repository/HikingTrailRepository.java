@@ -1,6 +1,5 @@
 package bg.exploreBG.repository;
 
-import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.hikingTrail.*;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
@@ -27,9 +26,9 @@ public interface HikingTrailRepository extends JpaRepository<HikingTrailEntity, 
     @Query("""
             SELECT t.comments
             FROM HikingTrailEntity t
-                        WHERE t.id = :trailId
+            WHERE t.id = :trailId
             """)
-    List<CommentEntity> findAllCommentsByTrailId(@Param("trailId")Long trailId);
+    List<CommentEntity> findAllCommentsByTrailId(@Param("trailId") Long trailId);
 
     @EntityGraph(attributePaths = {"likedByUsers"})
     Optional<HikingTrailEntity> findWithLikesByIdAndStatus(Long id, StatusEnum detailsStatus);

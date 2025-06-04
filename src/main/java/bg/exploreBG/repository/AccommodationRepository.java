@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationBasicLikesDto;
 import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.custom.AccommodationRepositoryCustom;
@@ -24,6 +25,13 @@ import java.util.Optional;
 
 @Repository
 public interface AccommodationRepository extends JpaRepository<AccommodationEntity, Long>, AccommodationRepositoryCustom {
+
+    @Query("""
+            SELECT a.comments
+            FROM AccommodationEntity a
+            WHERE a.id = :accommodationId
+            """)
+    List<CommentEntity> findAllCommentsByAccommodationId(@Param("accommodationId") Long accommodationId);
 
     @Query("""
             SELECT new bg.exploreBG.model.dto.accommodation.AccommodationBasicDto(
@@ -140,4 +148,6 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
             Pageable pageable);
 
     Optional<AccommodationEntity> findByIdAndEntityStatus(Long id, SuperUserReviewStatusEnum status);
+
+
 }

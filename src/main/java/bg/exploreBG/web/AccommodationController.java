@@ -7,8 +7,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
-import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.AccommodationService;
@@ -302,35 +301,38 @@ public class AccommodationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentDto>> getAccommodationComments(@PathVariable("id") Long accommodationId) {
+        List<CommentDto> comments =
+                this.accommodationService
+                        .getAccommodationComments(accommodationId);
+
+        return ResponseEntity.ok(comments);
+    }
+
+
     @PostMapping("/{id}/comments")
-    public ResponseEntity<ApiResponse<CommentDto>> createAccommodationComment(
+    public ResponseEntity<CommentDto> createAccommodationComment(
             @PathVariable("id") Long accommodationId,
-            @Valid @RequestBody CommentCreateDto commentCreateDto,
+            @Valid @RequestBody CommentRequestDto requestDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         CommentDto comment =
                 this.accommodationService
-                        .addAccommodationComment(accommodationId, commentCreateDto, userDetails, StatusEnum.APPROVED);
+                        .addAccommodationComment(accommodationId, requestDto, userDetails, StatusEnum.APPROVED);
 
-        ApiResponse<CommentDto> response = new ApiResponse<>(comment);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(comment);
     }
 
     @DeleteMapping("/{accommodationId}/comments/{commentId}")
-    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteAccommodationComment(
+    public ResponseEntity<Void> deleteAccommodationComment(
             @PathVariable("accommodationId") Long accommodationId,
             @PathVariable("commentId") Long commentId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean removed =
-                this.accommodationService.deleteAccommodationComment(accommodationId, commentId, userDetails);
+        this.accommodationService.deleteAccommodationComment(accommodationId, commentId, userDetails);
 
-        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
-
-        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/like")
