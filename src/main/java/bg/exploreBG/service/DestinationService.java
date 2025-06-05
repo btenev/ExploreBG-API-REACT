@@ -2,7 +2,7 @@ package bg.exploreBG.service;
 
 import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
 import bg.exploreBG.model.dto.destination.DestinationDetailsDto;
@@ -16,6 +16,7 @@ import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
+import bg.exploreBG.model.mapper.CommentMapper;
 import bg.exploreBG.model.mapper.DestinationMapper;
 import bg.exploreBG.querybuilder.DestinationQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
@@ -47,6 +48,7 @@ public class DestinationService {
     private final LikeService likeService;
     private final CommentService commentService;
     private final EntityUpdateService entityUpdateService;
+    private final CommentMapper commentMapper;
     private static final Logger logger = LoggerFactory.getLogger(DestinationService.class);
 
     public DestinationService(
@@ -57,7 +59,8 @@ public class DestinationService {
             DestinationQueryBuilder destinationQueryBuilder,
             LikeService likeService,
             CommentService commentService,
-            EntityUpdateService entityUpdateService
+            EntityUpdateService entityUpdateService,
+            CommentMapper commentMapper
     ) {
         this.mapper = destinationMapper;
         this.destinationPersistence = destinationPersistence;
@@ -67,6 +70,7 @@ public class DestinationService {
         this.likeService = likeService;
         this.commentService = commentService;
         this.entityUpdateService = entityUpdateService;
+        this.commentMapper = commentMapper;
     }
 
     public List<DestinationBasicDto> getRandomNumOfDestinations(int limit) {
@@ -160,7 +164,7 @@ public class DestinationService {
 
     public CommentDto addDestinationComment(
             Long destinationId,
-            CommentCreateDto commentCreate,
+            CommentRequestDto requestDto,
             UserDetails userDetails,
             StatusEnum status
     ) {
@@ -168,13 +172,13 @@ public class DestinationService {
         return this.commentService.addComment(
                 destinationId,
                 status,
-                commentCreate,
+                requestDto,
                 userDetails,
                 this.destinationQueryBuilder::getDestinationWithCommentsByIdAndStatus,
                 this.destinationPersistence::saveEntityWithoutReturn);
     }
 
-    public boolean deleteDestinationComment(
+    public void deleteDestinationComment(
             Long destinationId,
             Long commentId,
             UserDetails userDetails
@@ -186,7 +190,6 @@ public class DestinationService {
                 this.destinationQueryBuilder::getDestinationWithCommentsById,
                 this.destinationPersistence::saveEntityWithoutReturn,
                 ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
-        return true;
     }
 
     public DestinationNameDto updateDestinationName(
@@ -332,6 +335,11 @@ public class DestinationService {
             destination = this.destinationPersistence.saveEntityWithReturn(destination);
         }
         return destination;
+    }
+
+    public List<CommentDto> getDestinationComments(Long destinationId) {
+        List<CommentEntity> comments = this.destinationQueryBuilder.getDestinationCommentsById(destinationId);
+        return this.commentMapper.commentEntityListToCommentDtoList(comments);
     }
 
 //    public boolean deleteOwnedDestinationById(

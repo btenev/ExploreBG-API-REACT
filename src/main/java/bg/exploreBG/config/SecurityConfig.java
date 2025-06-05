@@ -56,6 +56,7 @@ public class SecurityConfig {
                             "/api/destinations/random",
                             "/api/destinations/{id:[1-9]+}",
                             "/api/destinations",
+                            "/api/destinations/{id:[1-9][0-9]*}/comments",
                             "/api/hikes/random",
                             "/api/hikes/{id:[1-9]+}",
                             "/api/hikes",

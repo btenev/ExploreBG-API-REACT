@@ -4,8 +4,7 @@ import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.dto.LikeResponseDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
-import bg.exploreBG.model.dto.comment.single.CommentDeletedReplyDto;
-import bg.exploreBG.model.dto.comment.validate.CommentCreateDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
 import bg.exploreBG.model.dto.destination.single.*;
 import bg.exploreBG.model.dto.destination.validate.*;
@@ -65,17 +64,18 @@ public class DestinationController {
             @PathVariable("id") Long destinationId,
             Authentication authentication
     ) {
-        ApiResponse<?> response;
+        Object response;
+
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetails userDetails) {
-                response = new ApiResponse<>(
-                        this.destinationService.getDestinationAuthenticated(destinationId, userDetails));
+                response =
+                        this.destinationService.getDestinationAuthenticated(destinationId, userDetails);
             } else {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            response = new ApiResponse<>(this.destinationService.getDestinationDetailsById(destinationId));
+            response = this.destinationService.getDestinationDetailsById(destinationId);
         }
 
         return ResponseEntity.ok(response);
@@ -161,36 +161,39 @@ public class DestinationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentDto>> getDestinationComments(@PathVariable("id") Long destinationId) {
+        List<CommentDto> comments =
+                this.destinationService
+                        .getDestinationComments(destinationId);
+
+        return ResponseEntity.ok(comments);
+    }
+
     @PostMapping("/{id}/comments")
-    public ResponseEntity<ApiResponse<CommentDto>> createDestinationComment(
+    public ResponseEntity<CommentDto> createDestinationComment(
             @PathVariable("id") Long destinationId,
-            @Valid @RequestBody CommentCreateDto commentCreateDto,
+            @Valid @RequestBody CommentRequestDto requestDto,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        CommentDto comment =
+        CommentDto dto =
                 this.destinationService
-                        .addDestinationComment(destinationId, commentCreateDto, userDetails, StatusEnum.APPROVED);
+                        .addDestinationComment(destinationId, requestDto, userDetails, StatusEnum.APPROVED);
 
-        ApiResponse<CommentDto> response = new ApiResponse<>(comment);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{destinationId}/comments/{commentId}")
-    public ResponseEntity<ApiResponse<CommentDeletedReplyDto>> deleteDestinationComment(
+    public ResponseEntity<Void> deleteDestinationComment(
             @PathVariable("destinationId") Long destinationId,
             @PathVariable("commentId") Long commentId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean removed =
-                this.destinationService
-                        .deleteDestinationComment(destinationId, commentId, userDetails);
 
-        CommentDeletedReplyDto replyDto = new CommentDeletedReplyDto(removed);
+        this.destinationService
+                .deleteDestinationComment(destinationId, commentId, userDetails);
 
-        ApiResponse<CommentDeletedReplyDto> response = new ApiResponse<>(replyDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/destination-name")

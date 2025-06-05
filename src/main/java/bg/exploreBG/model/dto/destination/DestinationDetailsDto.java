@@ -1,6 +1,5 @@
 package bg.exploreBG.model.dto.destination;
 
-import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
@@ -28,8 +27,7 @@ public record DestinationDetailsDto(
         LocalDateTime lastUpdateDate,
         @JsonSerialize(using = StatusEnumSerializer.class)
         @JsonProperty(value = "detailsStatus")
-        StatusEnum status,
-        List<CommentDto> comments
+        StatusEnum status
 ) {
 }
 

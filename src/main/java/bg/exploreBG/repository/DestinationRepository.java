@@ -4,6 +4,7 @@ import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
 import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
@@ -24,6 +25,14 @@ import java.util.Optional;
 
 @Repository
 public interface DestinationRepository extends JpaRepository<DestinationEntity, Long>, DestinationRepositoryCustom {
+
+    @Query("""
+            SELECT d.comments
+            FROM DestinationEntity d
+            WHERE d.id = :destinationId
+            """)
+    List<CommentEntity> findAllCommentsByDestinationId(@Param("destinationId") Long destinationId);
+
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     int countDestinationEntitiesByEntityStatus(SuperUserReviewStatusEnum status);
 

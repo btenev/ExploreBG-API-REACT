@@ -5,11 +5,11 @@ import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
 import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.DestinationRepository;
-import bg.exploreBG.reviewable.ReviewableWithImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,6 +27,10 @@ public class DestinationQueryBuilder {
 
     public DestinationQueryBuilder(DestinationRepository repository) {
         this.repository = repository;
+    }
+
+    public List<CommentEntity> getDestinationCommentsById(Long destinationId) {
+        return this.repository.findAllCommentsByDestinationId(destinationId);
     }
 
     public List<DestinationBasicDto> getRandomNumOfDestinations(Pageable pageable) {

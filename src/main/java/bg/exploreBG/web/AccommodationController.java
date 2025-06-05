@@ -64,17 +64,18 @@ public class AccommodationController {
             @PathVariable("id") Long accommodationId,
             Authentication authentication
     ) {
-        ApiResponse<?> response;
+        Object response;
+
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetails userDetails) {
-                response = new ApiResponse<>(
-                        this.accommodationService.getAccommodationAuthenticated(accommodationId, userDetails));
+                response =
+                        this.accommodationService.getAccommodationAuthenticated(accommodationId, userDetails);
             } else {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            response = new ApiResponse<>(this.accommodationService.getAccommodationDetailsById(accommodationId));
+            response = this.accommodationService.getAccommodationDetailsById(accommodationId);
         }
 
         return ResponseEntity.ok(response);
@@ -309,7 +310,6 @@ public class AccommodationController {
 
         return ResponseEntity.ok(comments);
     }
-
 
     @PostMapping("/{id}/comments")
     public ResponseEntity<CommentDto> createAccommodationComment(
