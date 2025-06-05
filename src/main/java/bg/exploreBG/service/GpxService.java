@@ -72,17 +72,17 @@ public class GpxService {
     }
 
     @Transactional
-    public boolean deleteGpxFileIfOwner(
+    public void deleteGpxFileIfOwner(
             Long id,
             UserDetails userDetails
     ) {
         HikingTrailEntity currentTrail =
                 this.hikingTrailQueryBuilder.getHikingTrailByIdIfOwner(id, userDetails.getUsername());
 
-        return deleteGpxFile(currentTrail);
+        deleteGpxFile(currentTrail);
     }
 
-    private boolean deleteGpxFile(
+    private void deleteGpxFile(
             HikingTrailEntity currentTrail
     ) {
         GpxEntity gpxFile = currentTrail.getGpxFile();
@@ -102,7 +102,6 @@ public class GpxService {
 
         this.gpxPersistence.deleteEntityWithoutReturn(gpxFile);
 
-        return deleted;
     }
 
     private GpxEntity createNewGpxEntity(

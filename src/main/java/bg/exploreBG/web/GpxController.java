@@ -1,6 +1,5 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.gpxFile.GpxUrlDateDto;
 import bg.exploreBG.model.validation.PermittedFileType;
 import bg.exploreBG.service.GpxService;
@@ -24,7 +23,7 @@ public class GpxController {
     }
 
     @PatchMapping("/trail/{id}")
-    public ResponseEntity<ApiResponse<GpxUrlDateDto>> saveGpxFile(
+    public ResponseEntity<GpxUrlDateDto> saveGpxFile(
             @PathVariable Long id,
             @RequestParam("file")
             @NotNull(message = "A file must be provided. Please choose a file to upload.")
@@ -33,19 +32,16 @@ public class GpxController {
     ) {
         GpxUrlDateDto gpxUrlDto = this.gpxService.saveGpxFileIfOwner(id, GPX, file, userDetails);
 
-        ApiResponse<GpxUrlDateDto> response = new ApiResponse<>(gpxUrlDto);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(gpxUrlDto);
     }
 
     @DeleteMapping("/trail/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteGpxFile(
+    public ResponseEntity<Void> deleteGpxFile(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean deleted = this.gpxService.deleteGpxFileIfOwner(id, userDetails);
+        this.gpxService.deleteGpxFileIfOwner(id, userDetails);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(deleted);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }
