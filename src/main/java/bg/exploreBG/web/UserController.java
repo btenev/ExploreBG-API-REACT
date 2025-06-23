@@ -48,15 +48,13 @@ public class UserController {
 
     @Transactional(readOnly = true)
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDetailsDto>> profile(
-            @PathVariable Long id
+    public ResponseEntity<UserDetailsDto> profile(
+            @PathVariable("id") Long userId
     ) {
-        UserDetailsDto profileById =
-                this.userService.findProfileById(id);
+        UserDetailsDto profile =
+                this.userService.findProfileById(userId);
 
-        ApiResponse<UserDetailsDto> response = new ApiResponse<>(profileById);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(profile);
     }
 
     @PatchMapping("/email")
