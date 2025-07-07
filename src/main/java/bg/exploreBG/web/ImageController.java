@@ -1,7 +1,5 @@
 package bg.exploreBG.web;
 
-import bg.exploreBG.model.dto.ApiResponse;
-import bg.exploreBG.model.dto.ApiResponseCollection;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
 import bg.exploreBG.model.dto.image.ImageIdPlusUrlDto;
 import bg.exploreBG.model.dto.image.ImageIdUrlIsMainDto;
@@ -32,6 +30,7 @@ public class ImageController {
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
+
     /*TODO: Think about delete user image, id is currently send but not used. The user have the option to "overwrite" the existing image but not delete it. */
     @PatchMapping("/user")
     public ResponseEntity<ImageIdPlusUrlDto> updateProfileImage(
@@ -96,7 +95,7 @@ public class ImageController {
             case "trails" -> this.imageService.deleteTrailPicturesById(id, toDeleteDto, userDetails);
             case "accommodations" -> this.imageService.deleteAccommodationPicturesById(id, toDeleteDto, userDetails);
             default -> throw new IllegalStateException("Unexpected value: " + toDeleteDto.folder().toLowerCase());
-        };
+        }
 
         return ResponseEntity.noContent().build();
     }
