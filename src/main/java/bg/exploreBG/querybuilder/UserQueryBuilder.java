@@ -31,6 +31,10 @@ public class UserQueryBuilder {
         return this.repository.findById(id).orElseThrow(this::userNotFound);
     }
 
+    public UserEntity getUserEntityByIdWithRoles(Long id) {
+        return this.repository.findWithRolesById(id).orElseThrow(this::userNotFoundOrRolesMissing);
+    }
+
     public UserEntity getUserEntityByEmailWithRoles(String email) {
         return this.repository.findWithRolesByEmail(email).orElseThrow(this::userNotFoundOrRolesMissing);
     }

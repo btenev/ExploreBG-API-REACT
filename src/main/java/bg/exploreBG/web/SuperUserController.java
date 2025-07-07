@@ -15,10 +15,11 @@ import bg.exploreBG.model.dto.hikingTrail.HikingTrailReviewDto;
 import bg.exploreBG.model.dto.hikingTrail.single.EntitySuperUserReviewStatusDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
+import bg.exploreBG.model.dto.role.RoleDto;
 import bg.exploreBG.model.dto.user.UserClassDataDto;
-import bg.exploreBG.model.dto.user.UserDataDto;
+import bg.exploreBG.model.dto.user.single.UserAccountLockResponseDto;
 import bg.exploreBG.model.dto.user.single.UserIdDto;
-import bg.exploreBG.model.dto.user.validate.UserAccountLockUnlockDto;
+import bg.exploreBG.model.dto.user.validate.UserAccountLockRequestDto;
 import bg.exploreBG.model.dto.user.validate.UserModRoleDto;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.user.ExploreBgUserDetails;
@@ -82,31 +83,24 @@ public class SuperUserController {
         return ResponseEntity.ok(users);
     }
 
-    /*TODO: IVO: only messages, no errors*/
     @PatchMapping("/{id}/update-role")
-    public ResponseEntity<ApiResponse<UserDataDto>> toggleModeratorRole(
+    public ResponseEntity<List<RoleDto>> toggleModeratorRole(
             @PathVariable("id") Long userId,
-            @RequestBody UserModRoleDto userModRoleDto
+            @Valid @RequestBody UserModRoleDto userModRole
     ) {
+        List<RoleDto> role = this.userService.addRemoveModeratorRoleToUserRoles(userId, userModRole);
 
-        UserDataDto updatedUserRole = this.userService.addRemoveModeratorRoleToUserRoles(userId, userModRoleDto);
-
-        ApiResponse<UserDataDto> response = new ApiResponse<>(updatedUserRole);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(role);
     }
 
-    /*TODO: IVO: only messages, no errors
-      url: /api/super-users/{id}/lock
-     */
     @PatchMapping("/{id}/lock-account")
-    public ResponseEntity<ApiResponse<Boolean>> toggleUserAccountLock(
+    public ResponseEntity<UserAccountLockResponseDto> toggleUserAccountLock(
             @PathVariable("id") Long userId,
-            @RequestBody UserAccountLockUnlockDto userAccountLockUnlockDto
+            @Valid @RequestBody UserAccountLockRequestDto requestDto
     ) {
-        boolean success = this.userService.lockOrUnlockUserAccount(userId, userAccountLockUnlockDto);
+        boolean lock = this.userService.lockOrUnlockUserAccount(userId, requestDto);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
+        UserAccountLockResponseDto response = new UserAccountLockResponseDto(lock);
 
         return ResponseEntity.ok(response);
     }
@@ -317,11 +311,11 @@ public class SuperUserController {
             @Valid @RequestBody DestinationCreateOrReviewDto destinationCreateOrReviewDto,
             @AuthenticationPrincipal ExploreBgUserDetails exploreBgUserDetails
     ) {
-      SuperUserReviewStatusEnum destinationStatus =
-              this.superUserService
-                      .approveDestination(destinationId, destinationCreateOrReviewDto, exploreBgUserDetails);
+        SuperUserReviewStatusEnum destinationStatus =
+                this.superUserService
+                        .approveDestination(destinationId, destinationCreateOrReviewDto, exploreBgUserDetails);
 
-      return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(destinationStatus));
+        return ResponseEntity.ok(new EntitySuperUserReviewStatusDto(destinationStatus));
     }
 
     @PatchMapping("/trails/{id}/images/claim")

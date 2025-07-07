@@ -35,6 +35,14 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
             SELECT u
             FROM UserEntity u
             JOIN FETCH u.roles
+            WHERE u.id = :id AND SIZE(u.roles) > 0
+            """)
+    Optional<UserEntity> findWithRolesById (@Param("id") Long userId);
+
+    @Query("""
+            SELECT u
+            FROM UserEntity u
+            JOIN FETCH u.roles
             WHERE u.email = :userEmail AND SIZE(u.roles) > 0
             """)
     Optional<UserEntity> findWithRolesByEmail(@Param("userEmail") String email);

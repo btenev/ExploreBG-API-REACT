@@ -12,9 +12,12 @@ import bg.exploreBG.model.dto.user.validate.*;
 import bg.exploreBG.model.entity.RoleEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.UserRoleEnum;
+import bg.exploreBG.model.mapper.RoleMapper;
 import bg.exploreBG.model.mapper.UserMapper;
 import bg.exploreBG.querybuilder.*;
 import bg.exploreBG.utils.RoleUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,16 +25,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
     private final GenericPersistenceService<UserEntity> userPersistence;
     private final UserQueryBuilder userQueryBuilder;
     private final RoleQueryBuilder roleQueryBuilder;
@@ -45,6 +49,7 @@ public class UserService {
     public UserService(
             PasswordEncoder passwordEncoder,
             UserMapper userMapper,
+            RoleMapper roleMapper,
             GenericPersistenceService<UserEntity> userPersistence,
             UserQueryBuilder userQueryBuilder,
             RoleQueryBuilder roleQueryBuilder,
@@ -57,6 +62,7 @@ public class UserService {
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.roleMapper = roleMapper;
         this.userPersistence = userPersistence;
         this.userQueryBuilder = userQueryBuilder;
         this.roleQueryBuilder = roleQueryBuilder;
@@ -152,7 +158,7 @@ public class UserService {
     public List<UserClassDataDto> getAllUsers() {
         Map<Long, UserClassDataDto> userDataDtoMap = new LinkedHashMap<>();
 
-        return this.userQueryBuilder.getAllUsers().map(tuple -> {
+        List<UserClassDataDto> result = this.userQueryBuilder.getAllUsers().map(tuple -> {
 
                     UserClassDataDto userDataDto =
                             userDataDtoMap.computeIfAbsent(tuple.get("id", Long.class),
@@ -170,63 +176,97 @@ public class UserService {
                     return userDataDto;
                 })
                 .distinct()
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        Collections.reverse(result);
+        return result;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public UserDataDto addRemoveModeratorRoleToUserRoles(
-            Long id,
+    public List<RoleDto> addRemoveModeratorRoleToUserRoles(
+            Long userId,
             UserModRoleDto mod
     ) {
-        UserEntity userExist = this.userQueryBuilder.getUserEntityById(id);
-        List<RoleEntity> userRoles = userExist.getRoles();
+        UserEntity userToChangeRole = this.userQueryBuilder.getUserEntityByIdWithRoles(userId);
+        List<UserRoleEnum> targetRoleEnums = RoleUtils.getUserRoles(userToChangeRole);
+        List<RoleEntity> targetRoles = userToChangeRole.getRoles();
+
         RoleEntity moderator = this.roleQueryBuilder.getRoleEntityByRoleEnum(UserRoleEnum.MODERATOR);
+        UserEntity loggedUser = this.currentUserProvider.getCurrentUserWithRoles();
 
-        if (mod.moderator()) { // add role moderator
-            if (userRoles.contains(moderator)) {
-                throw new AppException("The user is already a moderator!", HttpStatus.BAD_REQUEST);
-            }
+        validateNotSelfAction(userToChangeRole, loggedUser);
 
-            userRoles.add(moderator);
-            userExist.setRoles(userRoles);
-        } else { // remove moderator
-            if (!userRoles.contains(moderator)) {
-                throw new AppException("You cannot remove the moderator role because the user does not have one!", HttpStatus.BAD_REQUEST);
-            }
-
-            userRoles.remove(moderator);
-            userExist.setRoles(userRoles);
+        if (targetRoleEnums.contains(UserRoleEnum.ADMIN)) {
+            throw new AppException("You cannot  change the role of an ADMIN to MODERATOR.", HttpStatus.BAD_REQUEST);
         }
 
-        UserEntity saved = this.userPersistence.saveEntityWithReturn(userExist);
-        return this.userMapper.userEntityToUserDataDto(saved);
+        if (mod.moderator()) { // add role moderator
+            if (targetRoleEnums.contains(UserRoleEnum.MODERATOR)) {
+                throw new AppException("The user already has the MODERATOR role.", HttpStatus.BAD_REQUEST);
+            }
+
+            targetRoles.add(moderator);
+            userToChangeRole.setRoles(targetRoles);
+        } else { // remove moderator
+            if (!targetRoleEnums.contains(UserRoleEnum.MODERATOR)) {
+                throw new AppException("The user does not have the MODERATOR role.", HttpStatus.BAD_REQUEST);
+            }
+
+            targetRoles.remove(moderator);
+            userToChangeRole.setRoles(targetRoles);
+        }
+
+        UserEntity saved = this.userPersistence.saveEntityWithReturn(userToChangeRole);
+
+        logger.info("User {} changed the Moderator role for user {} to: {}", loggedUser.getId(), userToChangeRole.getId(), mod.moderator());
+        return this.roleMapper.roleEntityToRoleDto(saved.getRoles());
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public boolean lockOrUnlockUserAccount(
-            Long id,
-            UserAccountLockUnlockDto lockUnlockDto
+            Long userId,
+            UserAccountLockRequestDto requestDto
     ) {
-        UserEntity userExist = this.userQueryBuilder.getUserEntityById(id);
+        UserEntity userToLock = this.userQueryBuilder.getUserEntityByIdWithRoles(userId);
+        List<UserRoleEnum> targetRoles = RoleUtils.getUserRoles(userToLock);
 
-        boolean accountNonLocked = userExist.isAccountNonLocked();
+        UserEntity loggedUser = this.currentUserProvider.getCurrentUserWithRoles();
+        List<UserRoleEnum> loggedRoles = RoleUtils.getUserRoles(loggedUser);
 
-        if (lockUnlockDto.lockAccount()) { // lock account - true
-            if (!accountNonLocked) {
-                throw new AppException("The account of this user is already locked!", HttpStatus.BAD_REQUEST);
-            }
+        validateNotSelfAction(userToLock, loggedUser);
 
-            userExist.setAccountNonLocked(false);
-        } else {  // unlock account - false
-            if (accountNonLocked) {
-                throw new AppException("The account of this user has already been unlocked!", HttpStatus.BAD_REQUEST);
-            }
-
-            userExist.setAccountNonLocked(true);
+        if (targetRoles.contains(UserRoleEnum.ADMIN)) {
+            throw new AppException("You cannot lock the account of an ADMIN.", HttpStatus.BAD_REQUEST);
         }
 
-        this.userPersistence.saveEntityWithReturn(userExist);
-        return true;
+        boolean bothAreModerators = loggedRoles.contains(UserRoleEnum.MODERATOR) && targetRoles.contains(UserRoleEnum.MODERATOR);
+
+        if (bothAreModerators) {
+            throw new AppException("As a MODERATOR, you are not allowed to lock the account of another MODERATOR.", HttpStatus.BAD_REQUEST);
+        }
+
+        boolean desiredLockState = requestDto.lockAccount();
+        boolean isCurrentlyUnlocked = userToLock.isAccountNonLocked();
+
+        if (desiredLockState) {
+            if (!isCurrentlyUnlocked) {
+                throw new AppException("The account is already locked.", HttpStatus.BAD_REQUEST);
+            }
+
+            userToLock.setAccountNonLocked(false); // Lock it
+        } else {
+            if (isCurrentlyUnlocked) {
+                throw new AppException("The account is already unlocked.", HttpStatus.BAD_REQUEST);
+            }
+
+            userToLock.setAccountNonLocked(true); // Unlock it
+        }
+
+        this.userPersistence.saveEntityWithReturn(userToLock);
+
+        logger.info("User {} changed lock status of user {} to: {}", loggedUser.getId(), userToLock.getId(), desiredLockState);
+
+        return !userToLock.isAccountNonLocked();
     }
 
     public boolean isSuperUser(UserDetails userDetails) {
@@ -264,5 +304,11 @@ public class UserService {
         updateAction.accept(user, dto);
         UserEntity updatedUser = userPersistence.saveEntityWithReturn(user);
         return resultMapper.apply(updatedUser);
+    }
+
+    private void validateNotSelfAction(UserEntity targetUser, UserEntity loggedUser) {
+        if (Objects.equals(targetUser.getId(), loggedUser.getId())) {
+            throw new AppException("You cannot perform this operation on your own account.", HttpStatus.BAD_REQUEST);
+        }
     }
 }
