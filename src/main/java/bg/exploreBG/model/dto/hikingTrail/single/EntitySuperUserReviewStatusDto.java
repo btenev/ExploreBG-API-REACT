@@ -6,6 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public record EntitySuperUserReviewStatusDto(
         @JsonSerialize(using = SuperUserReviewStatusEnumSerializer.class)
-        SuperUserReviewStatusEnum trailStatus
+        SuperUserReviewStatusEnum entityStatus
 ) {
 }

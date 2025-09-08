@@ -289,7 +289,7 @@ public class DestinationService {
                         isUpdated ? destination.getModificationDate() : null));
     }
 
-    public boolean updateDestinationMainImage(
+    public long updateDestinationMainImage(
             Long destinationId,
             ImageMainUpdateDto imageMainUpdate,
             UserDetails userDetails,
@@ -309,7 +309,7 @@ public class DestinationService {
             this.destinationPersistence.saveEntityWithoutReturn(current);
         }
 
-        return true;
+        return found.getId();
     }
 
     private <T, R> R updateDestinationField(

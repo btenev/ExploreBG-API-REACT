@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -170,13 +171,13 @@ public class HikingTrailService {
         newHikingTrail.setCreatedBy(validUser);
         newHikingTrail.setCreationDate(LocalDateTime.now());
 
-        if (!hikingTrailCreateOrReviewDto.destinations().isEmpty()) {
+        if (!CollectionUtils.isEmpty(hikingTrailCreateOrReviewDto.destinations())) {
             List<DestinationEntity> destinationEntities =
                     this.entityUpdateService.mapDtoToDestinationEntities(hikingTrailCreateOrReviewDto.destinations());
             newHikingTrail.setDestinations(destinationEntities);
         }
 
-        if (!hikingTrailCreateOrReviewDto.availableHuts().isEmpty()) {
+        if (!CollectionUtils.isEmpty(hikingTrailCreateOrReviewDto.availableHuts())) {
             List<AccommodationEntity> accommodationEntities =
                     this.entityUpdateService.mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);

@@ -50,10 +50,9 @@ public class AccommodationMapperTest {
         AccommodationEntity accommodation = new AccommodationEntity();
         accommodation.setId(6L);
         accommodation.setAccommodationName("Turisticheska spalnia Botev");
-        accommodation.setOwner(owner);
+        accommodation.setCreatedBy(owner);
         accommodation.setPhoneNumber("+359 878 565656");
         accommodation.setSite("https://botevbg.com/");
-        accommodation.setImageUrl("https://picsum.photos/200");
         accommodation.setAccommodationInfo("A place where you can have some rest and get some food");
         accommodation.setBedCapacity(22);
         accommodation.setPricePerBed(25.00);
@@ -68,8 +67,7 @@ public class AccommodationMapperTest {
 
         assertAll(
                 () -> assertEquals(accommodation.getId(), actual.id()),
-                () -> assertEquals(accommodation.getOwner().getId(), actual.owner().id()),
-                () -> assertEquals(accommodation.getComments().get(0).getId(), actual.comments().get(0).id())
+                () -> assertEquals(accommodation.getCreatedBy().getId(), actual.createdBy().id())
         );
 
     }

@@ -1,8 +1,8 @@
 package bg.exploreBG.model.enums;
 
 public enum SuperUserReviewStatusEnum {
-    APPROVED("approved"),
-    PENDING("pending");
+    APPROVED("Approved"),
+    PENDING("Pending");
 
     private final String value;
 

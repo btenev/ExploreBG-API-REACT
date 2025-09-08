@@ -385,9 +385,9 @@ public class AccommodationService {
         return accommodation;
     }
 
-    public boolean updateAccommodationMainImage(
+    public long updateAccommodationMainImage(
             Long accommodationId,
-            ImageMainUpdateDto imageMainUpdateDto,
+            ImageMainUpdateDto dto,
             UserDetails userDetails,
             List<StatusEnum> statusList
     ) {
@@ -396,7 +396,7 @@ public class AccommodationService {
                         .getAccommodationWithImagesByIdAndStatusIfOwner(
                                 accommodationId, statusList, userDetails.getUsername());
 
-        ImageEntity found = ImageUtils.filterMainImage(current.getImages(), imageMainUpdateDto.imageId());
+        ImageEntity found = ImageUtils.filterMainImage(current.getImages(), dto.imageId());
 
         boolean isUpdated =
                 this.entityUpdateService
@@ -406,7 +406,7 @@ public class AccommodationService {
             this.accommodationPersistence.saveEntityWithoutReturn(current);
         }
 
-        return true;
+        return found.getId();
     }
 
     public List<CommentDto> getAccommodationComments(Long accommodationId) {

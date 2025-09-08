@@ -1,8 +1,7 @@
-package bg.exploreBG.service;
+package bg.exploreBG.service.moderation.common;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.EntityIdsToDeleteDto;
-import bg.exploreBG.model.dto.ReviewBooleanDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailImageStatusAndGpxFileStatus;
 import bg.exploreBG.model.dto.image.validate.ImageApproveDto;
 import bg.exploreBG.model.entity.*;
@@ -13,8 +12,10 @@ import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.ImageQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.reviewable.ReviewableEntity;
-import bg.exploreBG.reviewable.ReviewableWithGpx;
 import bg.exploreBG.reviewable.ReviewableWithImages;
+import bg.exploreBG.service.EntityUpdateService;
+import bg.exploreBG.service.GenericPersistenceService;
+import bg.exploreBG.service.ImageService;
 import bg.exploreBG.updatable.UpdatableEntity;
 import bg.exploreBG.updatable.UpdatableEntityDto;
 import bg.exploreBG.utils.ImageUtils;
@@ -25,7 +26,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -68,40 +68,9 @@ public class ReviewService {
         this.imageQueryBuilder = imageQueryBuilder;
     }
 
-    public <T extends ReviewableWithImages> Object reviewItem(
-            T item,
-            Function<T, Object> mapper,
-            ExploreBgUserDetails userDetails
-    ) {
-        if (isEligibleForReview(item.getStatus(), item.getReviewedBy(), userDetails)) {
-            return mapper.apply(item);
-        }
-
-        if (item.getImages() != null) {
-            for (ImageEntity image : item.getImages()) {
-                logger.info("Image reviewer:{}", image.getReviewedBy());
-                if (isEligibleForReview(image.getStatus(), image.getReviewedBy(), userDetails)) {
-                    return mapper.apply(item);
-                }
-            }
-        }
-
-        if (item instanceof ReviewableWithGpx) {
-            GpxEntity gpxFile = ((ReviewableWithGpx) item).getGpxFile();
-            if (gpxFile != null && isEligibleForReview(
-                    gpxFile.getStatus(),
-                    gpxFile.getReviewedBy(),
-                    userDetails)) {
-                return mapper.apply(item);
-            }
-        }
-
-        throw new AppException("Item with invalid status for review!", HttpStatus.BAD_REQUEST);
-    }
-
     public <E extends ReviewableEntity> void toggleClaim(
             Long entityId,
-            ReviewBooleanDto reviewBoolean,
+            Boolean claimEntity,
             UserDetails userDetails,
             Function<Long, E> entityFetcher,
             Consumer<E> entitySaver
@@ -110,19 +79,19 @@ public class ReviewService {
 
         UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
-        this.entityClaimService.toggleEntityClaim(entity, reviewBoolean.review(), reviewer);
+        this.entityClaimService.toggleEntityClaim(entity, claimEntity, reviewer);
 
         entitySaver.accept(entity);
     }
 
     public void toggleGpxFileClaim(
             GpxEntity gpxFile,
-            ReviewBooleanDto reviewBoolean,
+            Boolean claimGpx,
             UserDetails userDetails
     ) {
         UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
-        this.entityClaimService.toggleEntityClaim(gpxFile, reviewBoolean.review(), reviewer);
+        this.entityClaimService.toggleEntityClaim(gpxFile, claimGpx, reviewer);
 
         this.gpxPersistence.saveEntityWithoutReturn(gpxFile);
     }
@@ -214,14 +183,14 @@ public class ReviewService {
     public <T extends ReviewableWithImages> void toggleImageClaimAndSave(
             Long entityId,
             Function<Long, T> entityFetcher,
-            ReviewBooleanDto reviewBoolean,
+            Boolean claimImage,
             UserDetails userDetails
     ) {
         T entity = entityFetcher.apply(entityId);
 
         UserEntity reviewer = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
-        List<ImageEntity> claimed = this.imageClaimService.toggleImageClaim(entity, reviewBoolean.review(), reviewer);
+        List<ImageEntity> claimed = this.imageClaimService.toggleImageClaim(entity, claimImage, reviewer);
 
         this.imagePersistence.saveEntitiesWithoutReturn(claimed);
     }
@@ -269,21 +238,6 @@ public class ReviewService {
         if (entityStatus == StatusEnum.APPROVED) {
             throw new AppException("The item has already been approved!", HttpStatus.BAD_REQUEST);
         }
-    }
-
-    private boolean isEligibleForReview(
-            StatusEnum status,
-            UserEntity reviewedBy,
-            ExploreBgUserDetails userDetails
-    ) {
-        if (status == StatusEnum.PENDING) {
-            return true;
-        }
-
-        return status == StatusEnum.REVIEW &&
-                Objects.equals(reviewedBy != null
-                                ? reviewedBy.getUsername() : null,
-                        userDetails.getProfileName());
     }
 
     private static void updateTrailStatusIfEligible(

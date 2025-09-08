@@ -1,4 +1,4 @@
-package bg.exploreBG.service;
+package bg.exploreBG.service.moderation.common;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.ImageEntity;

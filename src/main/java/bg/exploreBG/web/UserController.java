@@ -1,7 +1,6 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.config.UserAuthProvider;
-import bg.exploreBG.model.dto.ApiResponse;
 import bg.exploreBG.model.dto.MessageDto;
 import bg.exploreBG.model.dto.user.UserDetailsDto;
 import bg.exploreBG.model.dto.user.UserDetailsOwnerDto;
@@ -133,13 +132,11 @@ public class UserController {
 
     /*TODO: not added to frontend*/
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Boolean>> deleteAccount(
+    public ResponseEntity<Void> deleteAccount(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        boolean success = this.userService.deleteAccount(userDetails);
+        this.userService.deleteAccount(userDetails);
 
-        ApiResponse<Boolean> response = new ApiResponse<>(success);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }

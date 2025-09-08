@@ -13,6 +13,7 @@ import java.util.List;
 public interface DestinationForApprovalProjection {
     Long getId();
 
+    @JsonProperty(value = "name")
     String getDestinationName();
 
     @JsonSerialize(using = StatusEnumSerializer.class)
