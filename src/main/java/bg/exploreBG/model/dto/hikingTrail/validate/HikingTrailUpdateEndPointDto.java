@@ -4,11 +4,11 @@ import bg.exploreBG.model.validation.ValidPlaceName;
 import jakarta.validation.constraints.NotNull;
 
 public record HikingTrailUpdateEndPointDto(
-        @NotNull(message = "Please enter the end point.")
+        @NotNull(message = "Please enter your end point.")
         @ValidPlaceName(
                 max = 30,
                 min = 3,
-                fieldName = "The end point"
+                fieldName = "Your end point"
         )
         String endPoint
 ) {
