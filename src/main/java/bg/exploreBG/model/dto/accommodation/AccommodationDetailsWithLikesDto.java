@@ -5,9 +5,11 @@ import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
+import bg.exploreBG.model.enums.FoodAvailabilityEnum;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.serializer.AccessibilityEnumSerializer;
 import bg.exploreBG.serializer.AccommodationTypeEnumSerializer;
+import bg.exploreBG.serializer.FoodAvailabilityEnumEnumSerializer;
 import bg.exploreBG.serializer.StatusEnumSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +27,8 @@ public record AccommodationDetailsWithLikesDto(
         String accommodationInfo,
         Integer bedCapacity,
         Double pricePerBed,
-        Boolean foodAvailable,
+        @JsonSerialize(using = FoodAvailabilityEnumEnumSerializer.class)
+        FoodAvailabilityEnum availableFood,
         @JsonSerialize(using = AccessibilityEnumSerializer.class)
         AccessibilityEnum access,
         @JsonSerialize(using = AccommodationTypeEnumSerializer.class)

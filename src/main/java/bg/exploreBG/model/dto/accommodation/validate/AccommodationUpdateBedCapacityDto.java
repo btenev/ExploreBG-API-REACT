@@ -1,9 +1,9 @@
 package bg.exploreBG.model.dto.accommodation.validate;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public record AccommodationUpdateBedCapacityDto(
-        @Positive(message = "Bed capacity must be greater than 0")
+        @PositiveOrZero(message = "Bed capacity cannot be negative.")
         Integer bedCapacity
 ) {
 }

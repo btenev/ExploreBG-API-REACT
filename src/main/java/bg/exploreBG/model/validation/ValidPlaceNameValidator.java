@@ -28,7 +28,7 @@ public class ValidPlaceNameValidator implements ConstraintValidator<ValidPlaceNa
 
         if (value.length() < min || value.length() > max) {
             context.buildConstraintViolationWithTemplate(
-                    fieldName + " must be between " + min + " and " + max + " characters long."
+                    fieldName + " must be at least " + min + " characters and at most " + max + " characters long."
             ).addConstraintViolation();
             isValid = false;
         }

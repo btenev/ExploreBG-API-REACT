@@ -4,9 +4,11 @@ import bg.exploreBG.model.dto.image.ImageIdUrlIsMainStatusDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
+import bg.exploreBG.model.enums.FoodAvailabilityEnum;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.serializer.AccessibilityEnumSerializer;
 import bg.exploreBG.serializer.AccommodationTypeEnumSerializer;
+import bg.exploreBG.serializer.FoodAvailabilityEnumEnumSerializer;
 import bg.exploreBG.serializer.StatusEnumSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -22,7 +24,8 @@ public record AccommodationReviewDto(
         String accommodationInfo,
         Integer bedCapacity,
         Double pricePerBed,
-        Boolean foodAvailable,
+        @JsonSerialize(using = FoodAvailabilityEnumEnumSerializer.class)
+        FoodAvailabilityEnum foodAvailable,
         @JsonSerialize(using = AccessibilityEnumSerializer.class)
         AccessibilityEnum access,
         @JsonSerialize(using = AccommodationTypeEnumSerializer.class)

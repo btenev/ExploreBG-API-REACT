@@ -93,7 +93,7 @@ public class EntityUpdateService {
         logger.info("BedCapacity: {}", isUpdated);
         isUpdated |= updateFieldIfDifferent(accommodation::getPricePerBed, accommodation::setPricePerBed, dto.pricePerBed());
         logger.info("PricePerBed: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getFoodAvailable, accommodation::setFoodAvailable, dto.foodAvailable());
+        isUpdated |= updateFieldIfDifferent(accommodation::getAvailableFood, accommodation::setAvailableFood, dto.availableFood());
         logger.info("FoodAvailable: {}", isUpdated);
         isUpdated |= updateFieldIfDifferent(accommodation::getAccess, accommodation::setAccess, dto.access());
         logger.info("Access: {}", isUpdated);

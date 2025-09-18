@@ -146,6 +146,19 @@ public class AccommodationController {
         return ResponseEntity.ok(accommodationName);
     }
 
+    @PatchMapping("/{id}/next-to")
+    public ResponseEntity<AccommodationNextToDto> updateNextTo(
+            @PathVariable("id") Long accommodationId,
+            @Valid @RequestBody AccommodationUpdateNextToDto nextTo,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        AccommodationNextToDto accommodationNextTo =
+                this.accommodationService
+                        .updateAccommodationNextTo(accommodationId, nextTo, userDetails);
+
+        return ResponseEntity.ok(accommodationNextTo);
+    }
+
     @PatchMapping("/{id}/phone-number")
     public ResponseEntity<AccommodationPhoneNumberDto> updatePhoneNumber(
             @PathVariable("id") Long accommodationId,
@@ -211,10 +224,10 @@ public class AccommodationController {
         return ResponseEntity.ok(pricePerBed);
     }
 
-    @PatchMapping("/{id}/food-available")
+    @PatchMapping("/{id}/available-food")
     public ResponseEntity<AccommodationAvailableFoodDto> updateFoodAvailable(
             @PathVariable("id") Long accommodationId,
-            @RequestBody AccommodationUpdateAvailableFoodDto updateAvailableFood,
+            @Valid @RequestBody AccommodationUpdateAvailableFoodDto updateAvailableFood,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         AccommodationAvailableFoodDto availableFood =
@@ -227,7 +240,7 @@ public class AccommodationController {
     @PatchMapping("/{id}/access")
     public ResponseEntity<AccommodationAccessibilityDto> updateAccessibility(
             @PathVariable("id") Long accommodationId,
-            @RequestBody AccommodationUpdateAccessibilityDto accessibility,
+            @Valid @RequestBody AccommodationUpdateAccessibilityDto accessibility,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         AccommodationAccessibilityDto access =
@@ -240,7 +253,7 @@ public class AccommodationController {
     @PatchMapping("/{id}/type")
     public ResponseEntity<AccommodationTypeDto> updateType(
             @PathVariable("id") Long accommodationId,
-            @RequestBody AccommodationUpdateTypeDto type,
+            @Valid @RequestBody AccommodationUpdateTypeDto type,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         AccommodationTypeDto accommodationType =
@@ -248,19 +261,6 @@ public class AccommodationController {
                         .updateAccommodationType(accommodationId, type, userDetails);
 
         return ResponseEntity.ok(accommodationType);
-    }
-
-    @PatchMapping("/{id}/next-to")
-    public ResponseEntity<AccommodationNextToDto> updateNextTo(
-            @PathVariable("id") Long accommodationId,
-            @RequestBody AccommodationUpdateNextToDto nextTo,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        AccommodationNextToDto accommodationNextTo =
-                this.accommodationService
-                        .updateAccommodationNextTo(accommodationId, nextTo, userDetails);
-
-        return ResponseEntity.ok(accommodationNextTo);
     }
 
     @PatchMapping("/{id}/main-image")

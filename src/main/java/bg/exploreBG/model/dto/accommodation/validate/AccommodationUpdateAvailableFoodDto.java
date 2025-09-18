@@ -1,10 +1,10 @@
 package bg.exploreBG.model.dto.accommodation.validate;
 
-import bg.exploreBG.deserializer.StrictBooleanDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import bg.exploreBG.model.enums.FoodAvailabilityEnum;
+import jakarta.validation.constraints.NotNull;
 
 public record AccommodationUpdateAvailableFoodDto(
-        @JsonDeserialize(using = StrictBooleanDeserializer.class)
-        Boolean availableFood
+        @NotNull(message = "Please specify if food is available.")
+        FoodAvailabilityEnum availableFood
 ) {
 }

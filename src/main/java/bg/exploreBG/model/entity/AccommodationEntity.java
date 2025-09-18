@@ -4,6 +4,7 @@ import bg.exploreBG.commentableEntity.CommentableEntity;
 import bg.exploreBG.interfaces.LikeableEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
+import bg.exploreBG.model.enums.FoodAvailabilityEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.ownableEntity.OwnableEntity;
 import bg.exploreBG.reviewable.ReviewableWithImages;
@@ -45,8 +46,9 @@ public class AccommodationEntity extends BaseEntity implements ReviewableWithIma
     @Column(name = "price_per_bad")
     private Double pricePerBed;
 
-    @Column(name = "food_available")
-    private Boolean foodAvailable;
+    @Column(name = "available_food")
+    @Enumerated(EnumType.STRING)
+    private FoodAvailabilityEnum availableFood;
 
     @Enumerated(EnumType.STRING)
     private AccessibilityEnum access;
@@ -159,12 +161,13 @@ public class AccommodationEntity extends BaseEntity implements ReviewableWithIma
         this.pricePerBed = pricePerBed;
     }
 
-    public Boolean getFoodAvailable() {
-        return foodAvailable;
+
+    public FoodAvailabilityEnum getAvailableFood() {
+        return availableFood;
     }
 
-    public void setFoodAvailable(Boolean foodAvailable) {
-        this.foodAvailable = foodAvailable;
+    public void setAvailableFood(FoodAvailabilityEnum availableFood) {
+        this.availableFood = availableFood;
     }
 
     public AccessibilityEnum getAccess() {
@@ -270,7 +273,7 @@ public class AccommodationEntity extends BaseEntity implements ReviewableWithIma
                 ", accommodationInfo='" + accommodationInfo + '\'' +
                 ", bedCapacity=" + bedCapacity +
                 ", pricePerBed=" + pricePerBed +
-                ", foodAvailable=" + foodAvailable +
+                ", availableFood=" + availableFood +
                 ", access=" + access +
                 ", type=" + type +
                 ", nextTo='" + nextTo + '\'' +

@@ -276,11 +276,11 @@ public class AccommodationService {
 
         return updateAccommodationField(
                 current,
-                current::getFoodAvailable,
-                current::setFoodAvailable,
+                current::getAvailableFood,
+                current::setAvailableFood,
                 updateAvailableFood.availableFood(),
                 (accommodation, isUpdated) -> new AccommodationAvailableFoodDto(
-                        accommodation.getFoodAvailable(),
+                        accommodation.getAvailableFood().getValue(),
                         isUpdated ? accommodation.getModificationDate() : null));
     }
 
