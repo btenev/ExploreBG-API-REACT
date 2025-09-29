@@ -169,6 +169,14 @@ public class ImageService {
 
     }
 
+    public void deleteDestinationPicturesById(Long destinationId, EntityIdsToDeleteDto toDeleteDto, UserDetails userDetails) {
+        DestinationEntity destination =
+                this.destinationQueryBuilder
+                        .getDestinationWithImagesByIdIfOwner(destinationId, userDetails.getUsername());
+
+        deleteImagesFromEntityWithoutReturn(destination, toDeleteDto, this.destinationPersistence::saveEntityWithoutReturn);
+    }
+
     private <T extends ReviewableWithImages & OwnableEntity> void saveEntity(T entity, String folder) {
         switch (folder.toLowerCase()) {
             case "trails", "trails-demo" -> this.trailPersistence.saveEntityWithoutReturn((HikingTrailEntity) entity);
@@ -394,4 +402,6 @@ public class ImageService {
 
         return uploadResults;
     }
+
+
 }

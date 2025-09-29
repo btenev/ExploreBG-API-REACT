@@ -94,6 +94,7 @@ public class ImageController {
         switch (toDeleteDto.folder().toLowerCase()) {
             case "trails" -> this.imageService.deleteTrailPicturesById(id, toDeleteDto, userDetails);
             case "accommodations" -> this.imageService.deleteAccommodationPicturesById(id, toDeleteDto, userDetails);
+            case "destinations" -> this.imageService.deleteDestinationPicturesById(id, toDeleteDto, userDetails);
             default -> throw new IllegalStateException("Unexpected value: " + toDeleteDto.folder().toLowerCase());
         }
 
