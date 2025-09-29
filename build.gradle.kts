@@ -33,6 +33,9 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.apache.tika/tika-parsers-standard-package
 	implementation("org.apache.tika:tika-parsers-standard-package:2.9.2")
 
+    implementation("org.hibernate.orm:hibernate-spatial")
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
