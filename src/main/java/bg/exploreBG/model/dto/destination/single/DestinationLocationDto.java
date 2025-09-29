@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 public record DestinationLocationDto(
-        String location,
+        Double longitude,
+        Double latitude,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime lastUpdateDate
 ) {

@@ -5,6 +5,7 @@ import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
 import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
+import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -47,6 +48,11 @@ public class DestinationQueryBuilder {
 
     public DestinationEntity getDestinationEntityById(Long destinationId) {
         return this.repository.findById(destinationId).orElseThrow(this::destinationNotFoundException);
+    }
+
+    public DestinationEntity getDestinationByIdAndStatus(Long destinationId, StatusEnum detailsStatus) {
+        return this.repository.findByIdAndStatus(destinationId, detailsStatus)
+                .orElseThrow(this::destinationNotFoundOrInvalidStatusException);
     }
 
     public Page<DestinationBasicDto> getAllDestinationsByStatus(Pageable pageable) {
@@ -145,6 +151,10 @@ public class DestinationQueryBuilder {
                 .orElseThrow(this::destinationNotFoundException);
     }
 
+    public DestinationEntity getDestinationWithImagesByIdIfOwner(Long destinationId, String email) {
+        return this.repository.findByIdAndCreatedBy_Email(destinationId, email).orElseThrow(this::destinationNotFoundOrNotOwnerException);
+    }
+
     public void removeUserFromDestinationsByEmail(Long newOwnerId, String oldOwnerEmail) {
         int row = this.repository.removeUserFromDestinationsByEmail(newOwnerId, oldOwnerEmail);
         if (row == 0) {
@@ -154,6 +164,11 @@ public class DestinationQueryBuilder {
 
     private AppException destinationNotFoundException() {
         return new AppException("The destination you are looking for was not found.", HttpStatus.NOT_FOUND);
+    }
+
+    public AppException destinationNotFoundOrNotOwnerException() {
+        return new AppException("The destination you are looking for was not found or does not belong to your account.",
+                HttpStatus.BAD_REQUEST);
     }
 
     private AppException destinationNotFoundOrInvalidStatusException() {

@@ -17,19 +17,32 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.mapstruct.Named;
+
 @Mapper(componentModel = "spring", uses = {UserMapper.class, CommentMapper.class})
 public interface DestinationMapper {
+
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(destination.getImages(), destination))")
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(destination.getModificationDate(), destination.getCreationDate()))")
+    @Mapping(target = "latitude", expression = "java(destination.getLocation() != null ? destination.getLocation().getY() : null)")
+    @Mapping(target = "longitude", expression = "java(destination.getLocation() != null ? destination.getLocation().getX() : null)")
     DestinationDetailsDto destinationEntityToDestinationDetailsDto(DestinationEntity destination);
 
     @Mapping(target = "id", source = "destination.id")
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(destination.getImages(), destination))")
     @Mapping(target = "lastUpdateDate", expression = "java(getLastUpdateDate(destination.getModificationDate(), destination.getCreationDate()))")
     @Mapping(target = "likedByUser", expression = "java(destinationIsLikedByUser(destination.getLikedByUsers(), user))")
+    @Mapping(target = "latitude", expression = "java(destination.getLocation() != null ? destination.getLocation().getY() : null)")
+    @Mapping(target = "longitude", expression = "java(destination.getLocation() != null ? destination.getLocation().getX() : null)")
     DestinationDetailsLikeDto destinationEntityToDestinationDetailsLikeDto(DestinationEntity destination, UserEntity user);
 
     @Mapping(target = "images", expression = "java(mapImageEntityToImageIdUrlIsMainDto(destination.getImages(), destination))")
+    @Mapping(target = "latitude", expression = "java(destination.getLocation() != null ? destination.getLocation().getY() : null)")
+    @Mapping(target = "longitude", expression = "java(destination.getLocation() != null ? destination.getLocation().getX() : null)")
     DestinationReviewDto destinationEntityToDestinationReviewDto(DestinationEntity destination);
 
     @Mapping(target = "status", ignore = true)
@@ -45,7 +58,8 @@ public interface DestinationMapper {
     @Mapping(target = "creationDate", ignore = true)
     @Mapping(target = "modificationDate", ignore = true)
     @Mapping(target = "singleComment", ignore = true)
-    DestinationEntity destinationCreateDtoToDestinationEntity(DestinationCreateOrReviewDto destinationCreateOrReviewDto);
+    @Mapping(target = "location", expression = "java(toPoint(dto.longitude(), dto.latitude()))")
+    DestinationEntity destinationCreateDtoToDestinationEntity(DestinationCreateOrReviewDto dto);
 
     default List<ImageIdUrlIsMainStatusDto> mapImageEntityToImageIdUrlIsMainDto(
             List<ImageEntity> images,
@@ -71,5 +85,16 @@ public interface DestinationMapper {
             return creationDate;
         }
         return modificationDate.isAfter(creationDate) ? modificationDate : creationDate;
+    }
+
+    GeometryFactory GEOMETRY_FACTORY = new  GeometryFactory(new PrecisionModel(), 4326);
+
+    @Named("toPoint")
+    default Point toPoint(Double longitude, Double latitude) {
+
+        if (longitude == null || latitude == null) {
+            return null;
+        }
+        return GEOMETRY_FACTORY.createPoint(new Coordinate(longitude, latitude));
     }
 }

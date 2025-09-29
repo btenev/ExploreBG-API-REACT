@@ -16,7 +16,8 @@ import java.util.List;
 public record DestinationDetailsLikeDto(
         Long id,
         String destinationName,
-        String location,
+        Double latitude,
+        Double longitude,
         String destinationInfo,
         String nextTo,
         UserBasicInfo createdBy,

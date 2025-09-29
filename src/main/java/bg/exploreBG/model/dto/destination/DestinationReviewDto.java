@@ -13,7 +13,8 @@ import java.util.List;
 public record DestinationReviewDto(
         Long id,
         String destinationName,
-        String location,
+        Double latitude,
+        Double longitude,
         String destinationInfo,
         String nextTo,
         @JsonSerialize(using = DestinationTypeEnumSerializer.class)

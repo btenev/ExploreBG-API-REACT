@@ -149,5 +149,5 @@ public interface AccommodationRepository extends JpaRepository<AccommodationEnti
 
     Optional<AccommodationEntity> findByIdAndEntityStatus(Long id, SuperUserReviewStatusEnum status);
 
-
+    Optional<AccommodationEntity> findByIdAndStatus(Long accommodationId, StatusEnum detailsStatus);
 }

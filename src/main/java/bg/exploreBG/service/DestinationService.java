@@ -22,7 +22,11 @@ import bg.exploreBG.querybuilder.DestinationQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.ImageUtils;
 import bg.exploreBG.utils.OwnershipUtils;
+import bg.exploreBG.utils.PublicEntityUtils;
 import bg.exploreBG.utils.StatusValidationUtils;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -49,6 +53,7 @@ public class DestinationService {
     private final CommentService commentService;
     private final EntityUpdateService entityUpdateService;
     private final CommentMapper commentMapper;
+    private final GeometryFactory geometryFactory;
     private static final Logger logger = LoggerFactory.getLogger(DestinationService.class);
 
     public DestinationService(
@@ -60,7 +65,8 @@ public class DestinationService {
             LikeService likeService,
             CommentService commentService,
             EntityUpdateService entityUpdateService,
-            CommentMapper commentMapper
+            CommentMapper commentMapper,
+            GeometryFactory geometryFactory
     ) {
         this.mapper = destinationMapper;
         this.destinationPersistence = destinationPersistence;
@@ -71,6 +77,7 @@ public class DestinationService {
         this.commentService = commentService;
         this.entityUpdateService = entityUpdateService;
         this.commentMapper = commentMapper;
+        this.geometryFactory = geometryFactory;
     }
 
     public List<DestinationBasicDto> getRandomNumOfDestinations(int limit) {
@@ -78,9 +85,16 @@ public class DestinationService {
         return this.destinationQueryBuilder.getRandomNumOfDestinations(pageable);
     }
 
-    public DestinationDetailsDto getDestinationDetailsById(Long destinationId) {
-        DestinationEntity destinationById = this.destinationQueryBuilder.getDestinationEntityById(destinationId);
-        return this.mapper.destinationEntityToDestinationDetailsDto(destinationById);
+    public DestinationDetailsDto getApprovedDestinationWithApprovedImagesById(
+            Long destinationId,
+            StatusEnum detailsStatus
+    ) {
+        return PublicEntityUtils.fetchAndMapWithApprovedImages(
+                destinationId,
+                detailsStatus,
+                this.destinationQueryBuilder::getDestinationByIdAndStatus,
+                this.mapper::destinationEntityToDestinationDetailsDto
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -220,14 +234,26 @@ public class DestinationService {
                 this.destinationQueryBuilder
                         .getDestinationByIdAndStatusIfOwner(destinationId, userDetails.getUsername());
 
+        Point newPoint;
+        if (updateLocation.longitude() == null || updateLocation.latitude() == null) {
+            newPoint = null;
+        } else {
+            newPoint = geometryFactory.createPoint(new Coordinate(updateLocation.longitude(), updateLocation.latitude()));
+        }
+
         return updateDestinationField(
                 current,
                 current::getLocation,
                 current::setLocation,
-                updateLocation.location(),
-                (destination, isUpdated) -> new DestinationLocationDto(
-                        destination.getLocation(),
-                        isUpdated ? destination.getModificationDate() : null));
+                newPoint,
+                (destination, isUpdated) ->
+                {
+                    Point loc = destination.getLocation();
+                    return new DestinationLocationDto(
+                            loc != null ? loc.getX() : null, // longitude
+                            loc != null ? destination.getLocation().getY() : null, // latitude
+                            isUpdated ? destination.getModificationDate() : null);
+                });
     }
 
     public DestinationInfoDto updateDestinationInfo(

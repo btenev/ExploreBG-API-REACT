@@ -13,6 +13,9 @@ import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
 import bg.exploreBG.querybuilder.DestinationQueryBuilder;
 import bg.exploreBG.updatable.UpdatableEntity;
 import bg.exploreBG.updatable.UpdatableEntityDto;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,14 +32,17 @@ import java.util.stream.Collectors;
 public class EntityUpdateService {
     private final AccommodationQueryBuilder accommodationQueryBuilder;
     private final DestinationQueryBuilder destinationQueryBuilder;
+    private final GeometryFactory geometryFactory;
     private final Logger logger = LoggerFactory.getLogger(EntityUpdateService.class);
 
     public EntityUpdateService(
             AccommodationQueryBuilder accommodationQueryBuilder,
-            DestinationQueryBuilder destinationQueryBuilder
+            DestinationQueryBuilder destinationQueryBuilder,
+            GeometryFactory geometryFactory
     ) {
         this.accommodationQueryBuilder = accommodationQueryBuilder;
         this.destinationQueryBuilder = destinationQueryBuilder;
+        this.geometryFactory = geometryFactory;
     }
 
     public <T extends UpdatableEntity> void updateFieldsIfNecessary(T entity, UpdatableEntityDto<T> dto) {
@@ -50,60 +56,67 @@ public class EntityUpdateService {
         }
     }
 
-
     private void updateDestinationFieldsIfDifferent(
-            DestinationEntity destination,
+            DestinationEntity dest,
             DestinationCreateOrReviewDto dto
     ) {
         boolean isUpdated = false;
 
-        isUpdated |= updateFieldIfDifferent(
-                destination::getDestinationName, destination::setDestinationName, dto.destinationName());
-        logger.info("DestinationName: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(destination::getLocation, destination::setLocation, dto.location());
-        logger.info("Location: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(
-                destination::getDestinationInfo, destination::setDestinationInfo, dto.destinationInfo());
-        logger.info("DestinationInfo: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(destination::getNextTo, destination::setNextTo, dto.nextTo());
-        logger.info("NextTo: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(destination::getType, destination::setType, dto.type());
-        logger.info("Type: {}", isUpdated);
+        isUpdated |= logUpdate("DestinationName",
+                updateFieldIfDifferent(dest::getDestinationName, dest::setDestinationName, dto.destinationName()));
+
+        isUpdated |= logUpdate("Location",
+                updateLocation(dto.latitude(), dto.longitude(), dest));
+
+        isUpdated |= logUpdate("DestinationInfo", updateFieldIfDifferent(
+                dest::getDestinationInfo, dest::setDestinationInfo, dto.destinationInfo()));
+
+        isUpdated |= logUpdate("NextTo",
+                updateFieldIfDifferent(dest::getNextTo, dest::setNextTo, dto.nextTo()));
+
+        isUpdated |= logUpdate("Type",
+                updateFieldIfDifferent(dest::getType, dest::setType, dto.type()));
 
         if (isUpdated) {
-            destination.setModificationDate(LocalDateTime.now());
+            dest.setModificationDate(LocalDateTime.now());
         }
     }
 
     private void updateAccommodationFieldsIfDifferent(
-            AccommodationEntity accommodation,
+            AccommodationEntity accom,
             AccommodationCreateOrReviewDto dto
     ) {
         boolean isUpdated = false;
 
-        isUpdated |= updateFieldIfDifferent(accommodation::getAccommodationName, accommodation::setAccommodationName, dto.accommodationName());
-        logger.info("AccommodationName: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getPhoneNumber, accommodation::setPhoneNumber, dto.phoneNumber());
-        logger.info("PhoneNumber: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getSite, accommodation::setSite, dto.site());
-        logger.info("Site: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getAccommodationInfo, accommodation::setAccommodationInfo, dto.accommodationInfo());
-        logger.info("AccommodationInfo: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getBedCapacity, accommodation::setBedCapacity, dto.bedCapacity());
-        logger.info("BedCapacity: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getPricePerBed, accommodation::setPricePerBed, dto.pricePerBed());
-        logger.info("PricePerBed: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getAvailableFood, accommodation::setAvailableFood, dto.availableFood());
-        logger.info("FoodAvailable: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getAccess, accommodation::setAccess, dto.access());
-        logger.info("Access: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getAccess, accommodation::setAccess, dto.access());
-        logger.info("Access: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(accommodation::getNextTo, accommodation::setNextTo, dto.nextTo());
-        logger.info("NextTo: {}", isUpdated);
+        isUpdated |= logUpdate("AccommodationName",
+                updateFieldIfDifferent(accom::getAccommodationName, accom::setAccommodationName, dto.accommodationName()));
+
+        isUpdated |= logUpdate("PhoneNumber",
+                updateFieldIfDifferent(accom::getPhoneNumber, accom::setPhoneNumber, dto.phoneNumber()));
+
+        isUpdated |= logUpdate("Site",
+                updateFieldIfDifferent(accom::getSite, accom::setSite, dto.site()));
+
+        isUpdated |= logUpdate("AccommodationInfo",
+                updateFieldIfDifferent(accom::getAccommodationInfo, accom::setAccommodationInfo, dto.accommodationInfo()));
+
+        isUpdated |= logUpdate("BedCapacity",
+                updateFieldIfDifferent(accom::getBedCapacity, accom::setBedCapacity, dto.bedCapacity()));
+
+        isUpdated |= logUpdate("PricePerBed",
+                updateFieldIfDifferent(accom::getPricePerBed, accom::setPricePerBed, dto.pricePerBed()));
+
+        isUpdated |= logUpdate("FoodAvailable",
+                updateFieldIfDifferent(accom::getAvailableFood, accom::setAvailableFood, dto.availableFood()));
+
+        isUpdated |= logUpdate("Access",
+                updateFieldIfDifferent(accom::getAccess, accom::setAccess, dto.access()));
+
+        isUpdated |= logUpdate("NextTo",
+                updateFieldIfDifferent(accom::getNextTo, accom::setNextTo, dto.nextTo()));
 
         if (isUpdated) {
-            accommodation.setModificationDate(LocalDateTime.now());
+            accom.setModificationDate(LocalDateTime.now());
         }
     }
 
@@ -113,34 +126,66 @@ public class EntityUpdateService {
     ) {
         boolean isUpdated = false;
 
-        isUpdated |= updateFieldIfDifferent(trail::getStartPoint, trail::setStartPoint, dto.startPoint());
-        logger.info("StartPoint: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getEndPoint, trail::setEndPoint, dto.endPoint());
-        logger.info("EndPoint: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getTotalDistance, trail::setTotalDistance, dto.totalDistance());
-        logger.info("TotalDifference: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getTrailInfo, trail::setTrailInfo, dto.trailInfo());
-        logger.info("TrailInfo: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getSeasonVisited, trail::setSeasonVisited, dto.seasonVisited());
-        logger.info("SeasonVisited: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getWaterAvailability, trail::setWaterAvailability, dto.waterAvailability());
-        logger.info("WaterAvailable: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getTrailDifficulty, trail::setTrailDifficulty, dto.trailDifficulty());
-        logger.info("TrailDifficulty: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getActivity, trail::setActivity, dto.activity());
-        logger.info("Activity: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getElevationGained, trail::setElevationGained, dto.elevationGained());
-        logger.info("ElevationGained: {}", isUpdated);
-        isUpdated |= updateFieldIfDifferent(trail::getNextTo, trail::setNextTo, dto.nextTo());
-        logger.info("NextTo: {}", isUpdated);
-        isUpdated |= updateAccommodationList(trail, dto.availableHuts());
-        logger.info("AvailableHuts: {}", isUpdated);
-        isUpdated |= updateDestinationList(trail, dto.destinations());
-        logger.info("Destinations: {}", isUpdated);
+        isUpdated |= logUpdate("StartPoint",
+                updateFieldIfDifferent(trail::getStartPoint, trail::setStartPoint, dto.startPoint()));
+
+        isUpdated |= logUpdate("EndPoint",
+                updateFieldIfDifferent(trail::getEndPoint, trail::setEndPoint, dto.endPoint()));
+
+        isUpdated |= logUpdate("TotalDifference",
+                updateFieldIfDifferent(trail::getTotalDistance, trail::setTotalDistance, dto.totalDistance()));
+
+        isUpdated |= logUpdate("TrailInfo",
+                updateFieldIfDifferent(trail::getTrailInfo, trail::setTrailInfo, dto.trailInfo()));
+
+        isUpdated |= logUpdate("SeasonVisited",
+                updateFieldIfDifferent(trail::getSeasonVisited, trail::setSeasonVisited, dto.seasonVisited()));
+
+        isUpdated |= logUpdate("WaterAvailable",
+                updateFieldIfDifferent(trail::getWaterAvailability, trail::setWaterAvailability, dto.waterAvailability()));
+
+        isUpdated |= logUpdate("TrailDifficulty",
+                updateFieldIfDifferent(trail::getTrailDifficulty, trail::setTrailDifficulty, dto.trailDifficulty()));
+
+        isUpdated |= logUpdate("Activity",
+                updateFieldIfDifferent(trail::getActivity, trail::setActivity, dto.activity()));
+
+        isUpdated |= logUpdate("ElevationGained",
+                updateFieldIfDifferent(trail::getElevationGained, trail::setElevationGained, dto.elevationGained()));
+
+        isUpdated |= logUpdate("NextTo",
+                updateFieldIfDifferent(trail::getNextTo, trail::setNextTo, dto.nextTo()));
+
+        isUpdated |= logUpdate("AvailableHuts",
+                updateAccommodationList(trail, dto.availableHuts()));
+
+        isUpdated |= logUpdate("Destinations",
+                updateDestinationList(trail, dto.destinations()));
 
         if (isUpdated) {
             trail.setModificationDate(LocalDateTime.now());
         }
+    }
+
+    private boolean updateLocation(Double latitude, Double longitude, DestinationEntity destination) {
+        if (latitude == null || longitude == null) return false;
+
+        Point newPoint = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+        Point current = destination.getLocation();
+
+        final double TOLERANCE = 1e-6; // ~0.11 m
+
+        if (current == null) {
+            destination.setLocation(newPoint);
+            return true;
+        }
+
+        if (!current.equalsExact(newPoint, TOLERANCE)) {
+            destination.setLocation(newPoint);
+            return true;
+        }
+
+        return false;
     }
 
     public boolean updateAccommodationList(HikingTrailEntity currentTrail, Set<AccommodationIdDto> newHuts) {
@@ -184,6 +229,13 @@ public class EntityUpdateService {
         List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
 
         return this.destinationQueryBuilder.getDestinationEntitiesByIdsAnStatus(destinationIds, StatusEnum.APPROVED);
+    }
+
+    private boolean logUpdate(String field, boolean changed) {
+        if (changed) {
+            logger.info("{} changed.", field);
+        }
+        return changed;
     }
 
     public <T> boolean updateFieldIfDifferent(Supplier<T> getter, Consumer<T> setter, T newValue) {

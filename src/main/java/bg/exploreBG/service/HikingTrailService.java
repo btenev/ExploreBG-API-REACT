@@ -18,6 +18,7 @@ import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.ImageUtils;
 import bg.exploreBG.utils.OwnershipUtils;
+import bg.exploreBG.utils.PublicEntityUtils;
 import bg.exploreBG.utils.StatusValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,15 +91,12 @@ public class HikingTrailService {
     }
 
     public HikingTrailDetailsDto getApprovedHikingTrailWithApprovedImagesById(Long id, StatusEnum status) {
-        HikingTrailEntity trailById = this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus(id, status);
-
-        List<ImageEntity> approvedImages = ImageUtils.filterByStatus(trailById.getImages(), StatusEnum.APPROVED);
-
-        if (approvedImages.size() != trailById.getImages().size()) {
-            trailById.setImages(approvedImages);
-        }
-
-        return this.hikingTrailMapper.hikingTrailEntityToHikingTrailDetailsDto(trailById);
+        return PublicEntityUtils.fetchAndMapWithApprovedImages(
+                id,
+                status,
+                this.hikingTrailQueryBuilder::getHikingTrailByIdAndStatus,
+                this.hikingTrailMapper::hikingTrailEntityToHikingTrailDetailsDto
+        );
     }
 
     @SuppressWarnings("unchecked")

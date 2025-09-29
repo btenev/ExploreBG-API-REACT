@@ -9,11 +9,9 @@ import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
+import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
-import bg.exploreBG.model.entity.AccommodationEntity;
-import bg.exploreBG.model.entity.CommentEntity;
-import bg.exploreBG.model.entity.ImageEntity;
-import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.entity.*;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
@@ -22,6 +20,7 @@ import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
 import bg.exploreBG.utils.ImageUtils;
 import bg.exploreBG.utils.OwnershipUtils;
+import bg.exploreBG.utils.PublicEntityUtils;
 import bg.exploreBG.utils.StatusValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,11 +77,16 @@ public class AccommodationService {
         return this.accommodationQueryBuilder.getRandomNumOfAccommodations(pageable);
     }
 
-    public AccommodationDetailsDto getAccommodationDetailsById(Long accommodationId) {
-        AccommodationEntity accommodationEntityById =
-                this.accommodationQueryBuilder.getAccommodationEntityById(accommodationId);
-
-        return this.mapper.accommodationEntityToAccommodationDetailsDto(accommodationEntityById);
+    public AccommodationDetailsDto getApprovedAccommodationWithApprovedImagesById(
+            Long accommodationId,
+            StatusEnum detailsStatus
+    ) {
+        return PublicEntityUtils.fetchAndMapWithApprovedImages(
+                accommodationId,
+                detailsStatus,
+                this.accommodationQueryBuilder::getAccommodationByIdAndStatus,
+                this.mapper::accommodationEntityToAccommodationDetailsDto
+        );
     }
 
     public Page<AccommodationBasicDto> getAllApprovedAccommodations(Pageable pageable) {

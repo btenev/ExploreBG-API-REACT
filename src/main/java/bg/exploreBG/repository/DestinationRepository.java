@@ -4,6 +4,7 @@ import bg.exploreBG.model.dto.destination.DestinationBasicDto;
 import bg.exploreBG.model.dto.destination.DestinationBasicLikesDto;
 import bg.exploreBG.model.dto.destination.DestinationForApprovalProjection;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
+import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.StatusEnum;
@@ -156,4 +157,9 @@ public interface DestinationRepository extends JpaRepository<DestinationEntity, 
 
     @EntityGraph(attributePaths = {"images", "images.reviewedBy"})
     Optional<DestinationEntity> findWithImagesAndImageReviewerById(Long destinationId);
+
+    @EntityGraph(attributePaths = {"images"})
+    Optional<DestinationEntity> findByIdAndCreatedBy_Email(Long destinationId, String email);
+
+    Optional<DestinationEntity> findByIdAndStatus(Long destinationId, StatusEnum detailsStatus);
 }

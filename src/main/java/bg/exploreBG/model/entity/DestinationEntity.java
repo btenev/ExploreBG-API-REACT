@@ -8,6 +8,7 @@ import bg.exploreBG.ownableEntity.OwnableEntity;
 import bg.exploreBG.reviewable.ReviewableWithImages;
 import bg.exploreBG.updatable.UpdatableEntity;
 import jakarta.persistence.*;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +24,8 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
     @Column(nullable = false, name = "destination_name")
     private String destinationName;
 
-    private String location;
+    @Column(columnDefinition = "POINT SRID 4326")
+    private Point location;
 
     @Column(name = "destination_info", columnDefinition = "TEXT")
     private String destinationInfo;
@@ -91,11 +93,11 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
         this.destinationName = destinationName;
     }
 
-    public String getLocation() {
+    public Point getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Point location) {
         this.location = location;
     }
 
@@ -205,7 +207,7 @@ public class DestinationEntity extends BaseEntity implements ReviewableWithImage
         return "DestinationEntity{" +
                 "id=" + id +
                 ", destinationName='" + destinationName + '\'' +
-                ", location='" + location + '\'' +
+                ", location=" + location +
                 ", destinationInfo='" + destinationInfo + '\'' +
                 ", nextTo='" + nextTo + '\'' +
                 ", type=" + type +

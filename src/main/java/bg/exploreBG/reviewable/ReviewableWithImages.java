@@ -10,6 +10,8 @@ public interface ReviewableWithImages extends ReviewableEntity {
 
     List<ImageEntity> getImages();
 
+    void setImages(List<ImageEntity> images);
+
     ImageEntity getMainImage();
 
     void setMainImage(ImageEntity image);

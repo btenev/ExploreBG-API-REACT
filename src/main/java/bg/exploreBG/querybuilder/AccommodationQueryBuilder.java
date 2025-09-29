@@ -7,6 +7,7 @@ import bg.exploreBG.model.dto.accommodation.AccommodationForApprovalProjection;
 import bg.exploreBG.model.dto.accommodation.AccommodationIdAndAccommodationName;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.CommentEntity;
+import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.repository.AccommodationRepository;
@@ -44,6 +45,11 @@ public class AccommodationQueryBuilder {
 
     public AccommodationEntity getAccommodationEntityById(Long accommodationId) {
         return this.repository.findById(accommodationId).orElseThrow(this::accommodationNotFoundException);
+    }
+
+    public AccommodationEntity getAccommodationByIdAndStatus(Long accommodationId, StatusEnum status) {
+        return this.repository.findByIdAndStatus(accommodationId, status)
+                .orElseThrow(this::accommodationNotFoundOrInvalidStatusException);
     }
 
     public AccommodationEntity getAccommodationByIdAndStatusIfOwner(Long accommodationId, String email) {
