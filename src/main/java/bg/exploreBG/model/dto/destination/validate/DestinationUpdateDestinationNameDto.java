@@ -1,16 +1,15 @@
 package bg.exploreBG.model.dto.destination.validate;
 
+import bg.exploreBG.model.validation.ValidPlaceName;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public record DestinationUpdateDestinationNameDto(
-        @NotNull(message = "Destination name can not be blank!")
-        @Pattern(
-                regexp = "^[A-Za-z]+\\s?[A-Za-z]+$",
-                message = "Destination name allowed symbols are upper, lower letters, zero or one empty space but not in the beginning!"
+        @NotNull(message = "Please enter your destination name.")
+        @ValidPlaceName(
+                max = 30,
+                min = 3,
+                fieldName = "Your destination name"
         )
-        @Size(max = 30)
         String destinationName
 ) {
 }

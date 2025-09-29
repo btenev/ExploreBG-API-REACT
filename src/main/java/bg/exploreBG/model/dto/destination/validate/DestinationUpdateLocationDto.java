@@ -1,16 +1,15 @@
 package bg.exploreBG.model.dto.destination.validate;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 
 public record DestinationUpdateLocationDto(
-        @NotNull(message = "Location can not be blank!")
-        @Pattern(
-                regexp = "^[A-za-z]+(\\s?[A-Za-z]+)*$",
-                message = "Location allowed symbols are upper, lower letters, zero or one empty space but not in the beginning!"
-        )
-        @Size(max = 30)
-        String location
+        @DecimalMin(value = "-90.0", message = "Your latitude cannot be less than -90.")
+        @DecimalMax(value = "90.0", message = "Your latitude cannot be greater than 90.")
+        Double latitude,
+
+        @DecimalMin(value = "-180.0", message = "Your longitude cannot be less than -180.")
+        @DecimalMax(value = "180.0", message = "Your longitude cannot be greater than 180.")
+        Double longitude
 ) {
 }

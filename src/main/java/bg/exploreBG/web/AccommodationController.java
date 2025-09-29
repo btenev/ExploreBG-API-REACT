@@ -75,7 +75,8 @@ public class AccommodationController {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            response = this.accommodationService.getAccommodationDetailsById(accommodationId);
+            response = this.accommodationService
+                    .getApprovedAccommodationWithApprovedImagesById(accommodationId, StatusEnum.APPROVED);
         }
 
         return ResponseEntity.ok(response);

@@ -2,46 +2,42 @@ package bg.exploreBG.model.dto.destination.validate;
 
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
+import bg.exploreBG.model.validation.DescriptionField;
+import bg.exploreBG.model.validation.ValidPlaceName;
 import bg.exploreBG.updatable.UpdatableEntityDto;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public record DestinationCreateOrReviewDto(
-        @NotNull(message = "Destination name can not be blank!")
-        @Pattern(
-                regexp = "^[A-Za-z]+\\s?[A-Za-z]+$",
-                message = "Destination name allowed symbols are upper, lower letters, zero or one empty space but not in the beginning!"
+        @NotNull(message = "Please enter your destination name.")
+        @ValidPlaceName(
+                max = 30,
+                min = 3,
+                fieldName = "Your destination name"
         )
-        @Size(max = 30)
         String destinationName,
 
-        @NotNull(message = "Location can not be blank!")
-        @Pattern(
-                regexp = "^[A-za-z]+(\\s?[A-Za-z]+)*$",
-                message = "Location allowed symbols are upper, lower letters, zero or one empty space but not in the beginning!"
-        )
-        @Size(max = 30)
-        String location,
+        @DecimalMin(value = "-90.0", message = "Your latitude cannot be less than -90.")
+        @DecimalMax(value = "90.0", message = "Your latitude cannot be greater than 90.")
+        Double latitude,
 
-        @NotNull(message = "Please enter a short description of the destination!")
-        @Pattern(
-                regexp = "^[a-zA-Z0-9\\-.,\\s\\n]*$",
-                message = "Destination info allowed symbols are upper and lower letters, digits 0 to 9, dot, comma, dash, new line, empty space!"
-        )
-        @Size(
-                max = 800,
-                message = "The trail info text shouldn't exceed 800 symbols"
-        )
+        @DecimalMin(value = "-180.0", message = "Your longitude cannot be less than -180.")
+        @DecimalMax(value = "180.0", message = "Your longitude cannot be greater than 180.")
+        Double longitude,
+
+        @DescriptionField(max = 800)
         String destinationInfo,
 
-        @NotNull(message = "Please, enter town or city name that is close to the trail!")
-        @Pattern(
-                regexp = "^[A-Za-z]{3,15}$",
-                message = "City/town name should contain from 3 to 15 letters!"
+        @NotNull(message = "Please enter the village/town/city near your destination.")
+        @ValidPlaceName(
+                max = 20,
+                min = 3,
+                fieldName = "Your village/town/city name"
         )
         String nextTo,
 
+        @NotNull(message = "Please specify the destination type.")
         DestinationTypeEnum type
 ) implements UpdatableEntityDto<DestinationEntity> {
 }

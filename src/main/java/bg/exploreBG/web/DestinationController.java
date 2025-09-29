@@ -75,7 +75,8 @@ public class DestinationController {
                 return ResponseEntity.badRequest().body("Invalid principal type");
             }
         } else {
-            response = this.destinationService.getDestinationDetailsById(destinationId);
+            response = this.destinationService
+                    .getApprovedDestinationWithApprovedImagesById(destinationId, StatusEnum.APPROVED);
         }
 
         return ResponseEntity.ok(response);
@@ -131,7 +132,6 @@ public class DestinationController {
         return ResponseEntity.ok(select);
     }
 
-    /*TODO: old: '/create/{id}' new: only base */
     @PostMapping
     public ResponseEntity<DestinationIdDto> create(
             @Valid @RequestBody DestinationCreateOrReviewDto destinationCreateOrReviewDto,
@@ -155,6 +155,7 @@ public class DestinationController {
         boolean like =
                 this.destinationService
                         .likeOrUnlikeDestinationAndSave(destinationId, likeRequestDto, StatusEnum.APPROVED);
+        logger.warn("{}", like);
 
         LikeResponseDto response = new LikeResponseDto(like);
 
