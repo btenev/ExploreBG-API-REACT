@@ -5,10 +5,8 @@ import bg.exploreBG.model.dto.LikeResponseDto;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.destination.DestinationIdAndDestinationNameDto;
-import bg.exploreBG.model.dto.destination.single.*;
-import bg.exploreBG.model.dto.destination.validate.*;
-import bg.exploreBG.model.dto.image.single.ImageIdDto;
-import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
+import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
+import bg.exploreBG.model.dto.destination.validate.DestinationCreateOrReviewDto;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.service.DestinationService;
 import jakarta.validation.Valid;
@@ -196,88 +194,4 @@ public class DestinationController {
 
         return ResponseEntity.noContent().build();
     }
-
-    @PatchMapping("/{id}/destination-name")
-    public ResponseEntity<DestinationNameDto> updateDestinationName(
-            @PathVariable("id") Long destinationId,
-            @Valid @RequestBody DestinationUpdateDestinationNameDto updateDestinationName,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        DestinationNameDto destinationName =
-                this.destinationService
-                        .updateDestinationName(destinationId, updateDestinationName, userDetails);
-
-        return ResponseEntity.ok().body(destinationName);
-    }
-
-    @PatchMapping("/{id}/location")
-    public ResponseEntity<DestinationLocationDto> updateDestinationLocation(
-            @PathVariable("id") Long destinationId,
-            @Valid @RequestBody DestinationUpdateLocationDto updateLocation,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        DestinationLocationDto location =
-                this.destinationService
-                        .updateLocation(destinationId, updateLocation, userDetails);
-
-        return ResponseEntity.ok().body(location);
-    }
-
-    @PatchMapping("/{id}/destination-info")
-    public ResponseEntity<DestinationInfoDto> updateInfo(
-            @PathVariable("id") Long destinationId,
-            @Valid @RequestBody DestinationUpdateInfoDto destinationUpdateInfo,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        DestinationInfoDto info =
-                this.destinationService
-                        .updateDestinationInfo(destinationId, destinationUpdateInfo, userDetails);
-
-        return ResponseEntity.ok().body(info);
-    }
-
-    @PatchMapping("/{id}/next-to")
-    public ResponseEntity<DestinationNextToDto> updateNextTo(
-            @PathVariable("id") Long destinationId,
-            @Valid @RequestBody DestinationUpdateNextToDto updateNextTo,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        DestinationNextToDto nextTo =
-                this.destinationService
-                        .updateNextTo(destinationId, updateNextTo, userDetails);
-
-        return ResponseEntity.ok().body(nextTo);
-    }
-
-    @PatchMapping("/{id}/type")
-    public ResponseEntity<DestinationTypeDto> updateType(
-            @PathVariable("id") Long destinationId,
-            @Valid @RequestBody DestinationUpdateTypeDto updateType,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        DestinationTypeDto type =
-                this.destinationService
-                        .updateType(destinationId, updateType, userDetails);
-
-        return ResponseEntity.ok().body(type);
-    }
-
-    @PatchMapping("/{id}/main-image")
-    public ResponseEntity<ImageIdDto> changeMainImage(
-            @PathVariable("id") Long destinationId,
-            @Valid @RequestBody ImageMainUpdateDto imageMainUpdate,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        Long updateMainImage =
-                this.destinationService
-                        .updateDestinationMainImage(
-                                destinationId,
-                                imageMainUpdate,
-                                userDetails,
-                                List.of(StatusEnum.PENDING, StatusEnum.APPROVED)
-                        );
-
-        return ResponseEntity.ok(new ImageIdDto(updateMainImage));
-    }
-
 }
