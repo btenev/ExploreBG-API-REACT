@@ -1,5 +1,7 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.hike.HikeBasicDto;
 import bg.exploreBG.model.dto.hike.HikeDetailsDto;
 import bg.exploreBG.model.dto.hike.single.HikeIdDto;
@@ -75,4 +77,28 @@ public class HikeController {
                 .body(hikeId);
     }
 
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentDto> createHikeComment(
+            @PathVariable("id") Long hikeId,
+            @Valid @RequestBody CommentRequestDto createDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        CommentDto dto =
+                this.hikeService
+                        .addNewHikeComment(hikeId, createDto, userDetails);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/{hikeId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteHikeComment(
+            @PathVariable("hikeId") Long hikeId,
+            @PathVariable("commentId") Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        this.hikeService.deleteHikeComment(hikeId, commentId, userDetails);
+
+        return ResponseEntity.noContent().build();
+    }
 }

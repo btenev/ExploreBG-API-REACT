@@ -22,13 +22,13 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             """)
     int removeUserEntityFromCommentsByEmail(@Param("newOwnerId") Long newOwnerId, @Param("email") String email);
 
-    @Query("""
-            SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
-            FROM CommentEntity c
-            JOIN c.owner o
-            WHERE c.id = :commentId AND o.email = :email
-            """)
-    boolean isUserOwnerOfComment(@Param("commentId") Long commentId, @Param("email") String email);
+//    @Query("""
+//            SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
+//            FROM CommentEntity c
+//            JOIN c.owner o
+//            WHERE c.id = :commentId AND o.email = :email
+//            """)
+//    boolean isUserOwnerOfComment(@Param("commentId") Long commentId, @Param("email") String email);
 
     Optional<CommentEntity> findByIdAndOwnerEmail(Long id, String owner_email);
 }

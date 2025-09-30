@@ -1,6 +1,7 @@
 package bg.exploreBG.repository;
 
 import bg.exploreBG.model.entity.HikeEntity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -43,4 +45,7 @@ public interface HikeRepository extends JpaRepository<HikeEntity, Long> {
             @Param("newOwnerId") Long newOwnerId,
             @Param("oldOwnerEmail") String oldOwnerEmail
     );
+
+    @EntityGraph(attributePaths = {"comments"})
+    Optional<HikeEntity> findWithCommentsById(Long hikeId);
 }

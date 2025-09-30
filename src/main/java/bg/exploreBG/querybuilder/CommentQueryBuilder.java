@@ -17,14 +17,6 @@ public class CommentQueryBuilder {
         this.repository = repository;
     }
 
-    public void validateCommentOwnership(Long commentId, String email) {
-        boolean isOwner = this.repository.isUserOwnerOfComment(commentId, email);
-
-        if (!isOwner) {
-           throw commentNotFoundOrNotOwner();
-        }
-    }
-
     public CommentEntity getCommentEntityByIdIfOwner(Long commentId, String email) {
         return this.repository.findByIdAndOwnerEmail(commentId, email)
                 .orElseThrow(this::commentNotFoundOrNotOwner);

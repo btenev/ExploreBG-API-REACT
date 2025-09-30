@@ -15,14 +15,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Service
 public class CommentService {
+    @FunctionalInterface
+    public interface EntityFetcher<E extends CommentableEntity> {
+        E fetch(Long id, StatusEnum status);
+    }
+
     private final Logger logger = LoggerFactory.getLogger(CommentService.class);
     private final CommentMapper commentMapper;
     private final GenericPersistenceService<CommentEntity> commentPersistence;
@@ -43,13 +48,23 @@ public class CommentService {
 
     public <E extends CommentableEntity> CommentDto addComment(
             Long entityId,
-            StatusEnum status,
             CommentRequestDto requestDto,
             UserDetails userDetails,
-            BiFunction<Long, StatusEnum, E> fetchEntityWithComments,
+            EntityFetcher<E> fetchEntityWithComments,
             Consumer<E> saveEntity
     ) {
-        E currentEntity = fetchEntityWithComments.apply(entityId, status);
+        return addComment(entityId, requestDto, userDetails, fetchEntityWithComments, saveEntity, null);
+    }
+
+    public <E extends CommentableEntity> CommentDto addComment(
+            Long entityId,
+            CommentRequestDto requestDto,
+            UserDetails userDetails,
+            EntityFetcher<E> fetchEntityWithComments,
+            Consumer<E> saveEntity,
+            StatusEnum detailsStatus
+    ) {
+        E currentEntity = fetchEntityWithComments.fetch(entityId, detailsStatus);
 
         UserEntity userCommenting = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
@@ -76,29 +91,35 @@ public class CommentService {
         return this.commentMapper.commentEntityToCommentDto(saved);
     }
 
-
+    @Transactional
     public <E extends CommentableEntity> void deleteComment(
             Long entityId,
             Long commentId,
             UserDetails userDetails,
             Function<Long, E> fetchEntityWithComments,
             Consumer<E> saveEntity,
-            Consumer<E> deleteComment
+            Runnable deleteCommentAction
     ) {
         E currentEntity = fetchEntityWithComments.apply(entityId);
 
-        this.commentQueryBuilder.validateCommentOwnership(commentId, userDetails.getUsername());
+        boolean removed = currentEntity.getComments().removeIf(c -> {
+            if (!c.getId().equals(commentId)) return false;
+            if (!c.getOwner().getEmail().equals(userDetails.getUsername())) {
+                throw new AppException(
+                        "You do not have permission to delete this comment.",
+                        HttpStatus.FORBIDDEN);
+            }
+            return true;
+        });
 
-        boolean commentRemoved = currentEntity.getComments().removeIf(c -> c.getId().equals(commentId));
-
-        if (!commentRemoved) {
-            throw new AppException("Comment with id " + commentId + " was not found!",
+        if (!removed) {
+            throw new AppException(
+                    "Comment with id " + commentId + " was not found on entity " + entityId,
                     HttpStatus.NOT_FOUND);
         }
 
         saveEntity.accept(currentEntity);
-        /* TODO: Handle exceptions appropriately, consider transaction management */
-        deleteComment.accept(currentEntity);
+        deleteCommentAction.run();
     }
 
     private CommentEntity saveComment(CommentRequestDto commentDto, UserEntity commentUser) {

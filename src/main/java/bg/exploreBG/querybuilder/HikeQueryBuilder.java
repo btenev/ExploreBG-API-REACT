@@ -39,6 +39,10 @@ public class HikeQueryBuilder {
         return this.repository.findAll(pageable);
     }
 
+    public HikeEntity getHikeWithCommentsById(Long hikeId) {
+        return this.repository.findWithCommentsById(hikeId).orElseThrow(this::hikeNotFoundException);
+    }
+
     public void removeHikingTrailFromHikesByTrailIdIfTrailOwner(Long trailId, String email) {
         int rows = this.repository.removeHikingTrailFromHikesByHikingTrailIdIfTrailOwner(trailId, email);
         if (rows == 0) {
@@ -66,4 +70,5 @@ public class HikeQueryBuilder {
         return new AppException("The hiking trail you are looking for was not found or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
     }
+
 }

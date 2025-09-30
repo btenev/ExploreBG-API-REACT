@@ -1,9 +1,12 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.comment.CommentDto;
+import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
 import bg.exploreBG.model.dto.hike.HikeBasicDto;
 import bg.exploreBG.model.dto.hike.HikeDetailsDto;
 import bg.exploreBG.model.dto.hike.single.HikeIdDto;
 import bg.exploreBG.model.dto.hike.validate.HikeCreateDto;
+import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.UserEntity;
@@ -11,7 +14,6 @@ import bg.exploreBG.model.mapper.HikeMapper;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
-import bg.exploreBG.repository.HikeRepository;
 import bg.exploreBG.utils.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,22 +30,28 @@ public class HikeService {
     private final Logger logger = LoggerFactory.getLogger(HikeService.class);
     private final HikeMapper hikeMapper;
     private final GenericPersistenceService<HikeEntity> hikePersistence;
+    private final GenericPersistenceService<CommentEntity> commentPersistence;
     private final HikeQueryBuilder hikeQueryBuilder;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final UserQueryBuilder userQueryBuilder;
+    private final CommentService commentService;
 
     public HikeService(
             HikeMapper hikeMapper,
             GenericPersistenceService<HikeEntity> hikePersistence,
+            GenericPersistenceService<CommentEntity> commentPersistence,
             HikeQueryBuilder hikeQueryBuilder,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
-            UserQueryBuilder userQueryBuilder
+            UserQueryBuilder userQueryBuilder,
+            CommentService commentService
     ) {
         this.hikeMapper = hikeMapper;
         this.hikePersistence = hikePersistence;
+        this.commentPersistence = commentPersistence;
         this.hikeQueryBuilder = hikeQueryBuilder;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.userQueryBuilder = userQueryBuilder;
+        this.commentService = commentService;
     }
 
     public List<HikeBasicDto> getRandomNumOfHikes(int limit) {
@@ -88,5 +96,32 @@ public class HikeService {
 
         HikeEntity saved = this.hikePersistence.saveEntityWithReturn(newHike);
         return new HikeIdDto(saved.getId());
+    }
+
+    public CommentDto addNewHikeComment(
+            Long hikeId,
+            CommentRequestDto commentDto,
+            UserDetails userDetails
+    ) {
+        return this.commentService.addComment(
+                hikeId,
+                commentDto,
+                userDetails,
+                (id, ignored) -> this.hikeQueryBuilder.getHikeWithCommentsById(id),
+                this.hikePersistence::saveEntityWithoutReturn);
+    }
+
+    public void deleteHikeComment(
+            Long hikeId,
+            Long commentId,
+            UserDetails userDetails
+    ) {
+        this.commentService.deleteComment(
+                hikeId,
+                commentId,
+                userDetails,
+                this.hikeQueryBuilder::getHikeWithCommentsById,
+                this.hikePersistence::saveEntityWithoutReturn,
+                () -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
     }
 }

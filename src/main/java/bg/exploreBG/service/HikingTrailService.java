@@ -199,12 +199,11 @@ public class HikingTrailService {
     ) {
         return this.commentService.addComment(
                 trailId,
-                status,
                 commentDto,
                 userDetails,
                 this.hikingTrailQueryBuilder::getHikingTrailWithCommentsByIdAndStatus,
-                this.trailPersistence::saveEntityWithoutReturn
-        );
+                this.trailPersistence::saveEntityWithoutReturn,
+                status);
     }
 
     /*
@@ -228,8 +227,7 @@ public class HikingTrailService {
                         userDetails,
                         this.hikingTrailQueryBuilder::getHikingTrailWithCommentsById,
                         this.trailPersistence::saveEntityWithoutReturn,
-                        ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId)
-                );
+                        () -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
     }
 
     public boolean likeOrUnlikeTrailAndSave(
@@ -268,5 +266,4 @@ public class HikingTrailService {
                 this.imageService::deleteAllImagesFromEntityWithoutReturn
         );
     }
-
 }

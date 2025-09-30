@@ -182,14 +182,13 @@ public class DestinationService {
             UserDetails userDetails,
             StatusEnum status
     ) {
-
         return this.commentService.addComment(
                 destinationId,
-                status,
                 requestDto,
                 userDetails,
                 this.destinationQueryBuilder::getDestinationWithCommentsByIdAndStatus,
-                this.destinationPersistence::saveEntityWithoutReturn);
+                this.destinationPersistence::saveEntityWithoutReturn,
+                status);
     }
 
     public void deleteDestinationComment(
@@ -203,7 +202,7 @@ public class DestinationService {
                 userDetails,
                 this.destinationQueryBuilder::getDestinationWithCommentsById,
                 this.destinationPersistence::saveEntityWithoutReturn,
-                ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
+                () -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
     }
 
     public DestinationNameDto updateDestinationName(

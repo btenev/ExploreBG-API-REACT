@@ -9,9 +9,11 @@ import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;
-import bg.exploreBG.model.dto.hikingTrail.HikingTrailDetailsDto;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
-import bg.exploreBG.model.entity.*;
+import bg.exploreBG.model.entity.AccommodationEntity;
+import bg.exploreBG.model.entity.CommentEntity;
+import bg.exploreBG.model.entity.ImageEntity;
+import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.model.mapper.AccommodationMapper;
@@ -426,11 +428,11 @@ public class AccommodationService {
     ) {
         return this.commentService.addComment(
                 accommodationId,
-                status,
                 requestDto,
                 userDetails,
                 this.accommodationQueryBuilder::getAccommodationWithCommentsByIdAndStatus,
-                this.accommodationPersistence::saveEntityWithoutReturn);
+                this.accommodationPersistence::saveEntityWithoutReturn,
+                status);
     }
 
     public void deleteAccommodationComment(
@@ -445,7 +447,7 @@ public class AccommodationService {
                         userDetails,
                         this.accommodationQueryBuilder::getAccommodationWithCommentsById,
                         this.accommodationPersistence::saveEntityWithoutReturn,
-                        ignored -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
+                        () -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
     }
 }
 

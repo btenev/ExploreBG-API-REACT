@@ -1,5 +1,6 @@
 package bg.exploreBG.model.entity;
 
+import bg.exploreBG.commentableEntity.CommentableEntity;
 import jakarta.persistence.*;
 import org.springframework.data.geo.Point;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "hikes")
-public class HikeEntity {
+public class HikeEntity implements CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -150,6 +151,10 @@ public class HikeEntity {
 
     public void setArchived(Boolean archived) {
         this.archived = archived;
+    }
+
+    public void setSingleComment(CommentEntity savedComment) {
+        this.comments.add(savedComment);
     }
 
     @Override

@@ -39,8 +39,7 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
 
     @Column(name = "water_available")
     @Enumerated(EnumType.STRING)
-    private WaterAvailabilityEnum waterAvailability
-            ;
+    private WaterAvailabilityEnum waterAvailability;
 
     //TODO: discuss with Ivo if one accommodation entity can belong to more than one hiking trail
     @ManyToMany
