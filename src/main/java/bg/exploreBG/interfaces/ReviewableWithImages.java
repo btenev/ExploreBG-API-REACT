@@ -1,4 +1,4 @@
-package bg.exploreBG.reviewable;
+package bg.exploreBG.interfaces;
 
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;

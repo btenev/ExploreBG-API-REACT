@@ -1,6 +1,6 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.commentableEntity.CommentableEntity;
+import bg.exploreBG.interfaces.CommentableEntity;
 import jakarta.persistence.*;
 import org.springframework.data.geo.Point;
 

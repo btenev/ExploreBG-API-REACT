@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.commentableEntity.CommentableEntity;
+import bg.exploreBG.interfaces.CommentableEntity;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.dto.comment.CommentDto;
 import bg.exploreBG.model.dto.comment.validate.CommentRequestDto;

@@ -1,4 +1,4 @@
-package bg.exploreBG.updatable;
+package bg.exploreBG.interfaces;
 
 public interface UpdatableEntityDto <T extends UpdatableEntity> {
 }

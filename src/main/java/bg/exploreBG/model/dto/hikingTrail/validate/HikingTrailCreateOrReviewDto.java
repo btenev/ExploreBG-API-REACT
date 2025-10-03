@@ -10,7 +10,7 @@ import bg.exploreBG.model.enums.SuitableForEnum;
 import bg.exploreBG.model.enums.WaterAvailabilityEnum;
 import bg.exploreBG.model.validation.DescriptionField;
 import bg.exploreBG.model.validation.ValidPlaceName;
-import bg.exploreBG.updatable.UpdatableEntityDto;
+import bg.exploreBG.interfaces.UpdatableEntityDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

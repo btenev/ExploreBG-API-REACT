@@ -4,7 +4,7 @@ import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
 import bg.exploreBG.model.validation.DescriptionField;
 import bg.exploreBG.model.validation.ValidPlaceName;
-import bg.exploreBG.updatable.UpdatableEntityDto;
+import bg.exploreBG.interfaces.UpdatableEntityDto;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

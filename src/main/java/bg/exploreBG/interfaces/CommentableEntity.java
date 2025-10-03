@@ -1,4 +1,4 @@
-package bg.exploreBG.commentableEntity;
+package bg.exploreBG.interfaces;
 
 import bg.exploreBG.model.entity.CommentEntity;
 

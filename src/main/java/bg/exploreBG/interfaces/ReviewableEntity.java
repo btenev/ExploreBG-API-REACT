@@ -1,4 +1,4 @@
-package bg.exploreBG.reviewable;
+package bg.exploreBG.interfaces;
 
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;

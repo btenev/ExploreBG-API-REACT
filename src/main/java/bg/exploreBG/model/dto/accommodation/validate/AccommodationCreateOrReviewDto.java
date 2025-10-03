@@ -6,7 +6,7 @@ import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.FoodAvailabilityEnum;
 import bg.exploreBG.model.validation.DescriptionField;
 import bg.exploreBG.model.validation.ValidPlaceName;
-import bg.exploreBG.updatable.UpdatableEntityDto;
+import bg.exploreBG.interfaces.UpdatableEntityDto;
 import jakarta.validation.constraints.*;
 
 public record AccommodationCreateOrReviewDto(

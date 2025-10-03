@@ -2,7 +2,7 @@ package bg.exploreBG.utils;
 
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
-import bg.exploreBG.reviewable.ReviewableWithImages;
+import bg.exploreBG.interfaces.ReviewableWithImages;
 
 import java.util.List;
 import java.util.function.Function;
