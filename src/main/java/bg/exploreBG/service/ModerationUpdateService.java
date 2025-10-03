@@ -1,5 +1,7 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.interfaces.UpdatableEntity;
+import bg.exploreBG.interfaces.UpdatableEntityDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;
 import bg.exploreBG.model.dto.destination.single.DestinationIdDto;
@@ -8,11 +10,7 @@ import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailCreateOrReviewDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
 import bg.exploreBG.model.entity.DestinationEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
-import bg.exploreBG.model.enums.StatusEnum;
-import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
-import bg.exploreBG.querybuilder.DestinationQueryBuilder;
-import bg.exploreBG.updatable.UpdatableEntity;
-import bg.exploreBG.updatable.UpdatableEntityDto;
+import bg.exploreBG.utils.EntityUpdateUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -24,24 +22,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
-public class EntityUpdateService {
-    private final AccommodationQueryBuilder accommodationQueryBuilder;
-    private final DestinationQueryBuilder destinationQueryBuilder;
+public class ModerationUpdateService {
+    private final AccommodationService accommodationService;
+    private final DestinationService destinationService;
     private final GeometryFactory geometryFactory;
-    private final Logger logger = LoggerFactory.getLogger(EntityUpdateService.class);
+    private final Logger logger = LoggerFactory.getLogger(ModerationUpdateService.class);
 
-    public EntityUpdateService(
-            AccommodationQueryBuilder accommodationQueryBuilder,
-            DestinationQueryBuilder destinationQueryBuilder,
+    public ModerationUpdateService(
+            AccommodationService accommodationService,
+            DestinationService destinationService,
             GeometryFactory geometryFactory
     ) {
-        this.accommodationQueryBuilder = accommodationQueryBuilder;
-        this.destinationQueryBuilder = destinationQueryBuilder;
+        this.accommodationService = accommodationService;
+        this.destinationService = destinationService;
         this.geometryFactory = geometryFactory;
     }
 
@@ -63,19 +59,19 @@ public class EntityUpdateService {
         boolean isUpdated = false;
 
         isUpdated |= logUpdate("DestinationName",
-                updateFieldIfDifferent(dest::getDestinationName, dest::setDestinationName, dto.destinationName()));
+                EntityUpdateUtils.updateFieldIfDifferent(dest::getDestinationName, dest::setDestinationName, dto.destinationName()));
 
         isUpdated |= logUpdate("Location",
                 updateLocation(dto.latitude(), dto.longitude(), dest));
 
-        isUpdated |= logUpdate("DestinationInfo", updateFieldIfDifferent(
-                dest::getDestinationInfo, dest::setDestinationInfo, dto.destinationInfo()));
+        isUpdated |= logUpdate("DestinationInfo",
+                EntityUpdateUtils.updateFieldIfDifferent(dest::getDestinationInfo, dest::setDestinationInfo, dto.destinationInfo()));
 
         isUpdated |= logUpdate("NextTo",
-                updateFieldIfDifferent(dest::getNextTo, dest::setNextTo, dto.nextTo()));
+                EntityUpdateUtils.updateFieldIfDifferent(dest::getNextTo, dest::setNextTo, dto.nextTo()));
 
         isUpdated |= logUpdate("Type",
-                updateFieldIfDifferent(dest::getType, dest::setType, dto.type()));
+                EntityUpdateUtils.updateFieldIfDifferent(dest::getType, dest::setType, dto.type()));
 
         if (isUpdated) {
             dest.setModificationDate(LocalDateTime.now());
@@ -89,31 +85,31 @@ public class EntityUpdateService {
         boolean isUpdated = false;
 
         isUpdated |= logUpdate("AccommodationName",
-                updateFieldIfDifferent(accom::getAccommodationName, accom::setAccommodationName, dto.accommodationName()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getAccommodationName, accom::setAccommodationName, dto.accommodationName()));
 
         isUpdated |= logUpdate("PhoneNumber",
-                updateFieldIfDifferent(accom::getPhoneNumber, accom::setPhoneNumber, dto.phoneNumber()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getPhoneNumber, accom::setPhoneNumber, dto.phoneNumber()));
 
         isUpdated |= logUpdate("Site",
-                updateFieldIfDifferent(accom::getSite, accom::setSite, dto.site()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getSite, accom::setSite, dto.site()));
 
         isUpdated |= logUpdate("AccommodationInfo",
-                updateFieldIfDifferent(accom::getAccommodationInfo, accom::setAccommodationInfo, dto.accommodationInfo()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getAccommodationInfo, accom::setAccommodationInfo, dto.accommodationInfo()));
 
         isUpdated |= logUpdate("BedCapacity",
-                updateFieldIfDifferent(accom::getBedCapacity, accom::setBedCapacity, dto.bedCapacity()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getBedCapacity, accom::setBedCapacity, dto.bedCapacity()));
 
         isUpdated |= logUpdate("PricePerBed",
-                updateFieldIfDifferent(accom::getPricePerBed, accom::setPricePerBed, dto.pricePerBed()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getPricePerBed, accom::setPricePerBed, dto.pricePerBed()));
 
         isUpdated |= logUpdate("FoodAvailable",
-                updateFieldIfDifferent(accom::getAvailableFood, accom::setAvailableFood, dto.availableFood()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getAvailableFood, accom::setAvailableFood, dto.availableFood()));
 
         isUpdated |= logUpdate("Access",
-                updateFieldIfDifferent(accom::getAccess, accom::setAccess, dto.access()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getAccess, accom::setAccess, dto.access()));
 
         isUpdated |= logUpdate("NextTo",
-                updateFieldIfDifferent(accom::getNextTo, accom::setNextTo, dto.nextTo()));
+                EntityUpdateUtils.updateFieldIfDifferent(accom::getNextTo, accom::setNextTo, dto.nextTo()));
 
         if (isUpdated) {
             accom.setModificationDate(LocalDateTime.now());
@@ -127,34 +123,34 @@ public class EntityUpdateService {
         boolean isUpdated = false;
 
         isUpdated |= logUpdate("StartPoint",
-                updateFieldIfDifferent(trail::getStartPoint, trail::setStartPoint, dto.startPoint()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getStartPoint, trail::setStartPoint, dto.startPoint()));
 
         isUpdated |= logUpdate("EndPoint",
-                updateFieldIfDifferent(trail::getEndPoint, trail::setEndPoint, dto.endPoint()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getEndPoint, trail::setEndPoint, dto.endPoint()));
 
         isUpdated |= logUpdate("TotalDifference",
-                updateFieldIfDifferent(trail::getTotalDistance, trail::setTotalDistance, dto.totalDistance()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getTotalDistance, trail::setTotalDistance, dto.totalDistance()));
 
         isUpdated |= logUpdate("TrailInfo",
-                updateFieldIfDifferent(trail::getTrailInfo, trail::setTrailInfo, dto.trailInfo()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getTrailInfo, trail::setTrailInfo, dto.trailInfo()));
 
         isUpdated |= logUpdate("SeasonVisited",
-                updateFieldIfDifferent(trail::getSeasonVisited, trail::setSeasonVisited, dto.seasonVisited()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getSeasonVisited, trail::setSeasonVisited, dto.seasonVisited()));
 
         isUpdated |= logUpdate("WaterAvailable",
-                updateFieldIfDifferent(trail::getWaterAvailability, trail::setWaterAvailability, dto.waterAvailability()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getWaterAvailability, trail::setWaterAvailability, dto.waterAvailability()));
 
         isUpdated |= logUpdate("TrailDifficulty",
-                updateFieldIfDifferent(trail::getTrailDifficulty, trail::setTrailDifficulty, dto.trailDifficulty()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getTrailDifficulty, trail::setTrailDifficulty, dto.trailDifficulty()));
 
         isUpdated |= logUpdate("Activity",
-                updateFieldIfDifferent(trail::getActivity, trail::setActivity, dto.activity()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getActivity, trail::setActivity, dto.activity()));
 
         isUpdated |= logUpdate("ElevationGained",
-                updateFieldIfDifferent(trail::getElevationGained, trail::setElevationGained, dto.elevationGained()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getElevationGained, trail::setElevationGained, dto.elevationGained()));
 
         isUpdated |= logUpdate("NextTo",
-                updateFieldIfDifferent(trail::getNextTo, trail::setNextTo, dto.nextTo()));
+                EntityUpdateUtils.updateFieldIfDifferent(trail::getNextTo, trail::setNextTo, dto.nextTo()));
 
         isUpdated |= logUpdate("AvailableHuts",
                 updateAccommodationList(trail, dto.availableHuts()));
@@ -195,7 +191,8 @@ public class EntityUpdateService {
                 .collect(Collectors.toSet());
 
         if (!Objects.equals(currentHuts, newHuts)) {
-            List<AccommodationEntity> accommodationEntities = mapDtoToAccommodationEntities(newHuts);
+            List<AccommodationEntity> accommodationEntities =
+                    this.accommodationService.mapDtoToAccommodationEntities(newHuts);
             currentTrail.setAvailableHuts(accommodationEntities);
             return true;
         }
@@ -209,26 +206,12 @@ public class EntityUpdateService {
                 .collect(Collectors.toSet());
 
         if (!Objects.equals(currentDestinations, newDestinations)) {
-            List<DestinationEntity> destinationEntities = mapDtoToDestinationEntities(newDestinations);
+            List<DestinationEntity> destinationEntities =
+                    this.destinationService.mapDtoToDestinationEntities(newDestinations);
             currentTrail.setDestinations(destinationEntities);
             return true;
         }
         return false;
-    }
-
-    public List<AccommodationEntity> mapDtoToAccommodationEntities(Set<AccommodationIdDto> ids) {
-
-        List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
-
-        return this.accommodationQueryBuilder
-                .getAccommodationEntitiesByIdAndStatus(accommodationIds, StatusEnum.APPROVED);
-    }
-
-    public List<DestinationEntity> mapDtoToDestinationEntities(Set<DestinationIdDto> ids) {
-
-        List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
-
-        return this.destinationQueryBuilder.getDestinationEntitiesByIdsAnStatus(destinationIds, StatusEnum.APPROVED);
     }
 
     private boolean logUpdate(String field, boolean changed) {
@@ -236,15 +219,5 @@ public class EntityUpdateService {
             logger.info("{} changed.", field);
         }
         return changed;
-    }
-
-    public <T> boolean updateFieldIfDifferent(Supplier<T> getter, Consumer<T> setter, T newValue) {
-        T currentValue = getter.get();
-
-        if (!Objects.equals(currentValue, newValue)) {
-            setter.accept(newValue);
-            return true;
-        }
-        return false;
     }
 }

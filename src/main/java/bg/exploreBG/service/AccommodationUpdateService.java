@@ -4,249 +4,194 @@ import bg.exploreBG.model.dto.accommodation.single.*;
 import bg.exploreBG.model.dto.accommodation.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.entity.AccommodationEntity;
-import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
-import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.querybuilder.AccommodationQueryBuilder;
-import bg.exploreBG.utils.ImageUtils;
+import bg.exploreBG.utils.EntityUpdateUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 @Service
 public class AccommodationUpdateService {
+    private final MainImageUpdater mainImageUpdater;
     private final AccommodationQueryBuilder accommodationQueryBuilder;
-    private final EntityUpdateService entityUpdateService;
     private final GenericPersistenceService<AccommodationEntity> accommodationPersistence;
+    private final EntityFieldUpdater entityFieldUpdater;
 
     public AccommodationUpdateService(
+            MainImageUpdater mainImageUpdater,
             AccommodationQueryBuilder accommodationQueryBuilder,
-            EntityUpdateService entityUpdateService,
-            GenericPersistenceService<AccommodationEntity> accommodationPersistence
+            GenericPersistenceService<AccommodationEntity> accommodationPersistence,
+            EntityFieldUpdater entityFieldUpdater
     ) {
+        this.mainImageUpdater = mainImageUpdater;
         this.accommodationQueryBuilder = accommodationQueryBuilder;
-        this.entityUpdateService = entityUpdateService;
         this.accommodationPersistence = accommodationPersistence;
+        this.entityFieldUpdater = entityFieldUpdater;
     }
 
     public AccommodationNameDto updateAccommodationName(
             Long accommodationId,
-            AccommodationUpdateAccommodationNameDto updateAccommodationName,
-            UserDetails userDetails
+            AccommodationUpdateAccommodationNameDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getAccommodationName,
-                current::setAccommodationName,
-                updateAccommodationName.accommodationName(),
+                accommodationId,
+                user,
+                dto.accommodationName(),
+                AccommodationEntity::getAccommodationName,
+                AccommodationEntity::setAccommodationName,
                 (accommodation, isUpdated) -> new AccommodationNameDto(
                         accommodation.getAccommodationName(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationPhoneNumberDto updateAccommodationPhoneNumber(
             Long accommodationId,
-            AccommodationUpdatePhoneNumberDto updatePhoneNumber,
-            UserDetails userDetails
+            AccommodationUpdatePhoneNumberDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getPhoneNumber,
-                current::setPhoneNumber,
-                updatePhoneNumber.phoneNumber(),
+                accommodationId,
+                user,
+                dto.phoneNumber(),
+                AccommodationEntity::getPhoneNumber,
+                AccommodationEntity::setPhoneNumber,
                 (accommodation, isUpdated) -> new AccommodationPhoneNumberDto(
                         accommodation.getPhoneNumber(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationSiteDto updateAccommodationSite(
             Long accommodationId,
-            AccommodationUpdateSiteDto updateSite,
-            UserDetails userDetails
+            AccommodationUpdateSiteDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getSite,
-                current::setSite,
-                updateSite.site(),
+                accommodationId,
+                user,
+                dto.site(),
+                AccommodationEntity::getSite,
+                AccommodationEntity::setSite,
                 (accommodation, isUpdated) -> new AccommodationSiteDto(
                         accommodation.getSite(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationInfoDto updateAccommodationInfo(
             Long accommodationId,
-            AccommodationUpdateInfoDto updateInfo,
-            UserDetails userDetails
+            AccommodationUpdateInfoDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getAccommodationInfo,
-                current::setAccommodationInfo,
-                updateInfo.accommodationInfo(),
+                accommodationId,
+                user,
+                dto.accommodationInfo(),
+                AccommodationEntity::getAccommodationInfo,
+                AccommodationEntity::setAccommodationInfo,
                 (accommodation, isUpdated) -> new AccommodationInfoDto(
                         accommodation.getAccommodationInfo(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationBedCapacityDto updateAccommodationBedCapacity(
             Long accommodationId,
-            AccommodationUpdateBedCapacityDto updateBedCapacity,
-            UserDetails userDetails
+            AccommodationUpdateBedCapacityDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getBedCapacity,
-                current::setBedCapacity,
-                updateBedCapacity.bedCapacity(),
+                accommodationId,
+                user,
+                dto.bedCapacity(),
+                AccommodationEntity::getBedCapacity,
+                AccommodationEntity::setBedCapacity,
                 (accommodation, isUpdated) -> new AccommodationBedCapacityDto(
                         accommodation.getBedCapacity(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationAvailableFoodDto updateAccommodationAvailableFood(
             Long accommodationId,
-            AccommodationUpdateAvailableFoodDto updateAvailableFood,
-            UserDetails userDetails
+            AccommodationUpdateAvailableFoodDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getAvailableFood,
-                current::setAvailableFood,
-                updateAvailableFood.availableFood(),
+                accommodationId,
+                user,
+                dto.availableFood(),
+                AccommodationEntity::getAvailableFood,
+                AccommodationEntity::setAvailableFood,
                 (accommodation, isUpdated) -> new AccommodationAvailableFoodDto(
                         accommodation.getAvailableFood().getValue(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationPricePerBedDto updateAccommodationPricePerBed(
             Long accommodationId,
-            AccommodationUpdatePricePerBed updatePricePerBed,
-            UserDetails userDetails
+            AccommodationUpdatePricePerBed dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getPricePerBed,
-                current::setPricePerBed,
-                updatePricePerBed.pricePerBed(),
+                accommodationId,
+                user,
+                dto.pricePerBed(),
+                AccommodationEntity::getPricePerBed,
+                AccommodationEntity::setPricePerBed,
                 (accommodation, isUpdated) -> new AccommodationPricePerBedDto(
                         accommodation.getPricePerBed(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationAccessibilityDto updateAccommodationAccessibility(
             Long accommodationId,
-            AccommodationUpdateAccessibilityDto accessibility,
-            UserDetails userDetails
+            AccommodationUpdateAccessibilityDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getAccess,
-                current::setAccess,
-                accessibility.access(),
+                accommodationId,
+                user,
+                dto.access(),
+                AccommodationEntity::getAccess,
+                AccommodationEntity::setAccess,
                 (accommodation, isUpdated) -> new AccommodationAccessibilityDto(
                         accommodation.getAccess().getValue(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationNextToDto updateAccommodationNextTo(
             Long accommodationId,
-            AccommodationUpdateNextToDto nextTo,
-            UserDetails userDetails
+            AccommodationUpdateNextToDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getNextTo,
-                current::setNextTo,
-                nextTo.nextTo(),
+                accommodationId,
+                user,
+                dto.nextTo(),
+                AccommodationEntity::getNextTo,
+                AccommodationEntity::setNextTo,
                 (accommodation, isUpdated) -> new AccommodationNextToDto(
                         accommodation.getNextTo(),
-                        isUpdated ? accommodation.getModificationDate() : null));
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public AccommodationTypeDto updateAccommodationType(
             Long accommodationId,
-            AccommodationUpdateTypeDto accommodationType,
-            UserDetails userDetails
+            AccommodationUpdateTypeDto dto,
+            UserDetails user
     ) {
-        AccommodationEntity current =
-                this.accommodationQueryBuilder
-                        .getAccommodationByIdAndStatusIfOwner(accommodationId, userDetails.getUsername());
-
         return updateAccommodationField(
-                current,
-                current::getType,
-                current::setType,
-                accommodationType.type(),
+                accommodationId,
+                user,
+                dto.type(),
+                AccommodationEntity::getType,
+                AccommodationEntity::setType,
                 (accommodation, isUpdated) -> new AccommodationTypeDto(
                         accommodation.getType().getValue(),
-                        isUpdated ? accommodation.getModificationDate() : null));
-    }
-
-    private <T, R> R updateAccommodationField(
-            AccommodationEntity accommodation,
-            Supplier<T> getter,
-            Consumer<T> setter,
-            T newValue,
-            BiFunction<AccommodationEntity, Boolean, R> dtoMapper
-    ) {
-        boolean isUpdated = this.entityUpdateService.updateFieldIfDifferent(getter, setter, newValue);
-        accommodation = updateAccommodationStatusAndSaveIfChanged(accommodation, isUpdated);
-        return dtoMapper.apply(accommodation, isUpdated);
-    }
-
-    private AccommodationEntity updateAccommodationStatusAndSaveIfChanged(
-            AccommodationEntity accommodation,
-            boolean isUpdated
-    ) {
-        if (isUpdated) {
-            accommodation.setStatus(StatusEnum.PENDING);
-            accommodation.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
-            accommodation.setModificationDate(LocalDateTime.now());
-            accommodation = this.accommodationPersistence.saveEntityWithReturn(accommodation);
-        }
-        return accommodation;
+                        EntityUpdateUtils.getModificationDateIfUpdated(accommodation, isUpdated)));
     }
 
     public long updateAccommodationMainImage(
@@ -255,21 +200,35 @@ public class AccommodationUpdateService {
             UserDetails userDetails,
             List<StatusEnum> statusList
     ) {
-        AccommodationEntity current =
+        AccommodationEntity accommodation =
                 this.accommodationQueryBuilder
                         .getAccommodationWithImagesByIdAndStatusIfOwner(
                                 accommodationId, statusList, userDetails.getUsername());
 
-        ImageEntity found = ImageUtils.filterMainImage(current.getImages(), dto.imageId());
+        return this.mainImageUpdater.updateMainImage(
+                accommodation,
+                dto,
+                this.accommodationPersistence::saveEntityWithReturn);
+    }
 
-        boolean isUpdated =
-                this.entityUpdateService
-                        .updateFieldIfDifferent(current::getMainImage, current::setMainImage, found);
+    private <T, R> R updateAccommodationField(
+            Long accommodationId,
+            UserDetails user,
+            T newValue,
+            Function<AccommodationEntity, T> getter,
+            BiConsumer<AccommodationEntity, T> setter,
+            BiFunction<AccommodationEntity, Boolean, R> dtoMapper
+    ) {
+        AccommodationEntity accommodation =
+                this.accommodationQueryBuilder.
+                        getAccommodationByIdAndStatusIfOwner(accommodationId, user.getUsername());
 
-        if (isUpdated) {
-            this.accommodationPersistence.saveEntityWithoutReturn(current);
-        }
-
-        return found.getId();
+        return this.entityFieldUpdater.updateEntityField(
+                accommodation,
+                () -> getter.apply(accommodation),
+                val -> setter.accept(accommodation, val),
+                newValue,
+                this.accommodationPersistence::saveEntityWithReturn,
+                dtoMapper);
     }
 }

@@ -40,7 +40,8 @@ public class HikingTrailService {
     private final UserService userService;
     private final CommentService commentService;
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
-    private final EntityUpdateService entityUpdateService;
+    private final DestinationService destinationService;
+    private final AccommodationService accommodationService;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
     private final GenericPersistenceService<CommentEntity> commentPersistence;
     private final GenericPersistenceService<HikeEntity> hikePersistence;
@@ -56,7 +57,8 @@ public class HikingTrailService {
             UserService userService,
             CommentService commentService,
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
-            EntityUpdateService entityUpdateService,
+            DestinationService destinationService,
+            AccommodationService accommodationService,
             GenericPersistenceService<HikingTrailEntity> trailPersistence,
             GenericPersistenceService<CommentEntity> commentPersistence,
             GenericPersistenceService<HikeEntity> hikePersistence,
@@ -70,7 +72,8 @@ public class HikingTrailService {
         this.userService = userService;
         this.commentService = commentService;
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
-        this.entityUpdateService = entityUpdateService;
+        this.destinationService = destinationService;
+        this.accommodationService = accommodationService;
         this.trailPersistence = trailPersistence;
         this.commentPersistence = commentPersistence;
         this.hikePersistence = hikePersistence;
@@ -171,13 +174,13 @@ public class HikingTrailService {
 
         if (!CollectionUtils.isEmpty(hikingTrailCreateOrReviewDto.destinations())) {
             List<DestinationEntity> destinationEntities =
-                    this.entityUpdateService.mapDtoToDestinationEntities(hikingTrailCreateOrReviewDto.destinations());
+                    this.destinationService.mapDtoToDestinationEntities(hikingTrailCreateOrReviewDto.destinations());
             newHikingTrail.setDestinations(destinationEntities);
         }
 
         if (!CollectionUtils.isEmpty(hikingTrailCreateOrReviewDto.availableHuts())) {
             List<AccommodationEntity> accommodationEntities =
-                    this.entityUpdateService.mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
+                    this.accommodationService.mapDtoToAccommodationEntities(hikingTrailCreateOrReviewDto.availableHuts());
             newHikingTrail.setAvailableHuts(accommodationEntities);
         }
         newHikingTrail = this.trailPersistence.saveEntityWithReturn(newHikingTrail);

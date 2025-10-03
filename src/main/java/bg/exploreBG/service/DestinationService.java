@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -195,6 +196,11 @@ public class DestinationService {
     public List<CommentDto> getDestinationComments(Long destinationId) {
         List<CommentEntity> comments = this.destinationQueryBuilder.getDestinationCommentsById(destinationId);
         return this.commentMapper.commentEntityListToCommentDtoList(comments);
+    }
+
+    public List<DestinationEntity> mapDtoToDestinationEntities(Collection<DestinationIdDto> ids) {
+        List<Long> destinationIds = ids.stream().map(DestinationIdDto::id).toList();
+        return this.destinationQueryBuilder.getDestinationEntitiesByIdsAnStatus(destinationIds, StatusEnum.APPROVED);
     }
 
 //    public boolean deleteOwnedDestinationById(

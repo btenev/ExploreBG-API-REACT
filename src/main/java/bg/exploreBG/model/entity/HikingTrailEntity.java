@@ -1,11 +1,7 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.commentableEntity.CommentableEntity;
-import bg.exploreBG.interfaces.LikeableEntity;
+import bg.exploreBG.interfaces.*;
 import bg.exploreBG.model.enums.*;
-import bg.exploreBG.ownableEntity.OwnableEntity;
-import bg.exploreBG.reviewable.ReviewableWithGpx;
-import bg.exploreBG.updatable.UpdatableEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -15,7 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "hiking_trails")
-public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity {
+public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity, HasMainImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +37,6 @@ public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, 
     @Enumerated(EnumType.STRING)
     private WaterAvailabilityEnum waterAvailability;
 
-    //TODO: discuss with Ivo if one accommodation entity can belong to more than one hiking trail
     @ManyToMany
     @JoinTable(
             name = "hiking_trails_available_huts",

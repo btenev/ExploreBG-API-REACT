@@ -11,13 +11,13 @@ import bg.exploreBG.model.user.ExploreBgUserDetails;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.querybuilder.ImageQueryBuilder;
 import bg.exploreBG.querybuilder.UserQueryBuilder;
-import bg.exploreBG.reviewable.ReviewableEntity;
-import bg.exploreBG.reviewable.ReviewableWithImages;
-import bg.exploreBG.service.EntityUpdateService;
+import bg.exploreBG.interfaces.ReviewableEntity;
+import bg.exploreBG.interfaces.ReviewableWithImages;
+import bg.exploreBG.service.ModerationUpdateService;
 import bg.exploreBG.service.GenericPersistenceService;
 import bg.exploreBG.service.ImageService;
-import bg.exploreBG.updatable.UpdatableEntity;
-import bg.exploreBG.updatable.UpdatableEntityDto;
+import bg.exploreBG.interfaces.UpdatableEntity;
+import bg.exploreBG.interfaces.UpdatableEntityDto;
 import bg.exploreBG.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import java.util.function.Function;
 @Service
 public class ReviewService {
     private final Logger logger = LoggerFactory.getLogger(ReviewService.class);
-    private final EntityUpdateService entityUpdateService;
+    private final ModerationUpdateService moderationUpdateService;
     private final ImageClaimService imageClaimService;
     private final ImageApprovalService imageApprovalService;
     private final ImageService imageService;
@@ -45,7 +45,7 @@ public class ReviewService {
     private final ImageQueryBuilder imageQueryBuilder;
 
     public ReviewService(
-            EntityUpdateService entityUpdateService,
+            ModerationUpdateService moderationUpdateService,
             ImageClaimService imageClaimService,
             ImageApprovalService imageApprovalService,
             ImageService imageService,
@@ -56,7 +56,7 @@ public class ReviewService {
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
             ImageQueryBuilder imageQueryBuilder
     ) {
-        this.entityUpdateService = entityUpdateService;
+        this.moderationUpdateService = moderationUpdateService;
         this.imageClaimService = imageClaimService;
         this.imageApprovalService = imageApprovalService;
         this.imageService = imageService;
@@ -107,7 +107,7 @@ public class ReviewService {
         validateItemApproval(entity, reviewer);
 
         if (dto != null) {
-            this.entityUpdateService.updateFieldsIfNecessary(entity, dto);
+            this.moderationUpdateService.updateFieldsIfNecessary(entity, dto);
         }
 
         entity.setStatus(StatusEnum.APPROVED);

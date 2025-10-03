@@ -8,16 +8,13 @@ import bg.exploreBG.model.dto.hikingTrail.single.*;
 import bg.exploreBG.model.dto.hikingTrail.validate.*;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.entity.HikingTrailEntity;
-import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuitableForEnum;
-import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
-import bg.exploreBG.utils.ImageUtils;
+import bg.exploreBG.utils.EntityUpdateUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -27,33 +24,42 @@ import java.util.stream.Collectors;
 @Service
 public class HikingTrailUpdateService {
     private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
-    private final EntityUpdateService entityUpdateService;
+    private final MainImageUpdater mainImageUpdater;
+    private final DestinationService destinationService;
+    private final AccommodationService accommodationService;
+    private final EntityFieldUpdater entityFieldUpdater;
     private final GenericPersistenceService<HikingTrailEntity> trailPersistence;
 
     public HikingTrailUpdateService(
             HikingTrailQueryBuilder hikingTrailQueryBuilder,
-            EntityUpdateService entityUpdateService,
+            MainImageUpdater mainImageUpdater,
+            DestinationService destinationService,
+            AccommodationService accommodationService,
+            EntityFieldUpdater entityFieldUpdater,
             GenericPersistenceService<HikingTrailEntity> trailPersistence
     ) {
         this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
-        this.entityUpdateService = entityUpdateService;
+        this.mainImageUpdater = mainImageUpdater;
+        this.destinationService = destinationService;
+        this.accommodationService = accommodationService;
+        this.entityFieldUpdater = entityFieldUpdater;
         this.trailPersistence = trailPersistence;
     }
 
     public HikingTrailStartPointDto updateHikingTrailStartPoint(
             Long trailId,
             HikingTrailUpdateStartPointDto dto,
-            UserDetails userDetails
+            UserDetails user
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
-                userDetails,
+                user,
                 dto.startPoint(),
                 HikingTrailEntity::getStartPoint,
                 HikingTrailEntity::setStartPoint,
                 (trail, isUpdated) -> new HikingTrailStartPointDto(
                         trail.getStartPoint(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public HikingTrailEndPointDto updateHikingTrailEndPoint(
@@ -61,7 +67,7 @@ public class HikingTrailUpdateService {
             HikingTrailUpdateEndPointDto dto,
             UserDetails userDetails
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.endPoint(),
@@ -69,7 +75,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setEndPoint,
                 (trail, isUpdated) -> new HikingTrailEndPointDto(
                         trail.getEndPoint(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public HikingTrailTotalDistanceDto updateHikingTrailTotalDistance(
@@ -77,7 +83,7 @@ public class HikingTrailUpdateService {
             HikingTrailUpdateTotalDistanceDto dto,
             UserDetails userDetails
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.totalDistance(),
@@ -85,7 +91,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setTotalDistance,
                 (trail, isUpdated) -> new HikingTrailTotalDistanceDto(
                         trail.getTotalDistance(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public HikingTrailElevationGainedDto updateHikingTrailElevationGained(
@@ -93,7 +99,7 @@ public class HikingTrailUpdateService {
             HikingTrailUpdateElevationGainedDto dto,
             UserDetails userDetails
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.elevationGained(),
@@ -101,7 +107,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setElevationGained,
                 (trail, isUpdated) -> new HikingTrailElevationGainedDto(
                         trail.getElevationGained(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public HikingTrailWaterAvailabilityDto updateHikingTrailWaterAvailable(
@@ -109,7 +115,7 @@ public class HikingTrailUpdateService {
             HikingTrailUpdateWaterAvailabilityDto dto,
             UserDetails userDetails
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.waterAvailability(),
@@ -117,7 +123,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setWaterAvailability,
                 (trail, isUpdated) -> new HikingTrailWaterAvailabilityDto(
                         trail.getWaterAvailability().getValue(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public HikingTrailActivityDto updateHikingTrailActivity(
@@ -126,7 +132,7 @@ public class HikingTrailUpdateService {
             UserDetails userDetails
     ) {
         /*TODO: Test Object.equals with list, might need to change to set*/
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.activity(),
@@ -134,7 +140,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setActivity,
                 (trail, isUpdated) -> new HikingTrailActivityDto(
                         trail.getActivity().stream().map(SuitableForEnum::getValue).collect(Collectors.toList()),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public HikingTrailTrailInfoDto updateHikingTrailTrailInfo(
@@ -142,7 +148,7 @@ public class HikingTrailUpdateService {
             HikingTrailUpdateTrailInfoDto dto,
             UserDetails userDetails
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.trailInfo(),
@@ -150,7 +156,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setTrailInfo,
                 (trail, isUpdated) -> new HikingTrailTrailInfoDto(
                         trail.getTrailInfo(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public AccommodationWrapperDto updateHikingTrailAvailableHuts(
@@ -159,49 +165,38 @@ public class HikingTrailUpdateService {
             UserDetails userDetails,
             List<StatusEnum> statuses
     ) {
-        HikingTrailEntity currentTrail =
+        HikingTrailEntity trail =
                 this.hikingTrailQueryBuilder
                         .getHikingTrailWithHutsByIdAndStatusIfOwner(trailId, statuses, userDetails.getUsername());
-        /*TODO: Test Object.equals with list, might need to change to set*/
-        boolean isUpdated = this.entityUpdateService.updateAccommodationList(currentTrail, dto.availableHuts());
 
-        currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
-
-        List<AccommodationIdAndAccommodationName> availableHuts = currentTrail
-                .getAvailableHuts()
-                .stream()
-                .map(hut -> new AccommodationIdAndAccommodationName(hut.getId(), hut.getAccommodationName()))
-                .collect(Collectors.toList());
-
-        return new AccommodationWrapperDto(
-                availableHuts,
-                getModificationDateIfUpdated(currentTrail, isUpdated));
+        return this.entityFieldUpdater.updateEntityCollection(
+                trail,
+                trail::getAvailableHuts,
+                trail::setAvailableHuts,
+                dto.availableHuts(),
+                this.accommodationService::mapDtoToAccommodationEntities,
+                this.trailPersistence::saveEntityWithReturn,
+                this::mapHutsToWrapper);
     }
 
     public DestinationWrapperDto updateHikingTrailDestinations(
             Long trailId,
-            HikingTrailUpdateDestinationsDto newDestinations,
-            UserDetails userDetails,
+            HikingTrailUpdateDestinationsDto dto,
+            UserDetails user,
             List<StatusEnum> statuses
     ) {
-        HikingTrailEntity currentTrail =
+        HikingTrailEntity trail =
                 this.hikingTrailQueryBuilder
-                        .getHikingTrailWithDestinationsByAndStatusIfOwner(trailId, statuses, userDetails.getUsername());
-        /*TODO: Test Object.equals with list, might need to change to set*/
-        boolean isUpdated = this.entityUpdateService.updateDestinationList(currentTrail, newDestinations.destinations());
+                        .getHikingTrailWithDestinationsByAndStatusIfOwner(trailId, statuses, user.getUsername());
 
-        currentTrail = updateTrailStatusAndSaveIfChanged(currentTrail, isUpdated);
-
-        List<DestinationIdAndDestinationNameDto> destinations = currentTrail
-                .getDestinations()
-                .stream()
-                .map(destination -> new DestinationIdAndDestinationNameDto(destination.getId(), destination.getDestinationName()))
-                .collect(Collectors.toList());
-
-        return new DestinationWrapperDto(
-                destinations,
-                getModificationDateIfUpdated(currentTrail, isUpdated)
-        );
+        return this.entityFieldUpdater.updateEntityCollection(
+                trail,
+                trail::getDestinations,
+                trail::setDestinations,
+                dto.destinations(),
+                this.destinationService::mapDtoToDestinationEntities,
+                this.trailPersistence::saveEntityWithReturn,
+                this::mapHutsToDestination);
     }
 
     public HikingTrailDifficultyDto updateHikingTrailDifficulty(
@@ -209,7 +204,7 @@ public class HikingTrailUpdateService {
             HikingTrailUpdateTrailDifficultyDto dto,
             UserDetails userDetails
     ) {
-        return updateSimpleField(
+        return updateTrailField(
                 trailId,
                 userDetails,
                 dto.trailDifficulty(),
@@ -217,7 +212,7 @@ public class HikingTrailUpdateService {
                 HikingTrailEntity::setTrailDifficulty,
                 (trail, isUpdated) -> new HikingTrailDifficultyDto(
                         trail.getTrailDifficulty().getLevel(),
-                        getModificationDateIfUpdated(trail, isUpdated)));
+                        EntityUpdateUtils.getModificationDateIfUpdated(trail, isUpdated)));
     }
 
     public long updateHikingTrailMainImage(
@@ -226,27 +221,19 @@ public class HikingTrailUpdateService {
             UserDetails userDetails,
             List<StatusEnum> statuses
     ) {
-        HikingTrailEntity currentTrail =
+        HikingTrailEntity trail =
                 this.hikingTrailQueryBuilder
                         .getHikingTrailWithImagesByIdAndStatusIfOwner(trailId, statuses, userDetails.getUsername());
 
-        ImageEntity found = ImageUtils.filterMainImage(currentTrail.getImages(), dto.imageId());
-
-        boolean isUpdated =
-                this.entityUpdateService
-                        .updateFieldIfDifferent(currentTrail::getMainImage, currentTrail::setMainImage, found);
-
-        if (isUpdated) {
-            currentTrail.setMainImage(found);
-            this.trailPersistence.saveEntityWithoutReturn(currentTrail);
-        }
-
-        return found.getId();
+     return this.mainImageUpdater.updateMainImage(
+             trail,
+             dto,
+             this.trailPersistence::saveEntityWithReturn);
     }
 
-    private <T, R> R updateSimpleField(
+    private <T, R> R updateTrailField(
             Long trailId,
-            UserDetails userDetails,
+            UserDetails user,
             T newValue,
             Function<HikingTrailEntity, T> getter,
             BiConsumer<HikingTrailEntity, T> setter,
@@ -254,42 +241,34 @@ public class HikingTrailUpdateService {
     ) {
         HikingTrailEntity trail =
                 hikingTrailQueryBuilder.
-                        getHikingTrailByIdAndStatusIfOwner(trailId, userDetails.getUsername());
-        return updateHikingTrailField(trail, getter, setter, newValue, dtoMapper);
+                        getHikingTrailByIdAndStatusIfOwner(trailId, user.getUsername());
+
+        return this.entityFieldUpdater.updateEntityField(
+                trail,
+                () -> getter.apply(trail),
+                val -> setter.accept(trail, val),
+                newValue,
+                this.trailPersistence::saveEntityWithReturn,
+                dtoMapper);
     }
 
-    private <T, R> R updateHikingTrailField(
-            HikingTrailEntity trail,
-            Function<HikingTrailEntity, T> getter,
-            BiConsumer<HikingTrailEntity, T> setter,
-            T newValue,
-            BiFunction<HikingTrailEntity, Boolean, R> dtoMapper
-    ) {
-        final HikingTrailEntity finalTrail = trail;
+    private AccommodationWrapperDto mapHutsToWrapper(HikingTrailEntity trail, boolean updated) {
+        List<AccommodationIdAndAccommodationName> availableHuts = trail.getAvailableHuts()
+                .stream()
+                .map(hut -> new AccommodationIdAndAccommodationName(hut.getId(), hut.getAccommodationName()))
+                .collect(Collectors.toList());
 
-        boolean isUpdated = this.entityUpdateService.updateFieldIfDifferent(
-                () -> getter.apply(finalTrail),
-                val -> setter.accept(finalTrail, val),
-                newValue);
-
-        trail = updateTrailStatusAndSaveIfChanged(trail, isUpdated);
-        return dtoMapper.apply(trail, isUpdated);
+        return new AccommodationWrapperDto(availableHuts, EntityUpdateUtils.getModificationDateIfUpdated(trail, updated));
     }
 
-    private HikingTrailEntity updateTrailStatusAndSaveIfChanged(
-            HikingTrailEntity trail,
-            boolean isUpdated
-    ) {
-        if (isUpdated) {
-            trail.setStatus(StatusEnum.PENDING);
-            trail.setEntityStatus(SuperUserReviewStatusEnum.PENDING);
-            trail.setModificationDate(LocalDateTime.now());
-            trail = this.trailPersistence.saveEntityWithReturn(trail);
-        }
-        return trail;
-    }
+    private DestinationWrapperDto mapHutsToDestination(HikingTrailEntity trail, boolean updated) {
+        List<DestinationIdAndDestinationNameDto> destinations = trail
+                .getDestinations()
+                .stream()
+                .map(destination -> new DestinationIdAndDestinationNameDto(
+                        destination.getId(), destination.getDestinationName()))
+                .collect(Collectors.toList());
 
-    private LocalDateTime getModificationDateIfUpdated(HikingTrailEntity trail, boolean isUpdated) {
-        return isUpdated ? trail.getModificationDate() : null;
+        return new DestinationWrapperDto(destinations, EntityUpdateUtils.getModificationDateIfUpdated(trail, updated));
     }
 }

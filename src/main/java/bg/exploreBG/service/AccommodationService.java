@@ -33,7 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AccommodationService {
@@ -198,6 +200,12 @@ public class AccommodationService {
                         this.accommodationQueryBuilder::getAccommodationWithCommentsById,
                         this.accommodationPersistence::saveEntityWithoutReturn,
                         () -> this.commentPersistence.deleteEntityWithoutReturnById(commentId));
+    }
+
+    public List<AccommodationEntity> mapDtoToAccommodationEntities(Collection<AccommodationIdDto> ids) {
+        List<Long> accommodationIds = ids.stream().map(AccommodationIdDto::id).toList();
+        return this.accommodationQueryBuilder
+                .getAccommodationEntitiesByIdAndStatus(accommodationIds, StatusEnum.APPROVED);
     }
 }
 
