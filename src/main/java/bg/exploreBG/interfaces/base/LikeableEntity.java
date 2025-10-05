@@ -1,4 +1,4 @@
-package bg.exploreBG.interfaces;
+package bg.exploreBG.interfaces.base;
 
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.UserEntity;

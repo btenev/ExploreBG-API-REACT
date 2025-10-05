@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.interfaces.UpdatableEntity;
+import bg.exploreBG.interfaces.composed.UpdatableEntity;
 import bg.exploreBG.interfaces.UpdatableEntityDto;
 import bg.exploreBG.model.dto.accommodation.single.AccommodationIdDto;
 import bg.exploreBG.model.dto.accommodation.validate.AccommodationCreateOrReviewDto;

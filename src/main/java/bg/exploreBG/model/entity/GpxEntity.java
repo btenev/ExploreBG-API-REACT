@@ -1,6 +1,6 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.interfaces.ReviewableEntity;
+import bg.exploreBG.interfaces.composed.ReviewableEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

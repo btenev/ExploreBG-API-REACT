@@ -1,6 +1,10 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.interfaces.*;
+import bg.exploreBG.interfaces.base.CommentableEntity;
+import bg.exploreBG.interfaces.base.LikeableEntity;
+import bg.exploreBG.interfaces.base.OwnableEntity;
+import bg.exploreBG.interfaces.composed.ReviewableWithGpx;
+import bg.exploreBG.interfaces.composed.UpdatableEntity;
 import bg.exploreBG.model.enums.*;
 import jakarta.persistence.*;
 
@@ -11,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "hiking_trails")
-public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity, HasMainImage {
+public class HikingTrailEntity extends BaseEntity implements ReviewableWithGpx, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

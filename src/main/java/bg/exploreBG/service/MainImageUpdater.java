@@ -1,6 +1,6 @@
 package bg.exploreBG.service;
 
-import bg.exploreBG.interfaces.HasMainImage;
+import bg.exploreBG.interfaces.composed.HasMainImage;
 import bg.exploreBG.model.dto.image.validate.ImageMainUpdateDto;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.utils.EntityUpdateUtils;

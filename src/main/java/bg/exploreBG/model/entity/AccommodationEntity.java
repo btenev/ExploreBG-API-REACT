@@ -1,6 +1,10 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.interfaces.*;
+import bg.exploreBG.interfaces.base.CommentableEntity;
+import bg.exploreBG.interfaces.base.LikeableEntity;
+import bg.exploreBG.interfaces.base.OwnableEntity;
+import bg.exploreBG.interfaces.composed.ReviewableWithImages;
+import bg.exploreBG.interfaces.composed.UpdatableEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
 import bg.exploreBG.model.enums.FoodAvailabilityEnum;
@@ -13,7 +17,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "accommodations")
-public class AccommodationEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity, HasMainImage {
+public class AccommodationEntity extends BaseEntity implements ReviewableWithImages, UpdatableEntity, OwnableEntity, LikeableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

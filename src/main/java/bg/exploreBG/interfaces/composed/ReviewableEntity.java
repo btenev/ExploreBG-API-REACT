@@ -1,14 +1,11 @@
-package bg.exploreBG.interfaces;
+package bg.exploreBG.interfaces.composed;
 
+import bg.exploreBG.interfaces.base.HasStatus;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
 
-public interface ReviewableEntity {
+public interface ReviewableEntity extends HasStatus {
     StatusEnum getStatus();
-
-    void setStatus(StatusEnum status);
-
     UserEntity getReviewedBy();
-
     void setReviewedBy(UserEntity reviewedBy);
 }

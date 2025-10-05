@@ -1,6 +1,6 @@
 package bg.exploreBG.utils;
 
-import bg.exploreBG.interfaces.OwnableEntity;
+import bg.exploreBG.interfaces.base.OwnableEntity;
 
 public final class OwnershipUtils {
     private OwnershipUtils() {}

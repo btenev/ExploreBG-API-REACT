@@ -1,24 +1,14 @@
-package bg.exploreBG.interfaces;
+package bg.exploreBG.interfaces.composed;
 
+import bg.exploreBG.interfaces.base.HasEntityStatus;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 
 import java.util.List;
 
-public interface ReviewableWithImages extends ReviewableEntity {
+public interface ReviewableWithImages extends ReviewableEntity, HasMainImage, HasEntityStatus {
     Long getId();
-
-    List<ImageEntity> getImages();
-
     void setImages(List<ImageEntity> images);
-
-    ImageEntity getMainImage();
-
-    void setMainImage(ImageEntity image);
-
     int getMaxNumberOfImages();
-
     SuperUserReviewStatusEnum getEntityStatus();
-
-    void setEntityStatus(SuperUserReviewStatusEnum status);
 }

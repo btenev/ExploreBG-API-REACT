@@ -1,7 +1,7 @@
 package bg.exploreBG.service;
 
 import bg.exploreBG.config.CurrentUserProvider;
-import bg.exploreBG.interfaces.LikeableEntity;
+import bg.exploreBG.interfaces.base.LikeableEntity;
 import bg.exploreBG.model.dto.LikeRequestDto;
 import bg.exploreBG.model.entity.UserEntity;
 import org.springframework.stereotype.Service;

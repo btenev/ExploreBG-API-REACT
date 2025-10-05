@@ -1,4 +1,4 @@
-package bg.exploreBG.interfaces;
+package bg.exploreBG.interfaces.composed;
 
 import bg.exploreBG.model.entity.ImageEntity;
 

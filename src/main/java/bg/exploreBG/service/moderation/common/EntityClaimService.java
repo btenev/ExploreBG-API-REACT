@@ -3,7 +3,7 @@ package bg.exploreBG.service.moderation.common;
 import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
-import bg.exploreBG.interfaces.ReviewableEntity;
+import bg.exploreBG.interfaces.composed.ReviewableEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 

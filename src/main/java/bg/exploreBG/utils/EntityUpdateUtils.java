@@ -1,6 +1,7 @@
 package bg.exploreBG.utils;
 
-import bg.exploreBG.interfaces.UpdatableEntity;
+import bg.exploreBG.interfaces.base.HasModificationDate;
+import bg.exploreBG.interfaces.composed.UpdatableEntity;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -54,7 +55,7 @@ public final class EntityUpdateUtils {
     }
 
     /** Returns the modification date if the entity was updated, otherwise null */
-    public static  <E extends UpdatableEntity> LocalDateTime getModificationDateIfUpdated(E entity, boolean isUpdated) {
+    public static  <E extends HasModificationDate> LocalDateTime getModificationDateIfUpdated(E entity, boolean isUpdated) {
         return isUpdated ? entity.getModificationDate() : null;
     }
 }

@@ -1,6 +1,10 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.interfaces.*;
+import bg.exploreBG.interfaces.base.CommentableEntity;
+import bg.exploreBG.interfaces.base.LikeableEntity;
+import bg.exploreBG.interfaces.base.OwnableEntity;
+import bg.exploreBG.interfaces.composed.ReviewableWithImages;
+import bg.exploreBG.interfaces.composed.UpdatableEntity;
 import bg.exploreBG.model.enums.DestinationTypeEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
 import jakarta.persistence.*;
@@ -12,7 +16,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "destinations")
-public class DestinationEntity extends BaseEntity implements ReviewableWithImages, OwnableEntity, LikeableEntity, CommentableEntity, UpdatableEntity, HasMainImage {
+public class DestinationEntity extends BaseEntity implements ReviewableWithImages, OwnableEntity, LikeableEntity, CommentableEntity, UpdatableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

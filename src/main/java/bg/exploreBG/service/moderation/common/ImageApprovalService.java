@@ -4,7 +4,7 @@ import bg.exploreBG.exception.AppException;
 import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.StatusEnum;
-import bg.exploreBG.interfaces.ReviewableWithImages;
+import bg.exploreBG.interfaces.composed.ReviewableWithImages;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
