@@ -1,15 +1,18 @@
 package bg.exploreBG.model.entity;
 
-import bg.exploreBG.interfaces.CommentableEntity;
+import bg.exploreBG.interfaces.base.CommentableEntity;
+import bg.exploreBG.interfaces.base.OwnableEntity;
+import bg.exploreBG.interfaces.base.HasModificationDate;
 import jakarta.persistence.*;
 import org.springframework.data.geo.Point;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "hikes")
-public class HikeEntity implements CommentableEntity {
+public class HikeEntity implements HasModificationDate, OwnableEntity, CommentableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,9 +43,15 @@ public class HikeEntity implements CommentableEntity {
     @Column(name = "next_to")
     private String nextTo;
 
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
+    @Column(name = "modification_date")
+    private LocalDateTime modificationDate;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity owner;
+    @JoinColumn(name = "created_by_id")
+    private UserEntity createdBy;
 
     @OneToMany
     @JoinTable(
@@ -129,12 +138,29 @@ public class HikeEntity implements CommentableEntity {
         this.nextTo = nextTo;
     }
 
-    public UserEntity getOwner() {
-        return owner;
+    public LocalDateTime getCreationDate() {
+        return creationDate;
     }
 
-    public void setOwner(UserEntity owner) {
-        this.owner = owner;
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
+    @Override
+    public UserEntity getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserEntity createdBy) {
+        this.createdBy = createdBy;
     }
 
     public List<CommentEntity> getComments() {
@@ -169,7 +195,9 @@ public class HikeEntity implements CommentableEntity {
                 ", hikingTrail=" + hikingTrail +
                 ", hikeInfo='" + hikeInfo + '\'' +
                 ", nextTo='" + nextTo + '\'' +
-                ", owner=" + owner +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", createdBy=" + createdBy +
                 ", comments=" + comments +
                 ", archived=" + archived +
                 '}';
