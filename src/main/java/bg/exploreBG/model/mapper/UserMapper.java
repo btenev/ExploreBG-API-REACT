@@ -4,7 +4,6 @@ import bg.exploreBG.model.dto.hike.HikeBasicDto;
 import bg.exploreBG.model.dto.hike.HikeBasicOwnerDto;
 import bg.exploreBG.model.dto.hikingTrail.HikingTrailBasicDto;
 import bg.exploreBG.model.dto.user.UserBasicInfo;
-import bg.exploreBG.model.dto.user.UserDataDto;
 import bg.exploreBG.model.dto.user.UserDetailsDto;
 import bg.exploreBG.model.dto.user.UserDetailsOwnerDto;
 import bg.exploreBG.model.entity.HikeEntity;

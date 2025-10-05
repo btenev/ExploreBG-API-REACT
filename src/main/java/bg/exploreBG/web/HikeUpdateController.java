@@ -1,5 +1,7 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.hike.single.HikeDateDto;
+import bg.exploreBG.model.dto.hike.validate.HikeUpdateDateDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/hikes")
 public class HikeUpdateController {
-    private final HikeUpdateService  hikeUpdateService;
+    private final HikeUpdateService hikeUpdateService;
 
     public HikeUpdateController(HikeUpdateService hikeUpdateService) {
         this.hikeUpdateService = hikeUpdateService;
@@ -42,6 +44,17 @@ public class HikeUpdateController {
         HikingTrailEndPointDto responseDto =
                 this.hikeUpdateService
                         .updateHikeEndPoint(hikeId, updateDto, userDetails);
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{id}/hike-date")
+    public ResponseEntity<HikeDateDto> updateHikeDate(
+            @PathVariable("id") Long hikeId,
+            @Valid @RequestBody HikeUpdateDateDto updateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        HikeDateDto responseDto = this.hikeUpdateService.updateHikeDate(hikeId, updateDto, userDetails);
 
         return ResponseEntity.ok(responseDto);
     }

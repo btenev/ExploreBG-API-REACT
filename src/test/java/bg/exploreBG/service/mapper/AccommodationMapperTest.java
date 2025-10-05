@@ -7,6 +7,7 @@ import bg.exploreBG.model.entity.ImageEntity;
 import bg.exploreBG.model.entity.UserEntity;
 import bg.exploreBG.model.enums.AccessibilityEnum;
 import bg.exploreBG.model.enums.AccommodationTypeEnum;
+import bg.exploreBG.model.enums.FoodAvailabilityEnum;
 import bg.exploreBG.model.enums.GenderEnum;
 import bg.exploreBG.model.mapper.AccommodationMapperImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +57,7 @@ public class AccommodationMapperTest {
         accommodation.setAccommodationInfo("A place where you can have some rest and get some food");
         accommodation.setBedCapacity(22);
         accommodation.setPricePerBed(25.00);
-        accommodation.setFoodAvailable(true);
+        accommodation.setAvailableFood(FoodAvailabilityEnum.YES);
         accommodation.setNextTo("Karlovo, Kalofer");
         accommodation.setAccess(AccessibilityEnum.BY_CAR);
         accommodation.setType(AccommodationTypeEnum.SHELTER);

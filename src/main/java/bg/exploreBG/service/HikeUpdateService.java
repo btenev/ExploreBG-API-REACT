@@ -1,5 +1,7 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.hike.single.HikeDateDto;
+import bg.exploreBG.model.dto.hike.validate.HikeUpdateDateDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
@@ -60,6 +62,22 @@ public class HikeUpdateService {
                 HikeEntity::setEndPoint,
                 (hike, isUpdated) -> new HikingTrailEndPointDto(
                         hike.getEndPoint(),
+                        EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
+    }
+
+    public HikeDateDto updateHikeDate(
+            Long hikeId,
+            HikeUpdateDateDto dto,
+            UserDetails user
+    ) {
+        return updateHikeField(
+                hikeId,
+                user,
+                dto.hikeDate(),
+                HikeEntity::getHikeDate,
+                HikeEntity::setHikeDate,
+                (hike, isUpdated) -> new HikeDateDto(
+                        hike.getHikeDate(),
                         EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
     }
 

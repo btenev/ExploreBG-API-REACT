@@ -1,12 +1,11 @@
 package bg.exploreBG.model.entity;
 
 import bg.exploreBG.interfaces.base.CommentableEntity;
-import bg.exploreBG.interfaces.base.OwnableEntity;
 import bg.exploreBG.interfaces.base.HasModificationDate;
+import bg.exploreBG.interfaces.base.OwnableEntity;
 import jakarta.persistence.*;
 import org.springframework.data.geo.Point;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class HikeEntity implements HasModificationDate, OwnableEntity, Commentab
     private Point startPointCoordinates;
 
     @Column(name = "hike_date", nullable = false)
-    private LocalDate hikeDate;
+    private LocalDateTime hikeDate;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -37,7 +36,7 @@ public class HikeEntity implements HasModificationDate, OwnableEntity, Commentab
     @JoinColumn(name = "hiking_trail_id", referencedColumnName = "id")
     private HikingTrailEntity hikingTrail;
 
-    @Column(name = "hike_info", columnDefinition ="TEXT" )
+    @Column(name = "hike_info", columnDefinition = "TEXT")
     private String hikeInfo;
 
     @Column(name = "next_to")
@@ -98,11 +97,11 @@ public class HikeEntity implements HasModificationDate, OwnableEntity, Commentab
         this.startPointCoordinates = startPointCoordinates;
     }
 
-    public LocalDate getHikeDate() {
+    public LocalDateTime getHikeDate() {
         return hikeDate;
     }
 
-    public void setHikeDate(LocalDate hikeDate) {
+    public void setHikeDate(LocalDateTime hikeDate) {
         this.hikeDate = hikeDate;
     }
 
