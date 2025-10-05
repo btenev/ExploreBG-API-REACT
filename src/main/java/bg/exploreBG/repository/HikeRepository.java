@@ -38,8 +38,8 @@ public interface HikeRepository extends JpaRepository<HikeEntity, Long> {
     @Modifying
     @Query("""
             UPDATE HikeEntity h
-            SET h.owner.id = :newOwnerId
-            WHERE h.owner.email = :oldOwnerEmail
+            SET h.createdBy.id = :newOwnerId
+            WHERE h.createdBy.email = :oldOwnerEmail
             """)
     int removeUserFromHikesByEmail(
             @Param("newOwnerId") Long newOwnerId,
@@ -48,4 +48,6 @@ public interface HikeRepository extends JpaRepository<HikeEntity, Long> {
 
     @EntityGraph(attributePaths = {"comments"})
     Optional<HikeEntity> findWithCommentsById(Long hikeId);
+
+    Optional<HikeEntity> findByIdAndCreatedBy_Email(Long hikeId, String email);
 }

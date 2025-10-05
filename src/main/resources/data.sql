@@ -108,21 +108,21 @@ INSERT INTO accommodations (price_per_bad, bed_capacity, available_food, id, cre
                             accommodation_name, next_to, phone_number,
                             main_image_id, site, access, type, accommodation_status, status, max_number_of_images,
                             creation_date)
-VALUES (null, null, "YES", 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa',
+VALUES (null, null, 'YES', 1, 3, 'A place where you can have some rest and get some food', 'hija Akademic', 'Zheleznitsa',
         null,
         null, null, 'BY_CAR', 'HUT', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
-       (null, null, "YES", 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah',
+       (null, null, 'YES', 2, 2, 'A place where you can have some rest and get some food', 'zaslon Cherni Vrah',
         'Zheleznitsa',
         '+35985738923', null, null, 'BY_CAR', 'SHELTER', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
-       (null, 25, "YES", 3, 2, 'A place where you can have some rest and get some food', 'hija Perelik', 'Smolyan', null,
+       (null, 25, 'YES', 3, 2, 'A place where you can have some rest and get some food', 'hija Perelik', 'Smolyan', null,
         null, null, 'BY_CAR', 'HUT', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
-       (null, 30, "YES", 4, 1, 'A place where you can have some rest and get some food', 'hija Ravnets', 'Karlovo',
+       (null, 30, 'YES', 4, 1, 'A place where you can have some rest and get some food', 'hija Ravnets', 'Karlovo',
         '+359 896 68 85 23', null, 'https://www.btsbg.org/hizhi/hizha-ravnec',
         'ON_FOOT', 'HUT', 'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
-       (null, 35, "YES", 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
+       (null, 35, 'YES', 5, 1, 'A place where you can have some rest and get some food', 'Zaslon Botev', 'Karlovo, Kalofer',
         '0878 197451', null, 'https://www.btsbg.org/hizhi/zaslon-botev', 'BY_CAR', 'SHELTER',
         'APPROVED', 'APPROVED', 10, UTC_TIMESTAMP()),
-       (25, 22, "YES", 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
+       (25, 22, 'YES', 6, 1, 'A place where you can have some rest and get some food', 'Turisticheska spalnia Botev',
         'Karlovo, Kalofer', '0877 273 547', null, 'https://botevbg.com/', 'BY_CAR', 'SHELTER',
         'PENDING', 'PENDING', 10, UTC_TIMESTAMP());
 
@@ -257,7 +257,7 @@ VALUES (3, 4),
        (5, 4);
 
 INSERT INTO hikes (id, start_point, end_point, start_point_coordinates, hike_date, image_url, next_to, hike_info,
-                   user_id, hiking_trail_id)
+                   created_by_id, hiking_trail_id)
 VALUES (1, 'hotel Drujba', 'Pametnik tsar Asen II', null, '2024-05-21', 'https://picsum.photos/200', 'Haskovo',
         'Tsar Ivan Asen II eco-trail is ready to welcome enthusiasts and lovers of ecotourism. The route leads in the footsteps of "Tsar Ivan Asen II" and brings us back to the memory of the glorious battle near the village of Klokotnitsa - one of the most significant events in the history of Bulgaria.',
         1, null),

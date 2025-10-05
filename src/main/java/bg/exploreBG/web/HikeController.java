@@ -63,7 +63,7 @@ public class HikeController {
 
         return ResponseEntity.ok(allHikes);
     }
-    /*TODO: old: '/create/{id}' new: only base */
+
     @Transactional
     @PostMapping
     public ResponseEntity<HikeIdDto> create(

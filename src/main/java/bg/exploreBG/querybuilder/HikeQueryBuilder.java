@@ -42,6 +42,10 @@ public class HikeQueryBuilder {
     public HikeEntity getHikeWithCommentsById(Long hikeId) {
         return this.repository.findWithCommentsById(hikeId).orElseThrow(this::hikeNotFoundException);
     }
+    public HikeEntity getHikeByIdIfOwner(Long hikeId, String email) {
+        return this.repository.findByIdAndCreatedBy_Email(hikeId, email)
+                .orElseThrow(this::hikeNotFoundOrNotOwnerException);
+    }
 
     public void removeHikingTrailFromHikesByTrailIdIfTrailOwner(Long trailId, String email) {
         int rows = this.repository.removeHikingTrailFromHikesByHikingTrailIdIfTrailOwner(trailId, email);
@@ -66,9 +70,8 @@ public class HikeQueryBuilder {
         return new AppException("The hike you are looking for was not found.", HttpStatus.NOT_FOUND);
     }
 
-    private AppException trailNotFoundOrNotOwnerException() {
-        return new AppException("The hiking trail you are looking for was not found or does not belong to your account.",
+    private AppException hikeNotFoundOrNotOwnerException() {
+        return new AppException("The hike you are looking for was not found or does not belong to your account.",
                 HttpStatus.BAD_REQUEST);
     }
-
 }

@@ -1,8 +1,9 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.interfaces.base.HasModificationDate;
 import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.enums.SuperUserReviewStatusEnum;
-import bg.exploreBG.interfaces.UpdatableEntity;
+import bg.exploreBG.interfaces.composed.UpdatableEntity;
 import bg.exploreBG.utils.EntityUpdateUtils;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,26 @@ import java.util.function.Supplier;
 
 @Service
 public class EntityFieldUpdater {
+
+    /**
+     * Updates a simple field for entities that only track modification date.
+     * Returns DTO mapped result.
+     */
+    public <E extends HasModificationDate, T, R> R updateEntityFieldBasic(
+            E entity,
+            Supplier<T> getter,
+            Consumer<T> setter,
+            T newValue,
+            Function<E, E> saver,
+            BiFunction<E, Boolean, R> dtoMapper
+    ) {
+        boolean isUpdated = EntityUpdateUtils.updateFieldIfDifferent(getter, setter, newValue);
+        if (isUpdated) {
+            entity.setModificationDate(LocalDateTime.now());
+            entity = saver.apply(entity);
+        }
+        return dtoMapper.apply(entity, isUpdated);
+    }
 
     /**
      * Updates a simple field only if it differs from current value.

@@ -84,7 +84,7 @@ public class HikeService {
         UserEntity verifiedUser = this.userQueryBuilder.getUserEntityByEmail(userDetails.getUsername());
 
         HikeEntity newHike = this.hikeMapper.hikeCreateDtoToHikeEntity(hikeCreateDto);
-        newHike.setOwner(verifiedUser);
+        newHike.setCreatedBy(verifiedUser);
 
         if (hikeCreateDto.hikingTrail() != null) {
             HikingTrailEntity hikingTrailEntity =
