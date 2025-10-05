@@ -1,10 +1,13 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
+import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateStartPointDto;
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.utils.EntityUpdateUtils;
+import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +44,22 @@ public class HikeUpdateService {
                 HikeEntity::setStartPoint,
                 (hike, isUpdated) -> new HikingTrailStartPointDto(
                         hike.getStartPoint(),
+                        EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
+    }
+
+    public HikingTrailEndPointDto updateHikeEndPoint(
+            Long hikeId,
+            HikingTrailUpdateEndPointDto dto,
+            UserDetails user
+    ) {
+        return updateHikeField(
+                hikeId,
+                user,
+                dto.endPoint(),
+                HikeEntity::getEndPoint,
+                HikeEntity::setEndPoint,
+                (hike, isUpdated) -> new HikingTrailEndPointDto(
+                        hike.getEndPoint(),
                         EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
     }
 
