@@ -10,6 +10,7 @@ import bg.exploreBG.model.entity.CommentEntity;
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.model.entity.HikingTrailEntity;
 import bg.exploreBG.model.entity.UserEntity;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.model.mapper.HikeMapper;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
@@ -86,9 +87,9 @@ public class HikeService {
         HikeEntity newHike = this.hikeMapper.hikeCreateDtoToHikeEntity(hikeCreateDto);
         newHike.setCreatedBy(verifiedUser);
 
-        if (hikeCreateDto.hikingTrail() != null) {
+        if (hikeCreateDto.trailId() != null) {
             HikingTrailEntity hikingTrailEntity =
-                    this.hikingTrailQueryBuilder.getHikingTrailById((hikeCreateDto.hikingTrail().id()));
+                    this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus((hikeCreateDto.trailId()), StatusEnum.APPROVED);
             newHike.setHikingTrail(hikingTrailEntity);
         }
 

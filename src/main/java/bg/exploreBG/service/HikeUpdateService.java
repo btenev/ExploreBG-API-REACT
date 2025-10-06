@@ -3,15 +3,20 @@ package bg.exploreBG.service;
 import bg.exploreBG.model.dto.EntityInfoDto;
 import bg.exploreBG.model.dto.NextToDto;
 import bg.exploreBG.model.dto.hike.single.HikeDateDto;
+import bg.exploreBG.model.dto.hike.single.HikeTrailIdAndNameDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateDateDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateInfoDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateNextToDto;
+import bg.exploreBG.model.dto.hike.validate.HikeUpdateTrailDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateStartPointDto;
 import bg.exploreBG.model.entity.HikeEntity;
+import bg.exploreBG.model.entity.HikingTrailEntity;
+import bg.exploreBG.model.enums.StatusEnum;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
+import bg.exploreBG.querybuilder.HikingTrailQueryBuilder;
 import bg.exploreBG.utils.EntityUpdateUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -24,15 +29,18 @@ import java.util.function.Function;
 public class HikeUpdateService {
     private final HikeQueryBuilder hikeQueryBuilder;
     private final EntityFieldUpdater entityFieldUpdater;
+    private final HikingTrailQueryBuilder hikingTrailQueryBuilder;
     private final GenericPersistenceService<HikeEntity> hikePersistence;
 
     public HikeUpdateService(
             HikeQueryBuilder hikeQueryBuilder,
             EntityFieldUpdater entityFieldUpdater,
+            HikingTrailQueryBuilder hikingTrailQueryBuilder,
             GenericPersistenceService<HikeEntity> hikePersistence
     ) {
         this.hikeQueryBuilder = hikeQueryBuilder;
         this.entityFieldUpdater = entityFieldUpdater;
+        this.hikingTrailQueryBuilder = hikingTrailQueryBuilder;
         this.hikePersistence = hikePersistence;
     }
 
@@ -113,6 +121,26 @@ public class HikeUpdateService {
                 HikeEntity::setHikeInfo,
                 (hike, isUpdated) -> new EntityInfoDto(
                         hike.getHikeInfo(),
+                        EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
+    }
+
+    public HikeTrailIdAndNameDto updateHikeTrailDto(
+            Long hikeId,
+            HikeUpdateTrailDto dto,
+            UserDetails user
+    ) {
+        HikingTrailEntity newTrail =
+                this.hikingTrailQueryBuilder.getHikingTrailByIdAndStatus(dto.id(), StatusEnum.APPROVED);
+
+        return updateHikeField(
+                hikeId,
+                user,
+                newTrail,
+                HikeEntity::getHikingTrail,
+                HikeEntity::setHikingTrail,
+                (hike, isUpdated) -> new HikeTrailIdAndNameDto(
+                        hike.getHikingTrail().getId(),
+                        hike.getHikingTrail().getStartPoint() + " - " + hike.getHikingTrail().getEndPoint(),
                         EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
     }
 
