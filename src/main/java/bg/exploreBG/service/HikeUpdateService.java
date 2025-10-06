@@ -1,7 +1,9 @@
 package bg.exploreBG.service;
 
+import bg.exploreBG.model.dto.EntityInfoDto;
 import bg.exploreBG.model.dto.hike.single.HikeDateDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateDateDto;
+import bg.exploreBG.model.dto.hike.validate.HikeUpdateInfoDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
@@ -9,7 +11,6 @@ import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateStartPointDt
 import bg.exploreBG.model.entity.HikeEntity;
 import bg.exploreBG.querybuilder.HikeQueryBuilder;
 import bg.exploreBG.utils.EntityUpdateUtils;
-import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +79,22 @@ public class HikeUpdateService {
                 HikeEntity::setHikeDate,
                 (hike, isUpdated) -> new HikeDateDto(
                         hike.getHikeDate(),
+                        EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
+    }
+
+    public EntityInfoDto updateHikeInfo(
+            Long hikeId,
+            HikeUpdateInfoDto dto,
+            UserDetails user
+    ) {
+        return updateHikeField(
+                hikeId,
+                user,
+                dto.hikeInfo(),
+                HikeEntity::getHikeInfo,
+                HikeEntity::setHikeInfo,
+                (hike, isUpdated) -> new EntityInfoDto(
+                        hike.getHikeInfo(),
                         EntityUpdateUtils.getModificationDateIfUpdated(hike, isUpdated)));
     }
 

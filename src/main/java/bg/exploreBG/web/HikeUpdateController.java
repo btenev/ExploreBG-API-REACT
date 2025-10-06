@@ -1,7 +1,9 @@
 package bg.exploreBG.web;
 
+import bg.exploreBG.model.dto.EntityInfoDto;
 import bg.exploreBG.model.dto.hike.single.HikeDateDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateDateDto;
+import bg.exploreBG.model.dto.hike.validate.HikeUpdateInfoDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
@@ -55,6 +57,17 @@ public class HikeUpdateController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         HikeDateDto responseDto = this.hikeUpdateService.updateHikeDate(hikeId, updateDto, userDetails);
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{id}/hike-info")
+    public ResponseEntity<EntityInfoDto> updateHikeInfo(
+            @PathVariable("id") Long hikeId,
+            @Valid @RequestBody HikeUpdateInfoDto updateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        EntityInfoDto responseDto = this.hikeUpdateService.updateHikeInfo(hikeId, updateDto, userDetails);
 
         return ResponseEntity.ok(responseDto);
     }
