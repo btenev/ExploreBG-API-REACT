@@ -1,9 +1,13 @@
 package bg.exploreBG.web;
 
 import bg.exploreBG.model.dto.EntityInfoDto;
+import bg.exploreBG.model.dto.NextToDto;
+import bg.exploreBG.model.dto.accommodation.single.AccommodationNextToDto;
+import bg.exploreBG.model.dto.accommodation.validate.AccommodationUpdateNextToDto;
 import bg.exploreBG.model.dto.hike.single.HikeDateDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateDateDto;
 import bg.exploreBG.model.dto.hike.validate.HikeUpdateInfoDto;
+import bg.exploreBG.model.dto.hike.validate.HikeUpdateNextToDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailEndPointDto;
 import bg.exploreBG.model.dto.hikingTrail.single.HikingTrailStartPointDto;
 import bg.exploreBG.model.dto.hikingTrail.validate.HikingTrailUpdateEndPointDto;
@@ -59,6 +63,17 @@ public class HikeUpdateController {
         HikeDateDto responseDto = this.hikeUpdateService.updateHikeDate(hikeId, updateDto, userDetails);
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{id}/next-to")
+    public ResponseEntity<NextToDto> updateNextTo(
+            @PathVariable("id") Long hikeId,
+            @Valid @RequestBody HikeUpdateNextToDto updateDto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        NextToDto accommodationNextTo = this.hikeUpdateService.updateHikeNextTo(hikeId, updateDto, userDetails);
+
+        return ResponseEntity.ok(accommodationNextTo);
     }
 
     @PatchMapping("/{id}/hike-info")
